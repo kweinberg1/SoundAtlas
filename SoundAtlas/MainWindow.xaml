@@ -1,0 +1,22 @@
+﻿<Window x:Class="SoundAtlas.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:soundatlas="clr-namespace:SoundAtlas"
+        Title="MainWindow" Width="1024" Height="768">
+    <Grid Background="White" RenderTransformOrigin="0.495,1.007" Margin="0,0,2,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <soundatlas:SearchPanel Grid.Row="0" SearchExecuted="OnSearchExecuted"/>
+        <Grid Grid.Row="1" Margin="0,10,0,-10" Grid.RowSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <soundatlas:PlaylistControl x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged"/>
+            <soundatlas:Atlas Grid.Column="1" x:Name="AtlasView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="White" Height="Auto" Width="Auto"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,12 @@
+G:\Projects\NetworkViewSampleCode\NetworkUI\bin\Debug\NetworkUI.dll
+G:\Projects\NetworkViewSampleCode\NetworkUI\bin\Debug\NetworkUI.pdb
+G:\Projects\NetworkViewSampleCode\NetworkUI\bin\Debug\Utils.dll
+G:\Projects\NetworkViewSampleCode\NetworkUI\bin\Debug\Utils.pdb
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI.2010.csprojResolveAssemblyReference.cache
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\GeneratedInternalTypeHelper.g.cs
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI_MarkupCompile.cache
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI_MarkupCompile.lref
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\Themes\Generic.baml
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI.g.resources
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI.dll
+G:\Projects\NetworkViewSampleCode\NetworkUI\obj\Debug\NetworkUI.pdb

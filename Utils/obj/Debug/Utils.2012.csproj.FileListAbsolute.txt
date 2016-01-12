@@ -1,0 +1,5 @@
+G:\Projects\SoundAtlas\Utils\bin\Debug\Utils.dll
+G:\Projects\SoundAtlas\Utils\bin\Debug\Utils.pdb
+G:\Projects\SoundAtlas\Utils\obj\Debug\Utils.2012.csprojResolveAssemblyReference.cache
+G:\Projects\SoundAtlas\Utils\obj\Debug\Utils.dll
+G:\Projects\SoundAtlas\Utils\obj\Debug\Utils.pdb

@@ -1,0 +1,53 @@
+﻿<StackPanel x:Class="SoundAtlas.ArtistPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:soundatlas="clr-namespace:SoundAtlas"
+             xmlns:commands="clr-namespace:SoundAtlas.Commands"
+             mc:Ignorable="d"
+            Orientation="Horizontal" Width="180" MaxWidth="200" MaxHeight="40">
+    <StackPanel.CommandBindings>
+        <CommandBinding Command="commands:Commands.AddPopularTracks" CanExecute="CanExecuteAddPopularTracks" Executed="ExecuteAddPopularTracks"/>
+    </StackPanel.CommandBindings>
+    <StackPanel.Resources>
+        <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+        <BitmapImage x:Key="StarredIcon" UriSource="Images/starred.png"/>
+    </StackPanel.Resources>
+    <Button Command="commands:Commands.AddPopularTracks">
+        <Image Stretch="Fill" Width="32">
+            <Image.Style>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Source" Value="{StaticResource UnselectedIcon}" />
+                    <Style.Triggers>
+                        <DataTrigger Value="True" Binding="{Binding IsFlagged}">
+                            <Setter Property="Source" Value="{StaticResource StarredIcon}"/>
+                        </DataTrigger>
+                        <DataTrigger Value="False" Binding="{Binding IsFlagged}">
+                            <Setter Property="Source" Value="{StaticResource UnselectedIcon}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Image.Style>
+        </Image>
+    </Button>
+    <TextBlock Text="{Binding Name}" Width="150">
+        <TextBlock.Style>
+            <Style>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="TextBlock.Background" Value="Yellow"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                        <Setter Property="TextBlock.Background" Value="#FFD3D2DA"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </TextBlock.Style>
+        <TextBlock.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="_Add Popular Tracks" Command="commands:Commands.AddPopularTracks"/>
+            </ContextMenu>
+        </TextBlock.ContextMenu>
+    </TextBlock>
+</StackPanel>

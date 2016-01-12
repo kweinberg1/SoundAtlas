@@ -1,0 +1,12 @@
+G:\Projects\SoundAtlas\NetworkUI\bin\Debug\NetworkUI.dll
+G:\Projects\SoundAtlas\NetworkUI\bin\Debug\NetworkUI.pdb
+G:\Projects\SoundAtlas\NetworkUI\bin\Debug\Utils.dll
+G:\Projects\SoundAtlas\NetworkUI\bin\Debug\Utils.pdb
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI.2012.csprojResolveAssemblyReference.cache
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\GeneratedInternalTypeHelper.g.cs
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI_MarkupCompile.cache
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI_MarkupCompile.lref
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\Themes\Generic.baml
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI.g.resources
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI.dll
+G:\Projects\SoundAtlas\NetworkUI\obj\Debug\NetworkUI.pdb

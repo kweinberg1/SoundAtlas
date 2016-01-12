@@ -1,0 +1,7 @@
+G:\Projects\NetworkViewSampleCode\AdornedControl\bin\Debug\AdornedControl.dll
+G:\Projects\NetworkViewSampleCode\AdornedControl\bin\Debug\AdornedControl.pdb
+G:\Projects\NetworkViewSampleCode\AdornedControl\bin\Debug\Utils.dll
+G:\Projects\NetworkViewSampleCode\AdornedControl\bin\Debug\Utils.pdb
+G:\Projects\NetworkViewSampleCode\AdornedControl\obj\Debug\AdornedControl.2010.csprojResolveAssemblyReference.cache
+G:\Projects\NetworkViewSampleCode\AdornedControl\obj\Debug\AdornedControl.dll
+G:\Projects\NetworkViewSampleCode\AdornedControl\obj\Debug\AdornedControl.pdb

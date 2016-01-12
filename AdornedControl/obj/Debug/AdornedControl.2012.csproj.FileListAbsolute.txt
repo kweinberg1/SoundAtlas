@@ -1,0 +1,7 @@
+G:\Projects\SoundAtlas\AdornedControl\bin\Debug\AdornedControl.dll
+G:\Projects\SoundAtlas\AdornedControl\bin\Debug\AdornedControl.pdb
+G:\Projects\SoundAtlas\AdornedControl\bin\Debug\Utils.dll
+G:\Projects\SoundAtlas\AdornedControl\bin\Debug\Utils.pdb
+G:\Projects\SoundAtlas\AdornedControl\obj\Debug\AdornedControl.2012.csprojResolveAssemblyReference.cache
+G:\Projects\SoundAtlas\AdornedControl\obj\Debug\AdornedControl.dll
+G:\Projects\SoundAtlas\AdornedControl\obj\Debug\AdornedControl.pdb
