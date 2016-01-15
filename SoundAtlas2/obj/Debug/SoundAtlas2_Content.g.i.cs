@@ -8,13 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/advancednetworkmodel.2008.csproj")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/advancednetworkmodel.2010.csproj")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/bin/debug/networkmodel.dll")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/bin/debug/networkmodel.pdb")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/bin/debug/utils.dll")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/bin/debug/utils.pdb")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/obj/debug/networkmodel.dll")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("networkmodel/obj/debug/networkmodel.pdb")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/down_arrow.png")]
 
 

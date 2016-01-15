@@ -38,3 +38,9 @@ G:\Projects\SoundAtlas\SoundAtlas2\bin\Debug\Newtonsoft.Json.xml
 G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\PlaylistControl.baml
 G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\Atlas.baml
 G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\Atlas.g.cs
+G:\Projects\SoundAtlas\SoundAtlas2\bin\Debug\SoundAtlas2.Model.dll
+G:\Projects\SoundAtlas\SoundAtlas2\bin\Debug\SoundAtlas2.Model.pdb
+G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\AddArtistPrompt.baml
+G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\AddArtistPrompt.g.cs
+G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\SearchControl.baml
+G:\Projects\SoundAtlas\SoundAtlas2\obj\Debug\SearchControl.g.cs

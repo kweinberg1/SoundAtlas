@@ -39,12 +39,12 @@ namespace Spotify
             return user;
         }
 
-        public ArtistList GetArtist(String artistName)
+        public ArtistList SearchArtists(String artistName)
         {
             try
             {
-                String artistURL = Endpoints.GetArtist(artistName);
-                WebRequest artistRequest = HttpWebRequest.Create(artistURL);
+                String searchArtistsURL = Endpoints.SearchArtists(artistName);
+                WebRequest artistRequest = HttpWebRequest.Create(searchArtistsURL);
                 WebResponse artistResponse = artistRequest.GetResponse();
 
                 using (StreamReader streamReader = new StreamReader(artistResponse.GetResponseStream()))

@@ -57,7 +57,7 @@ namespace Spotify.Model
             ExternalURLs = externalURLs;
         }
 
-        public override bool Equals(object other)
+        /*public override bool Equals(object other)
         {
             Artist otherArtist = (Artist)other;
             return String.Equals(this.ID, otherArtist.ID);
@@ -66,6 +66,6 @@ namespace Spotify.Model
         public override int GetHashCode()
         {
             return base.GetHashCode();
-        }
+        }*/
     }
 }

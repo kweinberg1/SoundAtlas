@@ -84,10 +84,10 @@ namespace SoundAtlas
             if (NodeDictionary.ContainsKey(artistName)) 
                 return;
 
-            ArtistList rootArtistList = Client.GetArtist(artistName);
+            ArtistList rootArtistList = Client.SearchArtists(artistName);
 
             //TODO: Using the first one for now.  Since there could be multiple roots, we'll need to handle this.
-            Artist rootArtist = rootArtistList.Artists.Items[0];
+            Artist rootArtist = rootArtistList.ArtistGroup.Items[0];
             ArtistViewModel rootViewModel = new ArtistViewModel(rootArtist);
             Node root = new Node(rootViewModel, null, 0);
             RootNodes.Add(root);

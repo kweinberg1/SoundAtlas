@@ -6,7 +6,7 @@
              xmlns:ac="clr-namespace:AdornedControl;assembly=AdornedControl"
              xmlns:local="clr-namespace:SoundAtlas2"
              xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
-             xmlns:NetworkModel="clr-namespace:SoundAtlas2.NetworkModel"
+             xmlns:NetworkModel="clr-namespace:SoundAtlas2.Model;assembly=SoundAtlas2.Model"
              xmlns:ZoomAndPan="clr-namespace:ZoomAndPan;assembly=ZoomAndPan"
              mc:Ignorable="d" 
             d:DesignHeight="300" d:DesignWidth="300">
@@ -104,10 +104,10 @@
                             TargetType="{x:Type NetworkUI:ConnectorItem}"
                             >
                             <!-- The visual for the connector. -->
-                            <Ellipse
+                            <!--<Ellipse
                                 Stroke="{StaticResource nodeBorderBrush}"
                                 Fill="{StaticResource connectorBackgroundBrush}"
-                                />
+                                />-->
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -237,7 +237,7 @@
                     <!-- The connection is represented by a curved arrow. -->
                     <local:CurvedArrow
                         Stroke="{StaticResource connectionBrush}"
-                        StrokeThickness="2"
+                        StrokeThickness="1"
                         Fill="{StaticResource connectionBrush}"
                         Points="{Binding Points}"
                         />
@@ -297,15 +297,25 @@
                     AdornerOffsetY="8"
                     IsMouseOverShowEnabled="{Binding ElementName=networkControl, Path=IsNotDragging}"
                     >
-
                     <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->
 
                     <Grid
                         MinWidth="120"
-                        Margin="10,6,10,6"
+                        Margin="0, 0, 0, 0"
                         SizeChanged="Node_SizeChanged"
                         >
 
+                        <Grid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem
+                                    Header="Add Popular Tracks to Playlist"
+                                    Click="OnAddPopularTracksClick"
+                                    ToolTip="Added popular tracks to the playlist."
+                                    Tag="{Binding}"
+                                    />
+                            </ContextMenu>
+                        </Grid.ContextMenu>
+                        
                         <!-- This rectangle is the main visual for the node. -->
 
                         <Rectangle
@@ -321,12 +331,11 @@
                         The margin is negative so that the connectors overlap the body of the node and it's selection border.
                         -->
                         <Grid
-                            Margin="-6,4,-6,4"
+                            Margin="0,4,0,4"
                             >
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" MinWidth="10" />
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="40" />
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -335,33 +344,89 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <!-- The name of the node. -->
-                            <TextBlock
-                                Grid.Column="0"
-                                Grid.ColumnSpan="3"
-                                Grid.Row="0"
-                                Text="{Binding Name}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                />
+                            <Grid.Resources>
+                                <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+                                <BitmapImage x:Key="StarredIcon" UriSource="Images/starred.png"/>
+                                <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/downwardarrow.png"/>
+                                <BitmapImage x:Key="HeadphonesIcon" UriSource="Images/headphones.png"/>
+                            </Grid.Resources>
 
-                            <!-- Displays the node's input connectors. -->
-                            <ItemsControl
-                                Grid.Column="0"
-                                Grid.Row="2"
-                                ItemsSource="{Binding InputConnectors}"
-                                ItemTemplate="{StaticResource inputConnectorTemplate}"
-                                Focusable="False"
-                                />
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
 
-                            <!-- Displays the node's output connectors. -->
-                            <ItemsControl
-                                Grid.Column="2"
-                                Grid.Row="2"
-                                ItemsSource="{Binding OutputConnectors}"
-                                ItemTemplate="{StaticResource outputConnectorTemplate}"
-                                Focusable="False"
-                                />
+                                <!-- Displays the node's input connectors. -->
+                                <ItemsControl 
+                                    ItemsSource="{Binding InputConnectors}"
+                                    ItemTemplate="{StaticResource inputConnectorTemplate}"
+                                    Focusable="False"
+                                    Visibility="{Binding ShowInputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
+                                    />
+
+                                <Button Click="OnAddPopularTracksClick" Tag="{Binding}" ToolTip="Adding Tracks to Playlist" Padding="-4" IsEnabled="{Binding IsInPlaylist, Converter={StaticResource InverseBooleanConverter}}">
+                                    <Image Stretch="Fill" Width="16" Height="16">
+                                        <Image.Style>
+                                            <Style TargetType="{x:Type Image}">
+                                                <Setter Property="Source" Value="{StaticResource UnselectedIcon}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True" Binding="{Binding IsInPlaylist, Mode=TwoWay}">
+                                                        <Setter Property="Source" Value="{StaticResource StarredIcon}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Value="False" Binding="{Binding IsInPlaylist, Mode=TwoWay}">
+                                                        <Setter Property="Source" Value="{StaticResource UnselectedIcon}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                </Button>
+                            
+                                <!-- The name of the node. -->
+                                <TextBlock Margin="5,0,5,0"
+                                    Text="{Binding Name}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,12,0">
+                                <Button Click="OnExpandRelatedArtistsButtonClick" Tag="{Binding}" IsEnabled="{Binding IsChildrenExpanded, Converter={StaticResource InverseBooleanConverter}}" ToolTip="Find Similar Artists">
+                                    <Button.Template>
+                                        <ControlTemplate>
+                                            <Border HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Image Source="{StaticResource UnselectedIcon}" 
+                                               Width="16" 
+                                               Height="16"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Button.Style>
+                                        <Style TargetType="{x:Type Button}" >
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem
+                                                Header="Add All Related Artists"
+                                                Click="OnExpandAllRelatedArtistsButtonClick"
+                                                ToolTip="Adds all known related artists."
+                                                Tag="{Binding}"
+                                                />
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                </Button>
+
+                                <!-- Displays the node's output connectors. -->
+                                <ItemsControl
+                                    ItemsSource="{Binding OutputConnectors}"
+                                    ItemTemplate="{StaticResource outputConnectorTemplate}"
+                                    Focusable="False"
+                                    Visibility="{Binding ShowOutputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
+                                    >
+                                </ItemsControl>
+                            </StackPanel>
                         </Grid>
                     </Grid>
 
@@ -495,7 +560,6 @@
                 />
 
             <Separator />
-
             <MenuItem
                 Header="Fit"
                 Command="{StaticResource Commands.FitContent}"
@@ -733,6 +797,7 @@
                             QueryConnectionFeedback="networkControl_QueryConnectionFeedback"
                             ConnectionDragging="networkControl_ConnectionDragging"                            
                             ConnectionDragCompleted="networkControl_ConnectionDragCompleted"
+                            SelectionChanged="networkControl_SelectionChanged"
                             
                             MouseDown="networkControl_MouseDown"
                             MouseUp="networkControl_MouseUp"

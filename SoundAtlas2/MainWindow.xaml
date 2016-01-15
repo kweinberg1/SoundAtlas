@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:SoundAtlas2"
     xmlns:soundatlas="clr-namespace:SoundAtlas2"
     xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
-    xmlns:NetworkModel="clr-namespace:SoundAtlas2.NetworkModel"
+    xmlns:NetworkModel="clr-namespace:SoundAtlas2.Model;assembly=SoundAtlas2.Model"
     xmlns:ac="clr-namespace:AdornedControl;assembly=AdornedControl"
     xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
     Title="Main Window" 
@@ -31,8 +31,26 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <soundatlas:PlaylistControl Grid.Column="0" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged"/>
-        <soundatlas:Atlas Grid.Column="1" x:Name="AtlasView">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+        </Grid.Resources>
+
+        <soundatlas:SearchControl 
+            x:Name="SearchControl" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlClosed">
+        </soundatlas:SearchControl>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Enter search here." KeyDown="OnSearchPanelKeyDown"></TextBox>
+            <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted">
+                <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
+            </Button>
+        </StackPanel>
+        
+        <soundatlas:PlaylistControl Grid.Row="1" Grid.Column="0" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged"/>
+        <soundatlas:Atlas Grid.Row="1" Grid.Column="1" x:Name="AtlasView" AddPopularTracks="OnAddPopularTracksClick">
             <soundatlas:Atlas.DataContext>
                 <local:AtlasViewModel />
             </soundatlas:Atlas.DataContext>

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Utils;
-using SoundAtlas2.NetworkModel;
 using System.Windows;
-using System.Diagnostics;
+using Utils;
+
+using SoundAtlas2.Model;
 
 namespace SoundAtlas2
 {

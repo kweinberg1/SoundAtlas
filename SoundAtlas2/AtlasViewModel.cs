@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-using SoundAtlas2.NetworkModel;
+using SoundAtlas2.Model;
 using Spotify;
+using Spotify.Model;
 using Utils;
 
 namespace SoundAtlas2
@@ -15,7 +16,6 @@ namespace SoundAtlas2
     public class AtlasViewModel : AbstractModelBase
     {
         #region Internal Data Members
-
         /// <summary>
         /// The hierarchy model of nodes.
         /// </summary>
@@ -66,13 +66,18 @@ namespace SoundAtlas2
         /// 
         private double contentViewportHeight = 0;
 
+        /// <summary>
+        /// Used to update the extents of the Atlas control based on the internal content.
+        /// </summary>
+        private Point NetworkExtents;
+
         #endregion Internal Data Members
 
         #region Constructors
         public AtlasViewModel()
         {
             // Add some test data to the view-model.
-            //PopulateWithTestData();
+            PopulateWithTestData();
         }
         #endregion
         /// <summary>
@@ -214,6 +219,15 @@ namespace SoundAtlas2
 
                 OnPropertyChanged("ContentViewportHeight");
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public PlaylistViewModel PlaylistViewModel
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -452,10 +466,8 @@ namespace SoundAtlas2
             node.X = nodeLocation.X;
             node.Y = nodeLocation.Y;
 
-            node.InputConnectors.Add(new ConnectorViewModel("In1"));
-            node.InputConnectors.Add(new ConnectorViewModel("In2"));
-            node.OutputConnectors.Add(new ConnectorViewModel("Out1"));
-            node.OutputConnectors.Add(new ConnectorViewModel("Out2"));
+            node.InputConnectors.Add(new ConnectorViewModel("", ConnectorType.Input));
+            node.OutputConnectors.Add(new ConnectorViewModel("", ConnectorType.Output));
 
             if (centerNode)
             {
@@ -513,9 +525,7 @@ namespace SoundAtlas2
             node.Y = nodeLocation.Y;
 
             node.InputConnectors.Add(new ConnectorViewModel("In1"));
-            node.InputConnectors.Add(new ConnectorViewModel("In2"));
             node.OutputConnectors.Add(new ConnectorViewModel("Out1"));
-            node.OutputConnectors.Add(new ConnectorViewModel("Out2"));
 
             if (centerNode)
             {
@@ -571,6 +581,34 @@ namespace SoundAtlas2
             this.Network.Connections.Remove(connection);
         }
 
+        /// <summary>
+        /// Populates the 
+        /// </summary>
+        public bool HandleSelectedNodes()
+        {
+            bool nodeSelected = false;
+            foreach (NodeViewModel node in this.Network.Nodes)
+            {
+                if (node.IsSelected)
+                {
+                    _hierarchy.GenerateSubTree(node.ArtistViewModel.HierarchyNode);
+                    nodeSelected = true;
+                }
+            }
+
+            return nodeSelected;
+        }
+
+
+        public void CreateNodeChildren(NodeViewModel selectedNode, bool addAllChildren)
+        {
+            int previousLimit = _hierarchy.AddChildrenLimit;
+            _hierarchy.AddChildrenLimit = (addAllChildren ? int.MaxValue : previousLimit);
+            _hierarchy.GenerateSubTree(selectedNode.ArtistViewModel.HierarchyNode);
+            _hierarchy.AddChildrenLimit = previousLimit;
+
+            selectedNode.IsChildrenExpanded = _hierarchy.IsSubTreeExpanded(selectedNode.ArtistViewModel.HierarchyNode);
+        }
 
         #region Private Methods
 
@@ -605,14 +643,23 @@ namespace SoundAtlas2
         #endregion Private Methods
 
         #region Generation Methods
-
-        private Point NetworkExtents;
-
-        public void GenerateNetwork(IEnumerable<String> targetArtists, PlaylistViewModel playlistViewModel)
+        public void CreateHierarchy(IEnumerable<Artist> targetArtists)
         {
             //Create the hierarchy.
             _hierarchy = new AtlasHierarchy(SpotifyClientService.Client, targetArtists);
+        }
 
+        public void AddArtistsToHierarchy(IEnumerable<Artist> targetArtists)
+        {
+            if (_hierarchy == null)
+                _hierarchy = new AtlasHierarchy(SpotifyClientService.Client, targetArtists);
+
+            foreach (Artist artist in targetArtists)
+                _hierarchy.AddRootNode(artist);
+        }
+
+        public void GenerateNetwork()
+        {
             //Once we have the hierarchy, assemble the nodes.
             this.Network = new NetworkViewModel();
 
@@ -626,6 +673,18 @@ namespace SoundAtlas2
 
                 NetworkExtents.X = Math.Max(NetworkExtents.Y, graphNodeLocation.X);
                 NetworkExtents.Y = Math.Max(NetworkExtents.Y, graphNodeLocation.Y);
+
+                if (PlaylistViewModel != null)
+                {
+                    //TODO:  Handle this within the playlistViewModel itself?
+                    foreach (Track playlistTrack in PlaylistViewModel.PlaylistTracks)
+                    {
+                        if (playlistTrack.Artists.Contains(node.ArtistViewModel.Artist))
+                        {
+                            graphNode.IsInPlaylist = true;
+                        }
+                    }
+                }
 
                 GenerateNodes(node, graphNode, new Point(1, 0));
 
@@ -642,6 +701,18 @@ namespace SoundAtlas2
                 Point graphNodeLocation = new Point(point.X, offset);
                 NodeViewModel graphNode = CreateNode(node.ArtistViewModel, graphNodeLocation, false);
                 node.GraphNodeViewModel = graphNode;
+
+                if (PlaylistViewModel != null)
+                {
+                    //TODO:  Handle this within the playlistViewModel itself?
+                    foreach (Track playlistTrack in PlaylistViewModel.PlaylistTracks)
+                    {
+                        if (playlistTrack.Artists.Contains(node.ArtistViewModel.Artist))
+                        {
+                            graphNode.IsInPlaylist = true;
+                        }
+                    }
+                }
 
                 ConnectionViewModel connection = new ConnectionViewModel();
                 connection.SourceConnector = parentGraphNode.OutputConnectors[0];
@@ -663,8 +734,8 @@ namespace SoundAtlas2
             {
                 NetworkExtents = new Point(this.ContentWidth, this.ContentWidth);
 
-                Size graphNodeSize = this.Network.Nodes.First().Size;
-                
+                double maxNodeLevelWidth = 0.0;
+                double heightPadding = 5.0;
                 int level = 0;
                 while(true)
                 {
@@ -677,15 +748,26 @@ namespace SoundAtlas2
                     }
                     else
                     {
+                        double currentNodeWidth = maxNodeLevelWidth;
+                        double previousNodeHeight = 0.0;
                         int offset = 0;
-                        Point startLocation = new Point((level * graphNodeSize.Width) + (level != 0 ? 50.0 : 0.0), 0.0);
+                        Point startLocation = new Point((level * currentNodeWidth) + (level != 0 ? (level * 50.0) : 0.0), 0.0);
 
                         foreach (AtlasHierarchy.HierarchyNode node in levelNodes)
                         {
-                            node.GraphNodeViewModel.X = startLocation.X;
-                            node.GraphNodeViewModel.Y = startLocation.Y + (offset * graphNodeSize.Width);
+                            if (node.GraphNodeViewModel != null)
+                            {
+                                node.GraphNodeViewModel.X = startLocation.X;
+                                node.GraphNodeViewModel.Y = startLocation.Y + (offset * previousNodeHeight) + heightPadding;
 
-                            offset++;
+
+                                previousNodeHeight = node.GraphNodeViewModel.Size.Height;
+
+                                if (node.GraphNodeViewModel.Size.Width > maxNodeLevelWidth)
+                                    maxNodeLevelWidth = node.GraphNodeViewModel.Size.Width;
+
+                                offset++;
+                            }
                         }
                     }
 

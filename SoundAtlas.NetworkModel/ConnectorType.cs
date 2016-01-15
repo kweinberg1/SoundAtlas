@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SoundAtlas2.NetworkModel
+namespace SoundAtlas2.Model
 {
     /// <summary>
     /// Defines the type of a connector (aka connection point).

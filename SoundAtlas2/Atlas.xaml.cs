@@ -14,7 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using NetworkUI;
-using SoundAtlas2.NetworkModel;
+using SoundAtlas2.Model;
+using Utils;
 
 namespace SoundAtlas2
 {
@@ -39,6 +40,15 @@ namespace SoundAtlas2
             }
         }
 
+        #region Events
+        public event RoutedEventHandler AddPopularTracks
+        {
+            add { AddHandler(AddPopularTracksEvent, value); }
+            remove { RemoveHandler(AddPopularTracksEvent, value); }
+        }
+       
+        public readonly RoutedEvent AddPopularTracksEvent = EventManager.RegisterRoutedEvent("AddPopularTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+        #endregion
 
         /// <summary>
         /// Event raised when the user has started to drag out a connection.
@@ -161,6 +171,44 @@ namespace SoundAtlas2
             var element = (FrameworkElement)sender;
             var node = (NodeViewModel)element.DataContext;
             node.Size = new Size(element.ActualWidth, element.ActualHeight);
+        }
+
+        private void networkControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        public void UpdateNetwork()
+        {
+            this.ViewModel.GenerateNetwork();
+            this.UpdateLayout();
+            this.ViewModel.ArrangeNetwork();
+        }
+
+        private void OnAddPopularTracksClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
+            
+            viewModel.IsInPlaylist = true;
+
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(AddPopularTracksEvent, viewModel);
+            RaiseEvent(newEventArgs);
+        }
+
+        private void OnExpandRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
+
+            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, false);
+            UpdateNetwork();
+        }
+
+        private void OnExpandAllRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
+
+            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, true);
+            UpdateNetwork();
         }
     }
 }

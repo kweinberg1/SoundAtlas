@@ -18,7 +18,7 @@ using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
 using NetworkUI;
 using Utils;
-using SoundAtlas2.NetworkModel;
+using SoundAtlas2.Model;
 using Spotify;
 using Spotify.Model;
 using ZoomAndPan;
@@ -109,12 +109,54 @@ namespace SoundAtlas2
             PlaylistControl playlistControl = (PlaylistControl)sender;
             PlaylistViewModel playlistViewModel = (PlaylistViewModel)playlistControl.DataContext;
 
-            IEnumerable<String> distinctArtists = playlistViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist.Name);
+            IEnumerable<Artist> distinctArtists = playlistViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
 
-            this.AtlasView.ViewModel.GenerateNetwork(distinctArtists, (PlaylistViewModel)this.PlaylistView.DataContext);
+            this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+
+            this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
+            this.AtlasView.ViewModel.GenerateNetwork();
             this.AtlasView.UpdateLayout();
             this.AtlasView.ViewModel.ArrangeNetwork();
         }
+
+        private void OnAddPopularTracksClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
+            ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
+            PlaylistViewModel playlistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+            if (playlistViewModel != null)
+            {
+                targetViewModel.IsFlagged = true;
+                playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+            }
+        }
+
+        private void OnAddArtistExecuted(object sender, RoutedEventArgs e)
+        {
+           
+        }
         #endregion
+
+        private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                //For now, push the popup control.
+                ArtistList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
+                
+                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistGroup.Items;
+                this.SearchControl.IsOpen = true;
+            }
+        }
+
+        private void OnSearchControlClosed(object sender, EventArgs e)
+        {
+            Artist selectedArtist = this.SearchControl.SelectedItem;
+
+            List<Artist> artistList = new List<Artist>() { selectedArtist };
+            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
+
+            this.AtlasView.UpdateNetwork();
+        }
     }
 }

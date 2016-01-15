@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows;
 
-namespace SoundAtlas2.NetworkModel
+namespace SoundAtlas2.Model
 {
     /// <summary>
     /// Defines a connection between two connectors (aka connection points) of two nodes.

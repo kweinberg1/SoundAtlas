@@ -16,7 +16,7 @@ namespace Spotify
         private static readonly String GetCurrentUserEndpoint = WebURL + "/v1/me";
 
         private static readonly String ArtistIDEndpoint = WebURL + "/v1/artists/{0}";
-        private static readonly String ArtistEndpoint = WebURL + "/v1/search?q={0}&type=artist";
+        private static readonly String SearchArtistEndpoint = WebURL + "/v1/search?q={0}&type=artist";
         private static readonly String GetArtistTopTracksEndpoint = WebURL + "/v1/artists/{0}/top-tracks?country=US";  //TODO:  Assumed United States (for localization).
         private static readonly String SearchGenreEndpoint = WebURL + "/v1/search?q=genre:\"{0}\"&type=artist";
         private static readonly String RelatedArtistEndpoint = WebURL + "/v1/artists/{0}/related-artists";
@@ -43,9 +43,9 @@ namespace Spotify
             return String.Format(ArtistIDEndpoint, artistId);   
         }
 
-        public static String GetArtist(String artistName)
+        public static String SearchArtists(String artistName)
         {
-            return String.Format(ArtistEndpoint, artistName);
+            return String.Format(SearchArtistEndpoint, artistName);
         }
 
         public static String GetArtistTopTracks(String artistId)

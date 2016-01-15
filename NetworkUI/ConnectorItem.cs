@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Input;
 
+using SoundAtlas2.Model;
+
 namespace NetworkUI
 {
     /// <summary>
@@ -340,17 +342,27 @@ namespace NetworkUI
 
             //
             // The parent NetworkView is still valid.
-            // Compute the center point of the connector.
+            // Compute the bind point of the connector.
             //
-            var centerPoint = new Point(this.ActualWidth / 2, this.ActualHeight / 2);
+            var bindPoint = new Point(this.ActualWidth / 2.0, this.ActualHeight / 2.0);
 
+            if (this.ParentNodeItem != null)
+            {
+                ConnectorViewModel connectorViewModel = (ConnectorViewModel)this.DataContext;
+
+                if (connectorViewModel.Type == ConnectorType.Input)
+                    bindPoint = new Point(this.ParentNodeItem.X, (this.ParentNodeItem.Y + (this.ParentNodeItem.Y + this.ParentNodeItem.ActualHeight)) / 2.0);
+                else
+                    bindPoint = new Point(this.ParentNodeItem.X + this.ParentNodeItem.ActualWidth, (this.ParentNodeItem.Y + (this.ParentNodeItem.Y + this.ParentNodeItem.ActualHeight)) / 2.0);
+            }
+            
             //
-            // Transform the center point so that it is relative to the parent NetworkView.
+            // Transform the bind point so that it is relative to the parent NetworkView.
             // Then assign it to Hotspot.  Usually Hotspot will be data-bound to the application
             // view-model using OneWayToSource so that the value of the hotspot is then pushed through
             // to the view-model.
             //
-            this.Hotspot = this.TransformToAncestor(this.ParentNetworkView).Transform(centerPoint);
+            this.Hotspot = bindPoint; // this.TransformToAncestor(this.ParentNetworkView).Transform(bindPoint);
        }
 
         #endregion Private Methods

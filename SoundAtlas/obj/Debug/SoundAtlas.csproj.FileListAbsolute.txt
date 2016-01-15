@@ -74,3 +74,5 @@ G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\ZoomAndPan.dll
 G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\NetworkUI.pdb
 G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\Utils.pdb
 G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\ZoomAndPan.pdb
+G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\SoundAtlas2.Model.dll
+G:\Projects\SoundAtlas\SoundAtlas\bin\Debug\SoundAtlas2.Model.pdb

@@ -90,13 +90,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ArtistHierarchy.cs" />
-    <Compile Include="ArtistViewModel.cs" />
+    <Compile Include="AddArtistPrompt.xaml.cs">
+      <DependentUpon>AddArtistPrompt.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Atlas.xaml.cs">
       <DependentUpon>Atlas.xaml</DependentUpon>
     </Compile>
     <Compile Include="AtlasViewModel.cs" />
-    <Compile Include="ViewModelBase.cs" />
+    <Compile Include="Converter\InverseBooleanConverter.cs" />
+    <Compile Include="SearchControl.xaml.cs">
+      <DependentUpon>SearchControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SearchControlViewModel.cs" />
+    <Page Include="AddArtistPrompt.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Atlas.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -133,6 +142,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="SearchControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SharedVisualTemplates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -159,13 +172,8 @@
       <DependentUpon>HelpTextWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="MainWindow_ZoomAndPan.cs" />
+    <Compile Include="Atlas_ZoomAndPan.cs" />
     <Compile Include="MouseHandlingMode.cs" />
-    <Compile Include="NetworkModel\ConnectionViewModel.cs" />
-    <Compile Include="NetworkModel\ConnectorType.cs" />
-    <Compile Include="NetworkModel\ConnectorViewModel.cs" />
-    <Compile Include="NetworkModel\NetworkViewModel.cs" />
-    <Compile Include="NetworkModel\NodeViewModel.cs" />
     <Compile Include="OverviewWindow.xaml.cs">
       <DependentUpon>OverviewWindow.xaml</DependentUpon>
     </Compile>
@@ -199,25 +207,29 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AdornedControl\AdornedControl.2010.csproj">
+    <ProjectReference Include="..\AdornedControl\AdornedControl.2012.csproj">
       <Project>{94B81CB7-F8A6-44BC-BD71-E927F701E0D8}</Project>
-      <Name>AdornedControl</Name>
+      <Name>AdornedControl.2012</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NetworkUI\NetworkUI.2010.csproj">
+    <ProjectReference Include="..\NetworkUI\NetworkUI.2012.csproj">
       <Project>{B7CA1480-C144-40AC-AB97-A626F800D5B4}</Project>
-      <Name>NetworkUI</Name>
+      <Name>NetworkUI.2012</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SoundAtlas.NetworkModel\SoundAtlas2.Model.csproj">
+      <Project>{ee966508-50d1-4439-a1da-67fa5985f5b4}</Project>
+      <Name>SoundAtlas2.Model</Name>
     </ProjectReference>
     <ProjectReference Include="..\Spotify\Spotify.csproj">
       <Project>{3a9e4324-a675-4135-8c57-69400e1b673b}</Project>
       <Name>Spotify</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Utils\Utils.2010.csproj">
+    <ProjectReference Include="..\Utils\Utils.2012.csproj">
       <Project>{E7D6707B-D6EF-4FA8-9374-DC3B7D3CDFD6}</Project>
-      <Name>Utils</Name>
+      <Name>Utils.2012</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ZoomAndPan\ZoomAndPan.2010.csproj">
+    <ProjectReference Include="..\ZoomAndPan\ZoomAndPan.2012.csproj">
       <Project>{468ADEDE-6F5E-40C0-99C9-C6DAC4FAC934}</Project>
-      <Name>ZoomAndPan</Name>
+      <Name>ZoomAndPan.2012</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -246,7 +258,17 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="starred.png" />
+    <Resource Include="unselected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\starred.png" />
+    <Resource Include="Images\unselected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\downwardarrow.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

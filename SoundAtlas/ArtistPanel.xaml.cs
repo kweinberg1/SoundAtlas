@@ -41,8 +41,8 @@ namespace SoundAtlas
         {
             RoutedEventArgs newEventArgs = new RoutedEventArgs(AddPopularTracksEvent, e);
             RaiseEvent(newEventArgs);
-
         }
+
         private void CanExecuteAddPopularTracks(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = this.IsEnabled;

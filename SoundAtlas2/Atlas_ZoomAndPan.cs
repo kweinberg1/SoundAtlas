@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using ZoomAndPan;
-using SoundAtlas2.NetworkModel;
+using SoundAtlas2.Model;
 using System.Collections;
 
 namespace SoundAtlas2

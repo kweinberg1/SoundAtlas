@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Utils;
 
-namespace SoundAtlas2.NetworkModel
+namespace SoundAtlas2.Model
 {
     /// <summary>
     /// Defines a network of nodes and connections between the nodes.

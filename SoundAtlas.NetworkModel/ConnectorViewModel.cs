@@ -6,7 +6,7 @@ using Utils;
 using System.Diagnostics;
 using System.Windows;
 
-namespace SoundAtlas2.NetworkModel
+namespace SoundAtlas2.Model
 {
     /// <summary>
     /// Defines a connector (aka connection point) that can be attached to a node and is used to connect the node to another node.
@@ -32,6 +32,12 @@ namespace SoundAtlas2.NetworkModel
         {
             this.Name = name;
             this.Type = ConnectorType.Undefined;
+        }
+
+        public ConnectorViewModel(string name, ConnectorType connectorType)
+        {
+            this.Name = name;
+            this.Type = connectorType;
         }
 
         /// <summary>

@@ -257,16 +257,6 @@ namespace SoundAtlas
                 this.InvalidateVisual();
             }
         }
-        
-        private void OnAddPopularTracksClick(object sender, RoutedEventArgs e)
-        {
-            ArtistViewModel targetViewModel = (ArtistViewModel)((ArtistPanel)sender).DataContext;
-            if (_playlistViewModel != null)
-            {
-                targetViewModel.IsFlagged = true;
-                _playlistViewModel.AddArtistTracks(targetViewModel.Artist);
-            }
-        }
         #endregion
 
         #region Helper Functions

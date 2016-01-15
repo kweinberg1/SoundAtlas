@@ -66,12 +66,14 @@ namespace SoundAtlas2
         public List<HierarchyNode> RootNodes;
         private Dictionary<String, HierarchyNode> NodeDictionary;
         private SpotifyClient Client;
+        private int MaxChildren;
 
         public AtlasHierarchy(SpotifyClient client, IEnumerable<String> artistNames)
         {
             Client = client;
             NodeDictionary = new Dictionary<String, HierarchyNode>();
             RootNodes = new List<HierarchyNode>();
+            MaxChildren = 1;
 
             foreach (String artistName in artistNames)
             {
@@ -101,40 +103,85 @@ namespace SoundAtlas2
 
             //First determine which artists are new; add those.
             List<Artist> newArtists = new List<Artist>();
+            int nodesAdded = 0;
+
             foreach (Artist relatedArtist in relatedArtistList.Artists)
             {
                 if (NodeDictionary.ContainsKey(relatedArtist.Name))
                     continue;
 
-                newArtists.Add(relatedArtist);
+                if (nodesAdded < MaxChildren)
+                {
+                    newArtists.Add(relatedArtist);
 
-                ArtistViewModel artistViewModel = new ArtistViewModel(relatedArtist);
-                HierarchyNode relatedArtistNode = new HierarchyNode(artistViewModel, root, 1);
-                root.Children.Add(relatedArtistNode);
-                artistViewModel.SetHierarchyNode(relatedArtistNode);
-                NodeDictionary.Add(relatedArtist.Name, relatedArtistNode);
+                    ArtistViewModel artistViewModel = new ArtistViewModel(relatedArtist);
+                    HierarchyNode relatedArtistNode = new HierarchyNode(artistViewModel, root, 1);
+                    root.Children.Add(relatedArtistNode);
+                    artistViewModel.SetHierarchyNode(relatedArtistNode);
+                    NodeDictionary.Add(relatedArtist.Name, relatedArtistNode);
+
+                    nodesAdded++;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subTreeNode"></param>
+        /// <returns>Returns whether the sub-tree has been fully expanded in the hierarchy.</returns>
         public void GenerateSubTree(HierarchyNode subTreeNode)
         {
             ArtistGroup relatedArtistList = Client.GetRelatedArtists(subTreeNode.ArtistViewModel.Artist.ID);
 
             //First determine which artists are new; add those.
             List<Artist> newArtists = new List<Artist>();
+            int nodesAdded = 0;
             foreach (Artist relatedArtist in relatedArtistList.Artists)
             {
                 if (NodeDictionary.ContainsKey(relatedArtist.Name))
                     continue;
 
-                newArtists.Add(relatedArtist);
+                if (nodesAdded < MaxChildren)
+                {
+                    newArtists.Add(relatedArtist);
 
-                ArtistViewModel artistViewModel = new ArtistViewModel(relatedArtist);
-                HierarchyNode relatedArtistNode = new HierarchyNode(artistViewModel, subTreeNode, subTreeNode.Level + 1);
-                subTreeNode.Children.Add(relatedArtistNode);
-                artistViewModel.SetHierarchyNode(relatedArtistNode);
-                NodeDictionary.Add(relatedArtist.Name, relatedArtistNode);
+                    ArtistViewModel artistViewModel = new ArtistViewModel(relatedArtist);
+                    HierarchyNode relatedArtistNode = new HierarchyNode(artistViewModel, subTreeNode, subTreeNode.Level + 1);
+                    subTreeNode.Children.Add(relatedArtistNode);
+                    artistViewModel.SetHierarchyNode(relatedArtistNode);
+                    NodeDictionary.Add(relatedArtist.Name, relatedArtistNode);
+
+                    nodesAdded++;
+                }
+                else
+                {
+                    return;
+                }
             }
+        }
+
+        public bool IsSubTreeExpanded(HierarchyNode subTreeNode)
+        {
+            ArtistGroup relatedArtistList = Client.GetRelatedArtists(subTreeNode.ArtistViewModel.Artist.ID);
+
+            //First determine which artists are new; add those.
+            foreach (Artist relatedArtist in relatedArtistList.Artists)
+            {
+                if (NodeDictionary.ContainsKey(relatedArtist.Name))
+                    continue;
+
+                if (subTreeNode.Children.Where(node => node.ArtistViewModel.Artist == relatedArtist).Any())
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public IEnumerable<HierarchyNode> GetNodesAtLevel(int level)

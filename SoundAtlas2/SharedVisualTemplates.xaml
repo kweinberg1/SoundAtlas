@@ -1,14 +1,18 @@
 ﻿<ResourceDictionary 
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:SoundAtlas="clr-namespace:SoundAtlas2"    
     xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
-    xmlns:NetworkModel="clr-namespace:SoundAtlas2.NetworkModel"    
     >
     
     <BooleanToVisibilityConverter
         x:Key="booleanToVisibilityConverter" 
         />
- 
+
+    <SoundAtlas:InverseBooleanConverter
+        x:Key="InverseBooleanConverter" 
+        />
+
     <!-- The border brush for nodes. -->
     <SolidColorBrush
         x:Key="nodeBorderBrush"
@@ -36,7 +40,13 @@
         x:Key="connectorBackgroundBrush"
         Color="White"
         />
-
+    
+    <!-- The brush for common controls. -->
+    <SolidColorBrush
+        x:Key="controlBackground"
+        Color="White"
+        />
+    
     <!--
     Define a style for 'NodeItem'.
     
@@ -71,7 +81,7 @@
         x:Key="inputConnectorTemplate"
         >
         <Grid
-            Margin="0,2,0,0"
+            Margin="0,0,0,0"
             >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -81,18 +91,16 @@
             <!-- The 'ConnectorItem' or anchor point for the connector. -->
             <NetworkUI:ConnectorItem 
                 Grid.Column="0"
-                Width="15"
-                Height="15"
                 Cursor="Hand"                    
                 />
 
             <!-- The name of the connector. -->            
-            <TextBlock
+            <!--<TextBlock
                 Grid.Column="1"
                 Margin="5,0,0,0"
                 Text="{Binding Name}"
                 VerticalAlignment="Center"
-                />
+                />-->
         </Grid>
     </DataTemplate>
 
@@ -104,25 +112,21 @@
         >
         <Grid
             HorizontalAlignment="Right"
-            Margin="0,2,0,0"
+            Margin="0,0,0,0"
             >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!-- The name of the connector. -->
-            <TextBlock
+            <!--<TextBlock
                 Grid.Column="0"
                 Text="{Binding Name}"
                 VerticalAlignment="Center"
                 Margin="0,0,5,0"
-                />
+                />-->
 
             <Grid
-                Grid.Column="1"
-                Width="15"
-                Height="15"
+                Grid.Column="0"
                 Cursor="Hand"
                 >
 
@@ -130,14 +134,18 @@
                 <NetworkUI:ConnectorItem />
                     
                 <!-- Show a black dot at the start of the arrow when connected. -->
-                <Ellipse
+                <!--<Ellipse
                     Visibility="{Binding IsConnectionAttached, Converter={StaticResource booleanToVisibilityConverter}}"
                     Margin="3"
                     Fill="{StaticResource connectionBrush}"
                     IsHitTestVisible="False"
-                    />
+                    />-->
             </Grid>
         </Grid>
     </DataTemplate>
-
+    
+    <DataTemplate
+        x:Key="searchControlTemplate">
+        <Label Content="{Binding Name, Mode=OneWay}"/>
+    </DataTemplate>
 </ResourceDictionary>

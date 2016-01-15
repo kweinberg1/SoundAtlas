@@ -12,7 +12,7 @@ namespace Spotify.Model
     public class ArtistList
     {
         [JsonProperty("artists")]
-        public ArtistGroup Artists { get; set; }
+        public ArtistGroup ArtistGroup { get; set; }
     }
 
     public class ArtistGroup

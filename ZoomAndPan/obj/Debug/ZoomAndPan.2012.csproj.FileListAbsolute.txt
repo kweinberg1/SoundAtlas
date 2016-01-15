@@ -7,3 +7,4 @@ G:\Projects\SoundAtlas\ZoomAndPan\obj\Debug\Themes\Generic.baml
 G:\Projects\SoundAtlas\ZoomAndPan\obj\Debug\ZoomAndPan.g.resources
 G:\Projects\SoundAtlas\ZoomAndPan\obj\Debug\ZoomAndPan.dll
 G:\Projects\SoundAtlas\ZoomAndPan\obj\Debug\ZoomAndPan.pdb
+G:\Projects\SoundAtlas\ZoomAndPan\obj\Debug\ZoomAndPan.2012.csprojResolveAssemblyReference.cache

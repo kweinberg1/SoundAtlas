@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using Utils;
 using System.Windows;
 
-namespace SoundAtlas2.NetworkModel
+namespace SoundAtlas2.Model
 {
     /// <summary>
     /// Defines a node in the view-model.
@@ -61,6 +61,16 @@ namespace SoundAtlas2.NetworkModel
         /// Set to 'true' when the node is selected.
         /// </summary>
         private bool isSelected = false;
+
+        /// <summary>
+        /// Set 'true' when the artist is part of the playlist.
+        /// </summary>
+        private bool isInPlaylist = false;
+
+        /// <summary>
+        /// Set 'true' when all of the node's siblings have been shown.
+        /// </summary>
+        private bool isChildrenExpanded = false;
 
         #endregion Private Data Members
 
@@ -291,6 +301,62 @@ namespace SoundAtlas2.NetworkModel
                 isSelected = value;
 
                 OnPropertyChanged("IsSelected");
+            }
+        }
+
+        /// <summary>
+        /// Set to 'true' when the node is selected.
+        /// </summary>
+        public bool IsInPlaylist
+        {
+            get
+            {
+                return isInPlaylist;
+            }
+            set
+            {
+                if (isInPlaylist == value)
+                {
+                    return;
+                }
+
+                isInPlaylist = value;
+
+                OnPropertyChanged("IsInPlaylist");
+            }
+        }
+
+        public bool IsChildrenExpanded
+        {
+            get
+            {
+                return isChildrenExpanded;
+            }
+            set
+            {
+                if (isChildrenExpanded == value)
+                {
+                    return;
+                }
+
+                isChildrenExpanded = value;
+
+                OnPropertyChanged("IsChildrenExpanded");
+            }
+        }
+
+        public bool ShowInputConnectors
+        {
+            get
+            {
+                return this.InputConnectors.Where(connector => connector.AttachedConnections.Any()).Any();
+            }
+        }
+        public bool ShowOutputConnectors
+        {
+            get 
+            { 
+                return this.OutputConnectors.Where(connector => connector.AttachedConnections.Any()).Any(); 
             }
         }
 
