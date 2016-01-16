@@ -56,11 +56,12 @@ namespace SoundAtlas2
             //
             // Display help text for the sample app.
             //
-            HelpTextWindow helpTextWindow = new HelpTextWindow();
+            /*HelpTextWindow helpTextWindow = new HelpTextWindow();
             helpTextWindow.Left = this.Left + this.Width + 5;
             helpTextWindow.Top = this.Top;
             helpTextWindow.Owner = this;
             helpTextWindow.Show();
+            */
 
             OverviewWindow overviewWindow = new OverviewWindow();
             overviewWindow.Left = this.Left;
