@@ -101,3 +101,5 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+*.cache
+NetworkUI/obj/Debug/NetworkUI_MarkupCompile.i.cache
