@@ -103,3 +103,4 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+*.suo
