@@ -1,1 +1,0 @@
-{"Name":"Grimes","ID":"053q0ukIDRgzwTr4vNSwab","followers":{"follower_count":131331},"Genres":["chillwave","grave wave","metropopolis"],"SpotifyURL":null,"external_urls":{"Spotify":"http://..."},"Popularity":75}

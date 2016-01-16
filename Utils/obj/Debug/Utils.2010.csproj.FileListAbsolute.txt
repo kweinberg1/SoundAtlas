@@ -1,5 +1,0 @@
-G:\Projects\NetworkViewSampleCode\Utils\bin\Debug\Utils.dll
-G:\Projects\NetworkViewSampleCode\Utils\bin\Debug\Utils.pdb
-G:\Projects\NetworkViewSampleCode\Utils\obj\Debug\Utils.2010.csprojResolveAssemblyReference.cache
-G:\Projects\NetworkViewSampleCode\Utils\obj\Debug\Utils.dll
-G:\Projects\NetworkViewSampleCode\Utils\obj\Debug\Utils.pdb
