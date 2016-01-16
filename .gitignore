@@ -74,6 +74,7 @@ Temporary Items
 *.pidb
 *.log
 *.scc
+*.suo
 
 # Visual C++ cache files
 ipch/
@@ -87,6 +88,12 @@ ipch/
 *.psess
 *.vsp
 *.vspx
+
+# C# Intermediate Files
+*.cache
+*.lref
+*.resources
+*.g.cs
 
 [Dd]ebug/
 [Rr]elease/
