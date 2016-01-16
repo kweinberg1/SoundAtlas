@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="AuthorizationParameters.cs" />
     <Compile Include="Enums\Scope.cs" />
+    <Compile Include="IPaged.cs" />
     <Compile Include="Model\Album.cs" />
     <Compile Include="Model\ArtistList.cs" />
     <Compile Include="Endpoints.cs" />

@@ -22,7 +22,7 @@ namespace Spotify
         private static readonly String RelatedArtistEndpoint = WebURL + "/v1/artists/{0}/related-artists";
 
         private static readonly String CreatePlaylistEndpoint = WebURL + "/v1/users/{0}/playlists";
-        private static readonly String GetPlaylistsEndpoint = WebURL + "/v1/users/{0}/playlists";
+        private static readonly String GetPlaylistsEndpoint = WebURL + "/v1/users/{0}/playlists?offset=0&limit=50";
         private static readonly String GetPlaylistEndpoint = WebURL + "/v1/users/{0}/playlists/{1}";
         private static readonly String GetPlaylistTracksEndpoint = WebURL + "/v1/users/{0}/playlists/{1}/tracks";
         private static readonly String AddTracksToPlaylistEndpoint = WebURL + "/v1/users/{0}/playlists/{1}/tracks";

@@ -23,12 +23,26 @@ namespace Spotify.Model
         }
     }
 
-    public class PlaylistInfoList
+    public class PlaylistInfoList : IPaged
     {
-        [JsonProperty("href")]
-        public String Uri { get; set; }
-
+        #region Properties
         [JsonProperty("items")]
         public List<PlaylistInfo> Playlists { get; set; }
+        #endregion
+
+        #region Constructors
+        public PlaylistInfoList()
+        {
+            Playlists = new List<PlaylistInfo>();
+        }
+        #endregion
+
+        #region IPaged Implementation
+        public override void Combine(IPaged pagedObject)
+        {
+            PlaylistInfoList otherInfoList = (PlaylistInfoList)pagedObject;
+            this.Playlists.AddRange(otherInfoList.Playlists);
+        }
+        #endregion
     }
 }

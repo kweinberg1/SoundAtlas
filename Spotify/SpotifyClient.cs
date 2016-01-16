@@ -133,7 +133,7 @@ namespace Spotify
 
         public PlaylistList GetPlaylists(String userId)
         {
-            PlaylistInfoList playlistInfoList = GetRequest<PlaylistInfoList>(Endpoints.GetPlaylists(userId), true);
+            PlaylistInfoList playlistInfoList = GetPagedRequest<PlaylistInfoList>(Endpoints.GetPlaylists(userId), true);
 
             PlaylistList playlistList = new PlaylistList(playlistInfoList);
             return playlistList;
@@ -215,7 +215,7 @@ namespace Spotify
                     ResponseType = "code",
                     RedirectUri = Credentials.SoundAtlasRedirectURL,
                     State = "profile",
-                    Scope = Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic
+                    Scope = Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic | Scope.PlaylistReadPrivate | Scope.PlaylistReadCollaborative
                 };
 
             String authorizeUrl = Endpoints.GetAuthorize(authorizationParameters);
@@ -345,6 +345,26 @@ namespace Spotify
                 T responseObject = JsonConvert.DeserializeObject<T>(response);
                 return responseObject;
             }
+        }
+
+        public T GetPagedRequest<T>(String url, bool useAuthorization) where T : IPaged, new()
+        {
+            String currentUrl = url;
+            T masterList = new T();
+            T returnedValue = null;
+            do
+            {
+                returnedValue = GetRequest<T>(currentUrl, useAuthorization);
+
+                //Combine these as part of the master list.
+                masterList.Combine(returnedValue);
+
+                IPaged pagingValue = (IPaged)returnedValue;
+                currentUrl = pagingValue.Next;
+
+            } while (returnedValue != null && returnedValue.Next != null);
+
+            return masterList;
         }
         #endregion
     }
