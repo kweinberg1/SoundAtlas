@@ -206,20 +206,13 @@ namespace SoundAtlas2.Model
             PointCollection computedPoints = new PointCollection();
             computedPoints.Add(this.SourceConnectorHotspot);
 
-            double deltaX = Math.Abs(this.DestConnectorHotspot.X - this.SourceConnectorHotspot.X);
-            double deltaY = Math.Abs(this.DestConnectorHotspot.Y - this.SourceConnectorHotspot.Y);
-            if (deltaX > deltaY)
-            {
-                double midPointX = this.SourceConnectorHotspot.X + ((this.DestConnectorHotspot.X - this.SourceConnectorHotspot.X) / 2);
-                computedPoints.Add(new Point(midPointX, this.SourceConnectorHotspot.Y));
-                computedPoints.Add(new Point(midPointX, this.DestConnectorHotspot.Y));
-            }
-            else
-            {
-                double midPointY = this.SourceConnectorHotspot.Y + ((this.DestConnectorHotspot.Y - this.SourceConnectorHotspot.Y) / 2);
-                computedPoints.Add(new Point(this.SourceConnectorHotspot.X, midPointY));
-                computedPoints.Add(new Point(this.DestConnectorHotspot.X, midPointY));
-            }
+            double midPointX = this.SourceConnectorHotspot.X + ((this.DestConnectorHotspot.X - this.SourceConnectorHotspot.X) / 2);
+            computedPoints.Add(new Point(midPointX, this.SourceConnectorHotspot.Y));
+            computedPoints.Add(new Point(midPointX, this.DestConnectorHotspot.Y));
+
+            //Add an extra point to the curve that allows the line into the destination look visually pleasing.
+            if ( (this.DestConnectorHotspot.X - 5.0) > midPointX)
+                computedPoints.Add(new Point(this.DestConnectorHotspot.X - 5.0, this.DestConnectorHotspot.Y));
 
             computedPoints.Add(this.DestConnectorHotspot);
             computedPoints.Freeze();

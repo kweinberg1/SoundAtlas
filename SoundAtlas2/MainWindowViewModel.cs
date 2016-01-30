@@ -17,8 +17,20 @@ namespace SoundAtlas2
     {
         public MainWindowViewModel()
         {
-            // Add some test data to the view-model.
-            //PopulateWithTestData();
+
+        }
+
+        private bool _isLoggedIn;
+        public bool IsLoggedIn
+        {
+            get
+            {
+                return _isLoggedIn;
+            }
+            set
+            {
+                _isLoggedIn = value;
+            }
         }
     }
 }

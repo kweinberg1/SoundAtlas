@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Win32;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,6 +23,10 @@ namespace Spotify
         #region Properties
         private String AuthorizationToken;
         private Token AccessToken;
+
+        public delegate void LoginCallbackDelegate(String authorizeUrl);
+        public LoginCallbackDelegate LoginCallback;
+        public Action LoginFinishedCallback;
         #endregion
 
         #region Constructors
@@ -106,6 +112,18 @@ namespace Spotify
                 Console.WriteLine(e.Message);
                 return null;
             }
+        }
+
+        public AlbumList GetArtistAlbums(Artist artist)
+        {
+            AlbumList albumList = GetPagedRequest<AlbumList>(Endpoints.GetArtistAlbums(artist.ID, AlbumType.All), true);
+            return albumList;
+        }
+
+        public AlbumTrackList GetAlbumTracks(Album album)
+        {
+            AlbumTrackList trackList = GetPagedRequest<AlbumTrackList>(Endpoints.GetAlbumTracks(album.ID), true);
+            return trackList;
         }
 
         public TrackList GetArtistTopTracks(Artist artist)
@@ -203,12 +221,41 @@ namespace Spotify
             return AccessToken != null && !AccessToken.IsExpired();
         }
 
+        public Task<bool> ListenForAuthorization()
+        {
+            Task<bool> authorizationTask = new Task<bool>(GetAuthorizationResponse);
+            authorizationTask.Start();
+
+            //TODO: Evaluate whether this can be removed entirely.
+            System.Threading.Thread.Sleep(1000);
+
+            return authorizationTask;
+        }
+
+        public String GetAuthorizationUrl()
+        {
+            AuthorizationParameters authorizationParameters = new AuthorizationParameters
+            {
+                ClientID = Credentials.SoundAtlasClientID,
+                ResponseType = "code",
+                RedirectUri = Credentials.SoundAtlasRedirectURL,
+                State = "profile",
+                Scope = Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic | Scope.PlaylistReadPrivate | Scope.PlaylistReadCollaborative
+            };
+
+            String authorizeUrl = Endpoints.GetAuthorize(authorizationParameters);
+
+            return authorizeUrl;
+        }
+        
         public bool GetAuthorization()
         {
             Task<bool> authorizationTask = new Task<bool>(GetAuthorizationResponse);
             authorizationTask.Start();
 
+            //TODO: Evaluate whether this can be removed entirely.
             System.Threading.Thread.Sleep(1000);
+
             AuthorizationParameters authorizationParameters = new AuthorizationParameters
                 {
                     ClientID = Credentials.SoundAtlasClientID,
@@ -219,9 +266,11 @@ namespace Spotify
                 };
 
             String authorizeUrl = Endpoints.GetAuthorize(authorizationParameters);
+            
             System.Diagnostics.Process.Start(authorizeUrl);
-
+         
             authorizationTask.Wait();
+            
             return authorizationTask.Result;
         }
 

@@ -94,6 +94,10 @@ namespace SoundAtlas2.Model
             GenerateTree(artist);
         }
 
+        /// <summary>
+        /// Generates the tree from the root artist.
+        /// </summary>
+        /// <param name="artist"></param>
         private void GenerateTree(Artist artist)
         {
             if (NodeDictionary.ContainsKey(artist.Name)) 

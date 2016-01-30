@@ -16,23 +16,27 @@
     <!-- The border brush for nodes. -->
     <SolidColorBrush
         x:Key="nodeBorderBrush"
-        Color="Black"
+        Color="Gray"
         />
 
     <!-- The fill brush for nodes. -->
-    <LinearGradientBrush
+    <SolidColorBrush
         x:Key="nodeFillBrush"
-        StartPoint="0,0"
-        EndPoint="0,1"
+        Color="Black"
         >
-        <GradientStop Color="White" Offset="0" />
-        <GradientStop Color="#7FC9FF" Offset="0.6" />
-    </LinearGradientBrush>
+    </SolidColorBrush>
+
+    <!-- Text color. -->
+    <SolidColorBrush
+        x:Key="nodeTextBrush"
+        Color="Gray"
+        >
+    </SolidColorBrush>
 
     <!-- The brush for connections. -->
     <SolidColorBrush
         x:Key="connectionBrush"
-        Color="Black"
+        Color="LightGray"
         />
     
     <!-- The brush for connectors. -->
@@ -44,8 +48,10 @@
     <!-- The brush for common controls. -->
     <SolidColorBrush
         x:Key="controlBackground"
-        Color="White"
+        Color="Black"
         />
+    
+    <Color x:Key="backgroundColor" R="0" G="0" B="0"/>
     
     <!--
     Define a style for 'NodeItem'.
@@ -146,6 +152,6 @@
     
     <DataTemplate
         x:Key="searchControlTemplate">
-        <Label Content="{Binding Name, Mode=OneWay}"/>
+        <Label Content="{Binding Name, Mode=OneWay}" Foreground="{StaticResource nodeTextBrush}"/>
     </DataTemplate>
 </ResourceDictionary>

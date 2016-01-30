@@ -52,7 +52,7 @@ namespace SoundAtlas2
             InitializeComponent();
         }
 
-        public void Initialize(User user)
+        public void Initialize()
         {
             _viewModel = new PlaylistViewModel();
             this.DataContext = _viewModel;

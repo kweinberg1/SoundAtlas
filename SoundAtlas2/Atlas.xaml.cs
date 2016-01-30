@@ -41,13 +41,13 @@ namespace SoundAtlas2
         }
 
         #region Events
-        public event RoutedEventHandler AddPopularTracks
+        public event RoutedEventHandler AddTracks
         {
-            add { AddHandler(AddPopularTracksEvent, value); }
-            remove { RemoveHandler(AddPopularTracksEvent, value); }
+            add { AddHandler(AddTracksEvent, value); }
+            remove { RemoveHandler(AddTracksEvent, value); }
         }
        
-        public readonly RoutedEvent AddPopularTracksEvent = EventManager.RegisterRoutedEvent("AddPopularTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+        public readonly RoutedEvent AddTracksEvent = EventManager.RegisterRoutedEvent("AddTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
         #endregion
 
         /// <summary>
@@ -142,15 +142,6 @@ namespace SoundAtlas2
         }
 
         /// <summary>
-        /// Event raised to delete a connection.
-        /// </summary>
-        private void DeleteConnection_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            var connection = (ConnectionViewModel)e.Parameter;
-            this.ViewModel.DeleteConnection(connection);
-        }
-
-        /// <summary>
         /// Creates a new node in the network at the current mouse location.
         /// </summary>
         private void CreateNode()
@@ -185,13 +176,13 @@ namespace SoundAtlas2
             this.ViewModel.ArrangeNetwork();
         }
 
-        private void OnAddPopularTracksClick(object sender, RoutedEventArgs e)
+        private void OnAddTracksClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
             
             viewModel.IsInPlaylist = true;
 
-            RoutedEventArgs newEventArgs = new RoutedEventArgs(AddPopularTracksEvent, viewModel);
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(AddTracksEvent, viewModel);
             RaiseEvent(newEventArgs);
         }
 

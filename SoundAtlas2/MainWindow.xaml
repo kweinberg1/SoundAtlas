@@ -1,13 +1,12 @@
 ﻿<Window x:Class="SoundAtlas2.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:SoundAtlas2"
     xmlns:soundatlas="clr-namespace:SoundAtlas2"
     xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
     xmlns:NetworkModel="clr-namespace:SoundAtlas2.Model;assembly=SoundAtlas2.Model"
     xmlns:ac="clr-namespace:AdornedControl;assembly=AdornedControl"
     xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
-    Title="Main Window" 
+    Title="Sound Atlas" 
     x:Name="mainWindow"
     MinWidth="400"
     MinHeight="150"
@@ -16,19 +15,36 @@
 	Loaded="MainWindow_Loaded"
     FocusManager.FocusedElement="{Binding ElementName=networkControl}"
     >
-   
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 
+                Merge in the resource dictionary that is shared between the main window and the overview window.
+                -->
+                <ResourceDictionary 
+                    Source="SharedVisualTemplates.xaml"
+                    />
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Background>
+        <SolidColorBrush Color="{Binding backgroundColor}"/>
+    </Window.Background> 
     <!-- 
     Including this in binding statements for diagnostics:
     diagnostics:PresentationTraceSources.TraceLevel=High
     -->
 
     <Window.DataContext>
-        <local:MainWindowViewModel />
+        <soundatlas:MainWindowViewModel />
     </Window.DataContext>
 
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -42,17 +58,24 @@
         <soundatlas:SearchControl 
             x:Name="SearchControl" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlClosed">
         </soundatlas:SearchControl>
-        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-            <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Enter search here." KeyDown="OnSearchPanelKeyDown"></TextBox>
-            <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted">
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="{StaticResource controlBackground}">
+            <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+                <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
+            </Button>
+            <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Search" KeyDown="OnSearchPanelKeyDown" GotFocus="OnSearchPanelFocus" LostFocus="OnSearchPanelLostFocus" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
+            <Button x:Name="ClearSearchButton" ToolTip="Clear Search Text" Width="32" Height="32" HorizontalAlignment="Left" Click="OnClearSearchTextButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
                 <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
             </Button>
         </StackPanel>
-        
-        <soundatlas:PlaylistControl Grid.Row="1" Grid.Column="0" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged"/>
-        <soundatlas:Atlas Grid.Row="1" Grid.Column="1" x:Name="AtlasView" AddPopularTracks="OnAddPopularTracksClick">
+
+        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <soundatlas:LoginControl x:Name="LoginControl" Login="OnAccountLogin"/>
+        </StackPanel>
+
+        <soundatlas:PlaylistControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged" IsEnabled="{Binding IsLoggedIn}"/>
+        <soundatlas:Atlas Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AtlasView" AddTracks="OnAddTracksClick" IsEnabled="{Binding IsLoggedIn}">
             <soundatlas:Atlas.DataContext>
-                <local:AtlasViewModel />
+                <soundatlas:AtlasViewModel />
             </soundatlas:Atlas.DataContext>
         </soundatlas:Atlas>
     </Grid>

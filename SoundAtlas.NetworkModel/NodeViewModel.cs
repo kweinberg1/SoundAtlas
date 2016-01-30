@@ -22,6 +22,11 @@ namespace SoundAtlas2.Model
         private string name = string.Empty;
 
         /// <summary>
+        /// Number of tracks this node is associated with.
+        /// </summary>
+        private int numTracks = 0;
+
+        /// <summary>
         /// The X coordinate for the position of the node.
         /// </summary>
         private double x = 0;
@@ -84,10 +89,11 @@ namespace SoundAtlas2.Model
             this.name = name;
         }
 
-        public NodeViewModel(ArtistViewModel viewModel)
+        public NodeViewModel(ArtistViewModel viewModel, int numTracks)
         {
             this.ArtistViewModel = viewModel;
             this.name = viewModel.Name;
+            this.numTracks = numTracks;
         }
 
         public ArtistViewModel ArtistViewModel
@@ -115,6 +121,28 @@ namespace SoundAtlas2.Model
                 name = value;
 
                 OnPropertyChanged("Name");
+            }
+        }
+
+        /// <summary>
+        /// The number of tracks associated with this node.
+        /// </summary>
+        public int NumTracks
+        {
+            get
+            {
+                return numTracks;
+            }
+            set
+            {
+                if (numTracks == value)
+                {
+                    return;
+                }
+
+                numTracks = value;
+
+                OnPropertyChanged("NumTracks");
             }
         }
 

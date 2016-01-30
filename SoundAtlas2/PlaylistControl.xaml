@@ -8,6 +8,20 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
+
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <!-- 
+                Merge in the resource dictionary that is shared between the main window and the overview window.
+                -->
+                    <ResourceDictionary 
+                    Source="SharedVisualTemplates.xaml"
+                    />
+
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="*"/>
@@ -15,7 +29,7 @@
         <Grid Grid.Row="0">
             <ComboBox x:Name="PlaylistComboBox" ItemsSource="{Binding Path=Playlists}" DisplayMemberPath="Name" SelectedValuePath="Name" SelectionChanged="OnPlaylistSelectionChanged"/>
         </Grid>
-        <ListBox Grid.Row="1" ItemsSource="{Binding PlaylistTracks}">
+        <ListBox Grid.Row="1" ItemsSource="{Binding PlaylistTracks}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type spotifymodel:Track}">
                     <StackPanel>

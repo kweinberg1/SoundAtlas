@@ -20,7 +20,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource searchControlTemplate}" SelectionChanged="ListBox_SelectionChanged">
+        <ListBox ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource searchControlTemplate}" SelectionChanged="ListBox_SelectionChanged" Background="{StaticResource controlBackground}">
         </ListBox>
     </Grid>
 </Popup>

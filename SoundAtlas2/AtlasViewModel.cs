@@ -462,7 +462,9 @@ namespace SoundAtlas2
         /// </summary>
         public NodeViewModel CreateNode(ArtistViewModel viewModel, Point nodeLocation, bool centerNode)
         {
-            var node = new NodeViewModel(viewModel);
+            int numArtistTracks = this.PlaylistViewModel.GetArtistTrackCount(viewModel.Artist);
+            NodeViewModel node = new NodeViewModel(viewModel, numArtistTracks);
+
             node.X = nodeLocation.X;
             node.Y = nodeLocation.Y;
 
@@ -671,9 +673,6 @@ namespace SoundAtlas2
                 NodeViewModel graphNode = CreateNode(node.ArtistViewModel, graphNodeLocation, false);
                 node.GraphNodeViewModel = graphNode;
 
-                NetworkExtents.X = Math.Max(NetworkExtents.Y, graphNodeLocation.X);
-                NetworkExtents.Y = Math.Max(NetworkExtents.Y, graphNodeLocation.Y);
-
                 if (PlaylistViewModel != null)
                 {
                     //TODO:  Handle this within the playlistViewModel itself?
@@ -734,9 +733,10 @@ namespace SoundAtlas2
             {
                 NetworkExtents = new Point(this.ContentWidth, this.ContentWidth);
 
-                double maxNodeLevelWidth = 0.0;
-                double heightPadding = 5.0;
                 int level = 0;
+                double maxNodeLevelWidth = 0.0;
+
+                List<IEnumerable<AtlasHierarchy.HierarchyNode>> allLevelNodes = new List<IEnumerable<AtlasHierarchy.HierarchyNode>>();
                 while(true)
                 {
                     IEnumerable<AtlasHierarchy.HierarchyNode> levelNodes = _hierarchy.GetNodesAtLevel(level);
@@ -746,33 +746,39 @@ namespace SoundAtlas2
                         //No nodes in the tree at this level.  Break.
                         break;
                     }
-                    else
+
+                    //Find the location of this node based on.
+                    double currentNodeWidth = maxNodeLevelWidth;
+                    double previousNodeHeight = 0.0;
+                    Point startLocation = new Point((level * currentNodeWidth) + (level != 0 ? (level * 50.0) : 0.0), 0.0);
+                    double heightPadding = 5.0;
+
+                    foreach(AtlasHierarchy.HierarchyNode levelNode in levelNodes)
                     {
-                        double currentNodeWidth = maxNodeLevelWidth;
-                        double previousNodeHeight = 0.0;
-                        int offset = 0;
-                        Point startLocation = new Point((level * currentNodeWidth) + (level != 0 ? (level * 50.0) : 0.0), 0.0);
+                        levelNode.GraphNodeViewModel.X = startLocation.X;
+                        levelNode.GraphNodeViewModel.Y = previousNodeHeight;
 
-                        foreach (AtlasHierarchy.HierarchyNode node in levelNodes)
+                        //Ensure that if the child node is not higher than its parent.
+                        if (levelNode.Parent != null && levelNode.GraphNodeViewModel.Y < levelNode.Parent.GraphNodeViewModel.Y)
                         {
-                            if (node.GraphNodeViewModel != null)
-                            {
-                                node.GraphNodeViewModel.X = startLocation.X;
-                                node.GraphNodeViewModel.Y = startLocation.Y + (offset * previousNodeHeight) + heightPadding;
-
-
-                                previousNodeHeight = node.GraphNodeViewModel.Size.Height;
-
-                                if (node.GraphNodeViewModel.Size.Width > maxNodeLevelWidth)
-                                    maxNodeLevelWidth = node.GraphNodeViewModel.Size.Width;
-
-                                offset++;
-                            }
+                            levelNode.GraphNodeViewModel.Y = levelNode.Parent.GraphNodeViewModel.Y;
                         }
+
+                        if (levelNode.GraphNodeViewModel.Size.Width > maxNodeLevelWidth)
+                        {
+                            maxNodeLevelWidth = levelNode.GraphNodeViewModel.Size.Width;
+                        }
+
+                        int childrenCount = GetChildrenDepth(levelNode);
+                        previousNodeHeight = levelNode.GraphNodeViewModel.Y + (childrenCount * (levelNode.GraphNodeViewModel.Size.Height + heightPadding));
                     }
 
+                    allLevelNodes.Add(levelNodes);
                     level++;
                 }
+
+
+              
 
                 foreach (NodeViewModel nodeViewModel in this.Network.Nodes)
                 {
@@ -783,6 +789,24 @@ namespace SoundAtlas2
                 double extraPadding = 500; //TODO:  There has to be a better way.
                 this.ContentWidth = NetworkExtents.X + extraPadding;
                 this.ContentHeight = NetworkExtents.Y + extraPadding;
+            }
+        }
+
+        public int GetChildrenDepth(AtlasHierarchy.HierarchyNode targetNode)
+        {
+            if (!targetNode.Children.Any())
+            {
+                return 1;
+            }
+            else
+            {
+                int totalDepth = 0;
+                foreach (AtlasHierarchy.HierarchyNode childNode in targetNode.Children)
+                {
+                    totalDepth += GetChildrenDepth(childNode);
+                }
+
+                return totalDepth;
             }
         }
         #endregion

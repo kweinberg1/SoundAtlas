@@ -14,6 +14,9 @@ namespace Spotify.Model
         [JsonProperty("name")]
         public String Name { get; set; }
 
+        [JsonProperty("type")]
+        public String Type { get; set; }
+
         [JsonProperty("id")]
         public String ID { get; set; }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
+using Spotify.Model;
 using Spotify.Utility;
 
 namespace Spotify
@@ -17,9 +17,12 @@ namespace Spotify
 
         private static readonly String ArtistIDEndpoint = WebURL + "/v1/artists/{0}";
         private static readonly String SearchArtistEndpoint = WebURL + "/v1/search?q={0}&type=artist";
-        private static readonly String GetArtistTopTracksEndpoint = WebURL + "/v1/artists/{0}/top-tracks?country=US";  //TODO:  Assumed United States (for localization).
+        private static readonly String GetArtistTopTracksEndpoint = WebURL + "/v1/artists/{0}/top-tracks?country={1}";  //TODO:  Assumed United States (for localization).
         private static readonly String SearchGenreEndpoint = WebURL + "/v1/search?q=genre:\"{0}\"&type=artist";
         private static readonly String RelatedArtistEndpoint = WebURL + "/v1/artists/{0}/related-artists";
+        private static readonly String GetArtistAlbumsEndpoint = WebURL + "/v1/artists/{0}/albums?album_type={1}&market={2}";
+
+        private static readonly String GetAlbumTracksEndpoint = WebURL + "/v1/albums/{0}/tracks";
 
         private static readonly String CreatePlaylistEndpoint = WebURL + "/v1/users/{0}/playlists";
         private static readonly String GetPlaylistsEndpoint = WebURL + "/v1/users/{0}/playlists?offset=0&limit=50";
@@ -50,7 +53,7 @@ namespace Spotify
 
         public static String GetArtistTopTracks(String artistId)
         {
-            return String.Format(GetArtistTopTracksEndpoint, artistId);
+            return String.Format(GetArtistTopTracksEndpoint, artistId, SpotifyClientService.Country);
         }
 
         public static String GetGenreArtists(String genreName)
@@ -61,6 +64,16 @@ namespace Spotify
         public static String GetRelatedArtists(String artistName)
         {
             return String.Format(RelatedArtistEndpoint, artistName);
+        }
+
+        public static String GetArtistAlbums(String artistId, AlbumType albumType)
+        {
+            return String.Format(GetArtistAlbumsEndpoint, artistId, albumType.GetParameterNameAttribute(","), SpotifyClientService.Country);
+        }
+
+        public static String GetAlbumTracks(String albumId)
+        {
+            return String.Format(GetAlbumTracksEndpoint, albumId);
         }
 
         public static String CreatePlaylist(String userId)

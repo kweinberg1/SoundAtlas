@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 using Spotify;
 using Spotify.Model;
 
+using SoundAtlas2.Model;
+
 namespace SoundAtlas2
 {
-    public class PlaylistViewModel : INotifyPropertyChanged
+    public class PlaylistViewModel : ViewModelBase
     {
         #region Members
         private Playlist _playlist;
@@ -52,23 +54,6 @@ namespace SoundAtlas2
         }
         #endregion
 
-        #region Events
-        public event PropertyChangedEventHandler PropertyChanged;
-        #endregion
-
-        #region Event Handlers
-        // This method is called by the Set accessor of each property.
-        // The CallerMemberName attribute that is applied to the optional propertyName
-        // parameter causes the property name of the caller to be substituted as an argument.
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-        #endregion
-
         #region Constructors
         public PlaylistViewModel()
         {
@@ -82,21 +67,68 @@ namespace SoundAtlas2
         }
         #endregion
 
-        public void AddArtistTracks(Artist artist)
+        #region Methods
+        /// <summary>
+        /// Determines whether the track already exists in the playlist.
+        /// </summary>
+        /// <param name="track"></param>
+        /// <returns></returns>
+        private bool ContainsTrack(Track targetTrack)
+        {
+            return _playlist.Tracks.Where(track => track.Track.ID == targetTrack.ID).Any();
+        }
+
+        public int AddArtistTracks(Artist artist)
         {
             IEnumerable<Track> addedTracks = AddArtistSongsToPlaylist(artist);
 
             PlaylistTracks = null;
             PlaylistTracks = _playlist.Tracks.Select(playlistTrack => playlistTrack.Track);
+            return addedTracks.Count();
         }
 
         public IEnumerable<Track> AddArtistSongsToPlaylist(Artist artist)
         {
-            const int numSongsPerArtist = 3;
+            const int numSongsPerArtist = 3;  //TODO: Expose this to the user.
 
             TrackList popularSongs = _client.GetArtistTopTracks(artist);
 
-            IEnumerable<Track> songsToAdd = popularSongs.Tracks.Take(numSongsPerArtist);
+            List<Track> songsToAdd = new List<Track>(numSongsPerArtist); 
+
+            foreach (Track popularTrack in popularSongs.Tracks)
+            {
+                if (!this.ContainsTrack(popularTrack))
+                {
+                    songsToAdd.Add(popularTrack);
+
+                    if (songsToAdd.Count >= numSongsPerArtist)
+                        break;
+                }
+            }
+
+            if (!songsToAdd.Any())
+            {
+                AlbumList albumList = _client.GetArtistAlbums(artist);
+
+                foreach (Album album in albumList.Items)
+                {
+                    AlbumTrackList albumTrackList = _client.GetAlbumTracks(album);
+                    IEnumerable<Track> albumTracksByPopularity = albumTrackList.Tracks.OrderByDescending(track => track.Popularity);
+                    foreach (Track albumTrack in albumTracksByPopularity)
+                    {
+                        if (!this.ContainsTrack(albumTrack))
+                        {
+                            songsToAdd.Add(albumTrack);
+
+                            if (songsToAdd.Count >= numSongsPerArtist)
+                                break;
+                        }
+                    }
+
+                    if (songsToAdd.Count >= numSongsPerArtist)
+                        break;
+                }
+            }
 
             _client.AddTracksToPlaylist(_playlist, songsToAdd);
 
@@ -106,5 +138,16 @@ namespace SoundAtlas2
 
             return songsToAdd;
         }
+
+        /// <summary>
+        /// Returns the number of tracks associated with the given artist.
+        /// </summary>
+        /// <param name="artist"></param>
+        /// <returns></returns>
+        public int GetArtistTrackCount(Artist artist)
+        {
+            return _playlist.Tracks.SelectMany(track => track.Track.Artists).Where(trackArtist => trackArtist.ID == artist.ID).Count();
+        }
+        #endregion Methods
     }
 }

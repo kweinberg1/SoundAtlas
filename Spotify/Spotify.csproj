@@ -45,6 +45,8 @@
     <Compile Include="Enums\Scope.cs" />
     <Compile Include="IPaged.cs" />
     <Compile Include="Model\Album.cs" />
+    <Compile Include="Model\AlbumList.cs" />
+    <Compile Include="Model\AlbumTypes.cs" />
     <Compile Include="Model\ArtistList.cs" />
     <Compile Include="Endpoints.cs" />
     <Compile Include="Model\Artist.cs" />

@@ -23,7 +23,7 @@ namespace SoundAtlas
     /// <summary>
     /// Interaction logic for PlaylistControl.xaml
     /// </summary>
-    public partial class PlaylistControl : UserControl, INotifyPropertyChanged
+    public partial class PlaylistControl : UserControl
     {
         #region Properties
         private PlaylistViewModel _viewModel;
@@ -43,23 +43,8 @@ namespace SoundAtlas
         #endregion
 
         #region Events
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public readonly RoutedEvent CreatePlaylistEvent = EventManager.RegisterRoutedEvent("CreatePlaylist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
         public readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent("SelectionChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
-        #endregion
-
-        #region Event Handlers
-        // This method is called by the Set accessor of each property.
-        // The CallerMemberName attribute that is applied to the optional propertyName
-        // parameter causes the property name of the caller to be substituted as an argument.
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
         #endregion
 
         public PlaylistControl()

@@ -29,8 +29,6 @@
 
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes" />
             <RoutedUICommand x:Key="Commands.CreateNode" />
-            <RoutedUICommand x:Key="Commands.DeleteNode" />
-            <RoutedUICommand x:Key="Commands.DeleteConnection" />
             <RoutedUICommand x:Key="Commands.ZoomOut" />
             <RoutedUICommand x:Key="Commands.ZoomIn" />
             <RoutedUICommand x:Key="Commands.JumpBackToPrevZoom" />
@@ -223,249 +221,156 @@
                 DataType="{x:Type NetworkModel:ConnectionViewModel}"
                 >
 
-                <!-- 
-                An adorned control is used, to represent the connection. 
-                When the user hovers the mouse cursor over the connection, the 
-                'delete connection' adorner pops up and allows them to delete the connection.
-                -->
-                <ac:AdornedControl
-                    HorizontalAdornerPlacement="Mouse"
-                    VerticalAdornerPlacement="Mouse"
-                    IsMouseOverShowEnabled="{Binding ElementName=networkControl, Path=IsNotDragging}"
-                    >
-
-                    <!-- The connection is represented by a curved arrow. -->
-                    <local:CurvedArrow
-                        Stroke="{StaticResource connectionBrush}"
-                        StrokeThickness="1"
-                        Fill="{StaticResource connectionBrush}"
-                        Points="{Binding Points}"
-                        />
-
-                    <ac:AdornedControl.AdornerContent>
-
-                        <!-- 
-                        This is the adorner that pops up when the user hovers the mouse over the connection.
-                        It displays a button that the user can click to delete the connection.
-                        -->
-                        <Canvas
-                            x:Name="connectionAdornerCanvas"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
-                            Width="30"
-                            Height="30"
-                            >
-                            <Line
-                                X1="0"
-                                Y1="30"
-                                X2="15"
-                                Y2="15"
-                                Stroke="Black"
-                                StrokeThickness="1"
-                                />
-                            <Button
-                                x:Name="deleteConnectionButton"
-                                Canvas.Left="10"
-                                Canvas.Top="0"
-                                Width="20"
-                                Height="20"
-                                Cursor="Hand"
-                                Focusable="False"
-                                Command="{StaticResource Commands.DeleteConnection}"
-                                CommandParameter="{Binding}"
-                                Template="{StaticResource deleteButtonTemplate}"
-                                />
-                        </Canvas>
-                    </ac:AdornedControl.AdornerContent>
-                </ac:AdornedControl>
+             
+                <!-- The connection is represented by a curved arrow. -->
+                <local:CurvedArrow
+                    Stroke="{StaticResource connectionBrush}"
+                    StrokeThickness="1"
+                    Fill="{StaticResource connectionBrush}"
+                    ArrowHeadWidth="5"
+                    ArrowHeadLength="5"
+                    Points="{Binding Points}"
+                    />
             </DataTemplate>
 
             <!-- Define a data-template for the 'NodeViewModel' class. -->
             <DataTemplate
                 DataType="{x:Type NetworkModel:NodeViewModel}"
                 >
-
-                <!-- 
-                An adorned control is used, to represent the node. 
-                When the user hovers the mouse cursor over the node, the 
-                'delete node' adorner pops up and allows them to delete the node.
-                -->
-                <ac:AdornedControl
-                    HorizontalAdornerPlacement="Outside"
-                    VerticalAdornerPlacement="Outside"
-                    AdornerOffsetX="-12"
-                    AdornerOffsetY="8"
-                    IsMouseOverShowEnabled="{Binding ElementName=networkControl, Path=IsNotDragging}"
+                <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->
+                <Grid
+                    MinWidth="120"
+                    Margin="0, 0, 0, 0"
+                    SizeChanged="Node_SizeChanged"
                     >
-                    <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->
 
-                    <Grid
-                        MinWidth="120"
-                        Margin="0, 0, 0, 0"
-                        SizeChanged="Node_SizeChanged"
-                        >
-
-                        <Grid.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem
-                                    Header="Add Popular Tracks to Playlist"
-                                    Click="OnAddPopularTracksClick"
-                                    ToolTip="Added popular tracks to the playlist."
-                                    Tag="{Binding}"
-                                    />
-                            </ContextMenu>
-                        </Grid.ContextMenu>
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem
+                                Header="Add Tracks to Playlist"
+                                Click="OnAddTracksClick"
+                                ToolTip="Added tracks to the playlist."
+                                Tag="{Binding}"
+                                />
+                        </ContextMenu>
+                    </Grid.ContextMenu>
                         
-                        <!-- This rectangle is the main visual for the node. -->
+                    <!-- This rectangle is the main visual for the node. -->
 
-                        <Rectangle
-                            Stroke="{StaticResource nodeBorderBrush}"
-                            StrokeThickness="1.3"
-                            RadiusX="4"
-                            RadiusY="4"
-                            Fill="{StaticResource nodeFillBrush}"
-                            />
+                    <Rectangle
+                        Stroke="{StaticResource nodeBorderBrush}"
+                        StrokeThickness="1.3"
+                        RadiusX="4"
+                        RadiusY="4"
+                        Fill="{StaticResource nodeFillBrush}"
+                        />
 
-                        <!-- 
-                        This grid contains the node's connectors.
-                        The margin is negative so that the connectors overlap the body of the node and it's selection border.
-                        -->
-                        <Grid
-                            Margin="0,4,0,4"
-                            >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="40" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <!-- spacer -->
-                                <RowDefinition Height="2" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+                    <!-- 
+                    This grid contains the node's connectors.
+                    The margin is negative so that the connectors overlap the body of the node and it's selection border.
+                    -->
+                    <Grid
+                        Margin="0,4,0,4"
+                        >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <!-- spacer -->
+                            <RowDefinition Height="2" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                            <Grid.Resources>
-                                <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
-                                <BitmapImage x:Key="StarredIcon" UriSource="Images/starred.png"/>
-                                <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/downwardarrow.png"/>
-                                <BitmapImage x:Key="HeadphonesIcon" UriSource="Images/headphones.png"/>
-                            </Grid.Resources>
+                        <Grid.Resources>
+                            <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+                            <BitmapImage x:Key="StarredIcon" UriSource="Images/starred.png"/>
+                            <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/downwardarrow.png"/>
+                            <BitmapImage x:Key="HeadphonesIcon" UriSource="Images/headphones.png"/>
+                            <BitmapImage x:Key="AddTracksIcon" UriSource="Images/addtracks.png"/>
+                        </Grid.Resources>
 
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
 
-                                <!-- Displays the node's input connectors. -->
-                                <ItemsControl 
-                                    ItemsSource="{Binding InputConnectors}"
-                                    ItemTemplate="{StaticResource inputConnectorTemplate}"
-                                    Focusable="False"
-                                    Visibility="{Binding ShowInputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
-                                    />
-
-                                <Button Click="OnAddPopularTracksClick" Tag="{Binding}" ToolTip="Adding Tracks to Playlist" Padding="-4" IsEnabled="{Binding IsInPlaylist, Converter={StaticResource InverseBooleanConverter}}">
-                                    <Image Stretch="Fill" Width="16" Height="16">
-                                        <Image.Style>
-                                            <Style TargetType="{x:Type Image}">
-                                                <Setter Property="Source" Value="{StaticResource UnselectedIcon}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Value="True" Binding="{Binding IsInPlaylist, Mode=TwoWay}">
-                                                        <Setter Property="Source" Value="{StaticResource StarredIcon}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Value="False" Binding="{Binding IsInPlaylist, Mode=TwoWay}">
-                                                        <Setter Property="Source" Value="{StaticResource UnselectedIcon}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Image.Style>
-                                    </Image>
-                                </Button>
-                            
-                                <!-- The name of the node. -->
-                                <TextBlock Margin="5,0,5,0"
-                                    Text="{Binding Name}"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,12,0">
-                                <Button Click="OnExpandRelatedArtistsButtonClick" Tag="{Binding}" IsEnabled="{Binding IsChildrenExpanded, Converter={StaticResource InverseBooleanConverter}}" ToolTip="Find Similar Artists">
-                                    <Button.Template>
-                                        <ControlTemplate>
-                                            <Border HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <Image Source="{StaticResource UnselectedIcon}" 
-                                               Width="16" 
-                                               Height="16"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <Button.Style>
-                                        <Style TargetType="{x:Type Button}" >
-                                            <Style.Triggers>
-                                                <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                    <Button.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem
-                                                Header="Add All Related Artists"
-                                                Click="OnExpandAllRelatedArtistsButtonClick"
-                                                ToolTip="Adds all known related artists."
-                                                Tag="{Binding}"
-                                                />
-                                        </ContextMenu>
-                                    </Button.ContextMenu>
-                                </Button>
-
-                                <!-- Displays the node's output connectors. -->
-                                <ItemsControl
-                                    ItemsSource="{Binding OutputConnectors}"
-                                    ItemTemplate="{StaticResource outputConnectorTemplate}"
-                                    Focusable="False"
-                                    Visibility="{Binding ShowOutputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
-                                    >
-                                </ItemsControl>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-
-                    <ac:AdornedControl.AdornerContent>
-
-                        <!-- 
-                        This is the adorner that pops up when the user hovers the mouse over the node.
-                        It displays a button that the user can click to delete the node.
-                        -->
-                        <Canvas
-                            x:Name="nodeAdornerCanvas"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
-                            Width="30"
-                            Height="30"
-                            >
-                            <Line
-                                X1="0"
-                                Y1="30"
-                                X2="15"
-                                Y2="15"
-                                Stroke="Black"
-                                StrokeThickness="1"
-                                />
-                            <Button
-                                x:Name="deleteNodeButton"
-                                Canvas.Left="10"
-                                Canvas.Top="0"
-                                Width="20"
-                                Height="20"
-                                Cursor="Hand"
+                            <!-- Displays the node's input connectors. -->
+                            <ItemsControl 
+                                ItemsSource="{Binding InputConnectors}"
+                                ItemTemplate="{StaticResource inputConnectorTemplate}"
                                 Focusable="False"
-                                Command="{StaticResource Commands.DeleteNode}"
-                                CommandParameter="{Binding}"
-                                Template="{StaticResource deleteButtonTemplate}"
+                                Visibility="{Binding ShowInputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
                                 />
-                        </Canvas>
-                    </ac:AdornedControl.AdornerContent>
-                </ac:AdornedControl>
+
+                            <Button Click="OnAddTracksClick" Tag="{Binding}" ToolTip="Add Tracks to Playlist" Padding="-4">
+                                <Image Stretch="Fill" Width="24" Height="24" Source="{StaticResource AddTracksIcon}"/>
+                            </Button>
+
+                            <TextBlock Margin="5,0,5,0"
+                                Text="{Binding NumTracks}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource nodeFillBrush}"
+                                Foreground="{StaticResource nodeTextBrush}">
+                                <TextBlock.ToolTip>
+                                    <ToolTip 
+                                        Content="{Binding NumTracks}"
+                                        ContentStringFormat="{}{0} tracks in playlist.">
+                                    </ToolTip>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+
+                            <!-- The name of the node. -->
+                            <TextBlock Margin="5,0,5,0"
+                                Text="{Binding Name}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource nodeFillBrush}"
+                                Foreground="{StaticResource nodeTextBrush}"
+                                />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,12,0">
+                            <Button Click="OnExpandRelatedArtistsButtonClick" Tag="{Binding}" IsEnabled="{Binding IsChildrenExpanded, Converter={StaticResource InverseBooleanConverter}}" ToolTip="Find Similar Artists">
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <Border HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Image Source="{StaticResource UnselectedIcon}" 
+                                            Width="16" 
+                                            Height="16"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}" >
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem
+                                            Header="Add All Related Artists"
+                                            Click="OnExpandAllRelatedArtistsButtonClick"
+                                            ToolTip="Adds all known related artists."
+                                            Tag="{Binding}"
+                                            />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+
+                            <!-- Displays the node's output connectors. -->
+                            <ItemsControl
+                                ItemsSource="{Binding OutputConnectors}"
+                                ItemTemplate="{StaticResource outputConnectorTemplate}"
+                                Focusable="False"
+                                Visibility="{Binding ShowOutputConnectors, Converter={StaticResource booleanToVisibilityConverter}}"
+                                >
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </DataTemplate>
 
         </ResourceDictionary>
@@ -510,14 +415,6 @@
         <CommandBinding 
             Command="{StaticResource Commands.CreateNode}" 
             Executed="CreateNode_Executed" 
-            />
-        <CommandBinding 
-            Command="{StaticResource Commands.DeleteNode}" 
-            Executed="DeleteNode_Executed" 
-            />
-        <CommandBinding 
-            Command="{StaticResource Commands.DeleteConnection}" 
-            Executed="DeleteConnection_Executed" 
             />
         <CommandBinding 
             Command="{StaticResource Commands.ZoomOut}" 
@@ -597,155 +494,6 @@
         </ContextMenu>
     </DockPanel.ContextMenu>
 
-    <Grid
-            Margin="5,5,5,5"
-            DockPanel.Dock="Bottom"
-            >
-        <Grid.ColumnDefinitions>
-
-            <!-- empty space -->
-            <ColumnDefinition Width="*" />
-
-            <!-- the fit content button -->
-            <ColumnDefinition Width="40" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the fill button -->
-            <ColumnDefinition Width="40" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the 100% button -->
-            <ColumnDefinition Width="40" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the zoom percentage label -->
-            <ColumnDefinition Width="25" />
-
-            <!-- the % symbol -->
-            <ColumnDefinition Width="15" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the zoom out button -->
-            <ColumnDefinition Width="20" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the zoom slider -->
-            <ColumnDefinition Width="120" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="5" />
-
-            <!-- the zoom in button -->
-            <ColumnDefinition Width="20" />
-
-            <!-- spacer -->
-            <ColumnDefinition Width="10" />
-
-            <!-- resize grip -->
-            <ColumnDefinition Width="Auto" />
-
-        </Grid.ColumnDefinitions>
-
-        <!-- 
-            The 'fit content' button.  Causes the content to be scaled so that all the graph nodes fit in the viewport.
-            -->
-        <Button
-                Grid.Column="1"
-                Command="{StaticResource Commands.FitContent}"
-                ToolTip="Fit all nodes to the viewport"
-                >
-            Fit
-        </Button>
-
-        <!-- 
-            The fill button.  Causes the content to be scaled so that it fits in the viewport.
-            -->
-        <Button
-                Grid.Column="3"
-                Command="{StaticResource Commands.Fill}"
-                ToolTip="Fit the entire content area to the viewport"
-                >
-            Fill
-        </Button>
-
-        <!-- 
-            The 100% button.  Causes the content to be scaled to 100 percent.
-            -->
-        <Button
-                Grid.Column="5"
-                Command="{StaticResource Commands.OneHundredPercent}"
-                ToolTip="Scale the content to 100%"
-                >
-            100%
-        </Button>
-
-        <!--
-            This is the label that shows what the current zoom level
-            is while zooming in and out.
-            -->
-        <TextBlock
-                Grid.Column="7"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Right"
-                Text="{Binding ElementName=zoomAndPanControl, Path=ContentScale, Converter={StaticResource scaleToPercentConverter}}"
-                />
-
-        <TextBlock
-                Grid.Column="8"
-                VerticalAlignment="Center"
-                Text="%"
-                />
-
-        <!-- Button to zoom out. -->
-        <Button
-                Grid.Column="10"
-                Command="{StaticResource Commands.ZoomOut}"
-                ToolTip="Zoom out from the content"
-                >
-            -
-        </Button>
-
-        <!-- Slider to change the current zoom level. -->
-        <Slider
-                Grid.Column="12"
-                Minimum="10" 
-                LargeChange="20" 
-                TickFrequency="10" 
-                Maximum="200" 
-                SmallChange="10" 
-                TickPlacement="TopLeft"
-                Value="{Binding ElementName=zoomAndPanControl, Path=ContentScale, Converter={StaticResource scaleToPercentConverter}}"
-                ToolTip="Change the zoom level of the content"
-                />
-
-        <!--
-            Button to zoom in.
-            -->
-        <Button
-                Grid.Column="14"
-                Command="{StaticResource Commands.ZoomIn}"
-                ToolTip="Zoom in on the content"
-                >
-            +
-        </Button>
-
-        <!-- Stick a resize grip in the bottom right corner of the window. -->
-        <ResizeGrip
-                Grid.Column="16"
-                />
-
-    </Grid>
-
     <!-- 
         The ScrollViewer displays scrollbars when the content is too big to fit in the viewport. 
         Focusable is set to False because it is only that NetworkView that I want to be focusable.
@@ -768,7 +516,7 @@
                 ContentOffsetY="{Binding ContentOffsetY, Mode=TwoWay}"
                 ContentViewportWidth="{Binding ContentViewportWidth, Mode=OneWayToSource}"
                 ContentViewportHeight="{Binding ContentViewportHeight, Mode=OneWayToSource}"
-                Background="LightGray"
+                Background="{StaticResource controlBackground}"
                 Focusable="False"
                 >
             <!--
@@ -783,6 +531,7 @@
                 <Grid
                         Width="{Binding ContentWidth}"
                         Height="{Binding ContentHeight}"
+                        Background="{StaticResource controlBackground}"
                         >
 
                     <!-- In this sample the NetworkView is the content displayed by the ZoomAndPanControl. -->
@@ -803,6 +552,7 @@
                             MouseUp="networkControl_MouseUp"
                             MouseMove="networkControl_MouseMove"
                             MouseWheel="networkControl_MouseWheel"
+                            Background="{StaticResource controlBackground}"
                             />
 
                     <!--

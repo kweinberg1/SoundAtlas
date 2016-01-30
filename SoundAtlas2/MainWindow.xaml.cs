@@ -33,8 +33,6 @@ namespace SoundAtlas2
         public MainWindow()
         {
             InitializeComponent();
-
-            this.PlaylistView.Initialize(SpotifyClientService.User);
         }
 
         /// <summary>
@@ -63,19 +61,63 @@ namespace SoundAtlas2
             helpTextWindow.Show();
             */
 
-            OverviewWindow overviewWindow = new OverviewWindow();
+            /*OverviewWindow overviewWindow = new OverviewWindow();
             overviewWindow.Left = this.Left;
             overviewWindow.Top = this.Top + this.Height + 5;
             overviewWindow.Owner = this;
             overviewWindow.DataContext = this.AtlasView.ViewModel; // Pass the view model onto the overview window.
             overviewWindow.Show();
+            */
+
         }
 
         #region Search Events
-        private void OnSearchExecuted(object sender, RoutedEventArgs e)
+        private const String DefaultSearchText = "Search";
+        private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
         {
-            IEnumerable<String> inputString = new List<String>() { (String)e.OriginalSource };
-            //this.AtlasView.GenerateMap(inputString, (PlaylistViewModel)this.PlaylistView.DataContext);
+            if (e.Key == Key.Enter)
+            {
+                //For now, push the popup control.
+                ArtistList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
+
+                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistGroup.Items;
+                this.SearchControl.IsOpen = true;
+            }
+        }
+
+        private void OnSearchControlClosed(object sender, EventArgs e)
+        {
+            Artist selectedArtist = this.SearchControl.SelectedItem;
+
+            List<Artist> artistList = new List<Artist>() { selectedArtist };
+            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
+
+            this.AtlasView.UpdateNetwork();
+        }
+
+        private void OnSearchPanelFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox searchControlTextBox = (TextBox) sender;
+
+            if (String.Equals(searchControlTextBox.Text, DefaultSearchText))
+            {
+                searchControlTextBox.Text = String.Empty;
+            }
+        }
+
+        private void OnSearchPanelLostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox searchPanelTextBox = (TextBox) sender;
+
+            if (searchPanelTextBox.Text.Length == 0)
+            {
+                searchPanelTextBox.Text = DefaultSearchText;
+            }
+        }
+
+        private void OnClearSearchTextButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.SearchTextBox.Text = String.Empty;
         }
         #endregion
 
@@ -115,12 +157,15 @@ namespace SoundAtlas2
             this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
 
             this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
-            this.AtlasView.ViewModel.GenerateNetwork();
-            this.AtlasView.UpdateLayout();
-            this.AtlasView.ViewModel.ArrangeNetwork();
+            this.AtlasView.UpdateNetwork();
         }
 
-        private void OnAddPopularTracksClick(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Handles button click for adding artist tracks.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnAddTracksClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
             ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
@@ -128,36 +173,59 @@ namespace SoundAtlas2
             if (playlistViewModel != null)
             {
                 targetViewModel.IsFlagged = true;
-                playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+                int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+
+                targetNodeViewModel.NumTracks += trackCount;
             }
         }
 
         private void OnAddArtistExecuted(object sender, RoutedEventArgs e)
         {
-           
+           //TODO: Placeholder.  This may not be required.
         }
         #endregion
 
-        private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
+        #region Login Methods
+        LoginWindow openLoginWindow = null;
+
+        private bool? ShowLoginWindow()
         {
-            if (e.Key == Key.Enter)
+            if (!SpotifyClientService.Client.HasAuthorizationAccess())
+            {   
+                openLoginWindow = new LoginWindow();
+                openLoginWindow.ShowDialog();
+                return openLoginWindow.DialogResult;
+            }
+
+            return true;
+        }
+
+        private void Login()
+        {
+            if (ShowLoginWindow() == true)
             {
-                //For now, push the popup control.
-                ArtistList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
-                
-                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistGroup.Items;
-                this.SearchControl.IsOpen = true;
+                this.PlaylistView.Initialize();
+
+                //TODO:  Support other music services.  This should be broken out into a separate UI action.
+                LoginViewModel loginViewModel = (LoginViewModel)this.LoginControl.DataContext;
+                loginViewModel.AccountName = SpotifyClientService.User.DisplayName;
+                loginViewModel.MusicService = MusicService.Spotify;
+
+                MainWindowViewModel mainWindowViewModel = (MainWindowViewModel)this.DataContext;
+                mainWindowViewModel.IsLoggedIn = true;
             }
         }
 
-        private void OnSearchControlClosed(object sender, EventArgs e)
+        /// <summary>
+        /// Event handler when the application has logged in.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void OnAccountLogin(object sender, RoutedEventArgs e)
         {
-            Artist selectedArtist = this.SearchControl.SelectedItem;
-
-            List<Artist> artistList = new List<Artist>() { selectedArtist };
-            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
-
-            this.AtlasView.UpdateNetwork();
+            Login();
         }
+
+        #endregion
     }
 }
