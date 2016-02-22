@@ -21,7 +21,10 @@ namespace Spotify
         private static readonly String SearchGenreEndpoint = WebURL + "/v1/search?q=genre:\"{0}\"&type=artist";
         private static readonly String RelatedArtistEndpoint = WebURL + "/v1/artists/{0}/related-artists";
         private static readonly String GetArtistAlbumsEndpoint = WebURL + "/v1/artists/{0}/albums?album_type={1}&market={2}";
+        private static readonly String GetFollowedArtistsEndpoint = WebURL + "/v1/me/following?type=artist";
+        private static readonly String FollowArtistsEndpoint = WebURL + "/v1/me/following?type=artist&ids={0}";
 
+        private static readonly String GetAlbumEndpoint = WebURL + "/v1/albums/{0}";
         private static readonly String GetAlbumTracksEndpoint = WebURL + "/v1/albums/{0}/tracks";
 
         private static readonly String CreatePlaylistEndpoint = WebURL + "/v1/users/{0}/playlists";
@@ -69,6 +72,21 @@ namespace Spotify
         public static String GetArtistAlbums(String artistId, AlbumType albumType)
         {
             return String.Format(GetArtistAlbumsEndpoint, artistId, albumType.GetParameterNameAttribute(","), SpotifyClientService.Country);
+        }
+
+        public static String GetFollowedArtists()
+        {
+            return String.Format(GetFollowedArtistsEndpoint);
+        }
+
+        public static String FollowArtist(IEnumerable<String> artistIds)
+        {
+            return String.Format(FollowArtistsEndpoint, String.Join(",", artistIds));
+        }
+
+        public static String GetAlbum(String albumId)
+        {
+            return String.Format(GetAlbumEndpoint, albumId);
         }
 
         public static String GetAlbumTracks(String albumId)

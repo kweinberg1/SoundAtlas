@@ -42,14 +42,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthorizationParameters.cs" />
+    <Compile Include="Converters\DateTimeJsonConverter.cs" />
     <Compile Include="Enums\Scope.cs" />
     <Compile Include="IPaged.cs" />
     <Compile Include="Model\Album.cs" />
-    <Compile Include="Model\AlbumList.cs" />
+    <Compile Include="Model\AlbumInfo.cs" />
+    <Compile Include="Model\AlbumInfoList.cs" />
     <Compile Include="Model\AlbumTypes.cs" />
     <Compile Include="Model\ArtistList.cs" />
     <Compile Include="Endpoints.cs" />
     <Compile Include="Model\Artist.cs" />
+    <Compile Include="Model\FollowedArtistList.cs" />
     <Compile Include="Model\Followers.cs" />
     <Compile Include="Model\Image.cs" />
     <Compile Include="Model\Playlist.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="Model\TrackList.cs" />
     <Compile Include="Model\TracksReference.cs" />
     <Compile Include="Model\User.cs" />
+    <Compile Include="SpotifyCacheService.cs" />
     <Compile Include="SpotifyClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpotifyClientService.cs" />

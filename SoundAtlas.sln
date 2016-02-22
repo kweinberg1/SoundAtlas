@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundAtlas", "SoundAtlas\SoundAtlas.csproj", "{B3F89E94-82FC-43F7-B0E8-1233560181F1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spotify", "Spotify\Spotify.csproj", "{3A9E4324-A675-4135-8C57-69400E1B673B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Newtonsoft.Json.Net40", "Newtonsoft.Json\Source\Src\Newtonsoft.Json\Newtonsoft.Json.Net40.csproj", "{A9AE40FF-1A21-414A-9FE7-3BE13644CC6D}"
@@ -25,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B3F89E94-82FC-43F7-B0E8-1233560181F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3F89E94-82FC-43F7-B0E8-1233560181F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3F89E94-82FC-43F7-B0E8-1233560181F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3F89E94-82FC-43F7-B0E8-1233560181F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A9E4324-A675-4135-8C57-69400E1B673B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A9E4324-A675-4135-8C57-69400E1B673B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A9E4324-A675-4135-8C57-69400E1B673B}.Release|Any CPU.ActiveCfg = Release|Any CPU

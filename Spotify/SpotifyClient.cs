@@ -45,7 +45,7 @@ namespace Spotify
             return user;
         }
 
-        public ArtistList SearchArtists(String artistName)
+        public ArtistSearchList SearchArtists(String artistName)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Spotify
                 {
                     String artistJsonResponse = streamReader.ReadToEnd();
 
-                    ArtistList artistList = JsonConvert.DeserializeObject<ArtistList>(artistJsonResponse);
+                    ArtistSearchList artistList = JsonConvert.DeserializeObject<ArtistSearchList>(artistJsonResponse);
                     return artistList;
                 }
             }
@@ -114,16 +114,46 @@ namespace Spotify
             }
         }
 
-        public AlbumList GetArtistAlbums(Artist artist)
+        public AlbumInfoList GetArtistAlbums(Artist artist)
         {
-            AlbumList albumList = GetPagedRequest<AlbumList>(Endpoints.GetArtistAlbums(artist.ID, AlbumType.All), true);
+            AlbumInfoList albumList = GetPagedRequest<AlbumInfoList>(Endpoints.GetArtistAlbums(artist.ID, AlbumType.All), true);
             return albumList;
         }
 
-        public AlbumTrackList GetAlbumTracks(Album album)
+        public AlbumInfoList GetArtistAlbums(Artist artist, AlbumType albumTypes)
+        {
+            AlbumInfoList albumList = GetPagedRequest<AlbumInfoList>(Endpoints.GetArtistAlbums(artist.ID, albumTypes), true);
+            return albumList;
+        }
+
+        public Album GetAlbum(AlbumInfo albumInfo)
+        {
+            Album album = GetRequest<Album>(Endpoints.GetAlbum(albumInfo.ID), true);
+            return album;
+        }
+
+        public AlbumTrackList GetAlbumTracks(AlbumInfo album)
         {
             AlbumTrackList trackList = GetPagedRequest<AlbumTrackList>(Endpoints.GetAlbumTracks(album.ID), true);
             return trackList;
+        }
+
+        internal FollowedArtistList GetFollowedArtists()
+        {
+            FollowedArtistList followedArtistList = GetPagedRequest<FollowedArtistList>(Endpoints.GetFollowedArtists(), true);
+            return followedArtistList;
+        }
+
+        internal bool FollowArtist(Artist artist)
+        {
+            List<string> artistIds = new List<string>() { artist.ID };
+            return PutRequest(Endpoints.FollowArtist(artistIds), String.Empty, true);
+        }
+
+        internal bool UnfollowArtist(Artist artist)
+        {
+            List<string> artistIds = new List<string>() { artist.ID };
+            return DeleteRequest(Endpoints.FollowArtist(artistIds), String.Empty, true);
         }
 
         public TrackList GetArtistTopTracks(Artist artist)
@@ -159,7 +189,7 @@ namespace Spotify
 
         public PlaylistTrackList GetPlaylistTracks(PlaylistInfo playlist)
         {
-            return GetRequest<PlaylistTrackList>(Endpoints.GetPlaylistTracks(playlist.UserInfo.Id, playlist.ID), true);
+            return GetPagedRequest<PlaylistTrackList>(Endpoints.GetPlaylistTracks(playlist.UserInfo.Id, playlist.ID), true);
         }
 
         public void AddTracksToPlaylist(PlaylistInfo playlist, IEnumerable<Track> songsToAdd)
@@ -240,7 +270,7 @@ namespace Spotify
                 ResponseType = "code",
                 RedirectUri = Credentials.SoundAtlasRedirectURL,
                 State = "profile",
-                Scope = Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic | Scope.PlaylistReadPrivate | Scope.PlaylistReadCollaborative
+                Scope = Scope.PlaylistModifyPrivate | Scope.PlaylistModifyPublic | Scope.PlaylistReadPrivate | Scope.PlaylistReadCollaborative | Scope.UserFollowRead | Scope.UserFollowModify
             };
 
             String authorizeUrl = Endpoints.GetAuthorize(authorizationParameters);
@@ -366,6 +396,66 @@ namespace Spotify
                 
                 String responseString = Encoding.UTF8.GetString(data);
                 return JsonConvert.DeserializeObject<T>(responseString);
+            }
+        }
+
+        public bool PutRequest(String url, String requestBody, bool useAuthorization)
+        {
+            using (WebClient wc = new WebClient())
+            {
+                wc.Proxy = null;
+
+                if (useAuthorization)
+                    wc.Headers.Add("Authorization", AccessToken.TokenType + " " + AccessToken.TokenCode);
+
+                NameValueCollection values = new NameValueCollection
+                    {
+                        {"client_id", Credentials.SoundAtlasClientID},
+                        {"client_secret", Credentials.SoundAtlasClientSecret}
+                    };
+
+                bool result = true;
+
+                try
+                {
+                    wc.UploadData(url, "PUT", Encoding.UTF8.GetBytes(requestBody));
+                }
+                catch (WebException)
+                {
+                    result = false;
+                }
+
+                return result; 
+            }
+        }
+
+        public bool DeleteRequest(String url, String requestBody, bool useAuthorization)
+        {
+            using (WebClient wc = new WebClient())
+            {
+                wc.Proxy = null;
+
+                if (useAuthorization)
+                    wc.Headers.Add("Authorization", AccessToken.TokenType + " " + AccessToken.TokenCode);
+
+                NameValueCollection values = new NameValueCollection
+                    {
+                        {"client_id", Credentials.SoundAtlasClientID},
+                        {"client_secret", Credentials.SoundAtlasClientSecret}
+                    };
+
+                bool result = true;
+
+                try
+                {
+                    wc.UploadData(url, "DELETE", Encoding.UTF8.GetBytes(requestBody));
+                }
+                catch (WebException)
+                {
+                    result = false;
+                }
+
+                return result;
             }
         }
 

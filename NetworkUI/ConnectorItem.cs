@@ -79,7 +79,7 @@ namespace NetworkUI
         /// </summary>
         public Point Hotspot
         {
-            get
+            get     
             {
                 return (Point)GetValue(HotspotProperty);
             }

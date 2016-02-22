@@ -10,62 +10,56 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 namespace Spotify.Model
 {
-    [DataContract]
     [DebuggerDisplay("Artist {Name}")]
     public class Artist
     {
         #region Properties
-        [DataMember]
+        [JsonProperty("name")]
         public String Name
         {
             get;
             private set;
         }
 
-        [DataMember]
-        public String ID;
+        [JsonProperty("ID")]
+        public String ID 
+        { 
+            get;
+            set; 
+        }
 
-        [DataMember(Name="followers")]
-        private Dictionary<String, object> Followers;
+        [JsonProperty("followers")]
+        public Dictionary<String, object> Followers
+        {
+            get;
+            set;
+        }
 
-        [DataMember]
+        [JsonProperty("genres")]
         public List<String> Genres
         {
             get;
             private set;
         }
 
-        //[DataMember]
-        //private String SpotifyURL;
+        [JsonProperty("external_urls")]
+        public Dictionary<String, String> ExternalURLs
+        {
+            get;
+            private set;
+        }
 
-        [DataMember(Name="external_urls")]
-        private Dictionary<String, String> ExternalURLs;
-
-        [DataMember]
-        private int Popularity;
+        [JsonProperty("popularity")]
+        public int Popularity
+        {
+            get;
+            private set;
+        }
         #endregion
 
-        internal Artist() { } 
+        public Artist()
+        { 
 
-        internal Artist(String name, String id, Dictionary<String, object> followers, List<String> genres, int popularity, Dictionary<String, String> externalURLs)
-        {
-            Name = name;
-            ID = id;
-            Followers = followers;
-            Genres = genres;
-            Popularity = popularity;
-            ExternalURLs = externalURLs;
-        }
-
-        /*public override bool Equals(object other)
-        {
-            Artist otherArtist = (Artist)other;
-            return String.Equals(this.ID, otherArtist.ID);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }*/
+        } 
     }
 }

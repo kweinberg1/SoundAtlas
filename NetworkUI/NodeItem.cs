@@ -28,6 +28,10 @@ namespace NetworkUI
             DependencyProperty.Register("Y", typeof(double), typeof(NodeItem),
                 new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+        public static readonly DependencyProperty IsHighlightedProperty =
+            DependencyProperty.Register("IsHighlighted", typeof(bool), typeof(NodeItem),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
         public static readonly DependencyProperty ZIndexProperty =
             DependencyProperty.Register("ZIndex", typeof(int), typeof(NodeItem),
                 new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
@@ -98,7 +102,13 @@ namespace NetworkUI
             {
                 SetValue(ZIndexProperty, value);
             }
-       }            
+       }
+
+        public bool IsHighlighted
+        {
+            get { return (bool)GetValue(IsHighlightedProperty); }
+            set { SetValue(IsHighlightedProperty, value);  }
+        }
 
         #region Private Data Members\Properties
 

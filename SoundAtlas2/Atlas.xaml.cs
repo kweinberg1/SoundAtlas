@@ -48,6 +48,31 @@ namespace SoundAtlas2
         }
        
         public readonly RoutedEvent AddTracksEvent = EventManager.RegisterRoutedEvent("AddTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+
+        public event RoutedEventHandler FollowArtist
+        {
+            add { AddHandler(FollowArtistEvent, value); }
+            remove { RemoveHandler(FollowArtistEvent, value); }
+        }
+
+        public readonly RoutedEvent FollowArtistEvent = EventManager.RegisterRoutedEvent("FollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+
+        public event RoutedEventHandler UnfollowArtist
+        {
+            add { AddHandler(UnfollowArtistEvent, value); }
+            remove { RemoveHandler(UnfollowArtistEvent, value); }
+        }
+
+        public readonly RoutedEvent UnfollowArtistEvent = EventManager.RegisterRoutedEvent("UnfollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+
+        public event RoutedEventHandler RegenerateNetwork
+        {
+            add { AddHandler(RegenerateNetworkEvent, value); }
+            remove { RemoveHandler(RegenerateNetworkEvent, value); }
+        }
+
+        public readonly RoutedEvent RegenerateNetworkEvent = EventManager.RegisterRoutedEvent("RegenerateNetwork", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
+
         #endregion
 
         /// <summary>
@@ -169,6 +194,15 @@ namespace SoundAtlas2
 
         }
 
+        /// <summary>
+        /// Event raised to delete the selected node.
+        /// </summary>
+        private void GenerateNetwork_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(RegenerateNetworkEvent, sender);
+            RaiseEvent(newEventArgs);
+        }
+
         public void UpdateNetwork()
         {
             this.ViewModel.GenerateNetwork();
@@ -185,6 +219,27 @@ namespace SoundAtlas2
             RoutedEventArgs newEventArgs = new RoutedEventArgs(AddTracksEvent, viewModel);
             RaiseEvent(newEventArgs);
         }
+
+        private void OnFollowArtistClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
+
+            viewModel.IsHighlighted = true;
+
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(FollowArtistEvent, viewModel);
+            RaiseEvent(newEventArgs);
+        }
+
+        private void OnUnfollowArtistClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
+
+            viewModel.IsHighlighted = false;
+
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(UnfollowArtistEvent, viewModel);
+            RaiseEvent(newEventArgs);
+        }
+
 
         private void OnExpandRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {

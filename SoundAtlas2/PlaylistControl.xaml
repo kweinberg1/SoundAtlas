@@ -6,7 +6,10 @@
              xmlns:soundatlas="clr-namespace:SoundAtlas2"
              xmlns:spotifymodel="clr-namespace:Spotify.Model;assembly=Spotify"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="300" Width="200">
+    <UserControl.Resources>
+        <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+    </UserControl.Resources>
     <Grid>
 
         <Grid.Resources>
@@ -22,29 +25,41 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </Grid.Resources>
+        <Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <ComboBox x:Name="PlaylistComboBox" ItemsSource="{Binding Path=Playlists}" DisplayMemberPath="Name" SelectedValuePath="Name" SelectionChanged="OnPlaylistSelectionChanged"/>
         </Grid>
-        <ListBox Grid.Row="1" ItemsSource="{Binding PlaylistTracks}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+        <ListBox Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" ItemsSource="{Binding PlaylistTracks}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" SelectionChanged="OnPlaylistListBoxSelectionChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type spotifymodel:Track}">
                     <StackPanel>
                         <TextBlock>
                             <TextBlock.Text>
-                             <MultiBinding StringFormat="{}{0} - {1}">
-                                <Binding Path="ArtistDisplay" />
-                                <Binding Path="Name" />
-                            </MultiBinding>
+                                <MultiBinding StringFormat="{}{0} - {1}">
+                                    <Binding Path="ArtistDisplay" />
+                                    <Binding Path="Name" />
+                                </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+            <ListBox.Style>
+                <Style TargetType="{x:Type ListBox}">
+                    <Style.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
+                    </Style.Resources>
+                </Style>
+            </ListBox.Style>
         </ListBox>
 
+        <Border Grid.ColumnSpan="2" BorderBrush="Yellow" BorderThickness="5" Height="41" VerticalAlignment="Top" Visibility="{Binding ShowTutorialInfo, Converter={StaticResource booleanToVisibilityConverter}}" Grid.RowSpan="2" Grid.Row="1" Margin="0,2,0,0"/>
+        <Label Grid.Row="1" Grid.ColumnSpan="2" Content="Choose a Playlist to Start" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" Visibility="{Binding ShowTutorialInfo, Converter={StaticResource booleanToVisibilityConverter}}" Margin="5,10,10,5"/>
     </Grid>
 </UserControl>

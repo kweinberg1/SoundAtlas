@@ -68,6 +68,11 @@ namespace SoundAtlas2.Model
         private bool isSelected = false;
 
         /// <summary>
+        /// 
+        /// </summary>
+        private bool isHighlighted = false;
+
+        /// <summary>
         /// Set 'true' when the artist is part of the playlist.
         /// </summary>
         private bool isInPlaylist = false;
@@ -329,6 +334,28 @@ namespace SoundAtlas2.Model
                 isSelected = value;
 
                 OnPropertyChanged("IsSelected");
+            }
+        }
+
+        /// <summary>
+        /// Set to 'true' when the node is selected.
+        /// </summary>
+        public bool IsHighlighted
+        {
+            get
+            {
+                return isHighlighted;
+            }
+            set
+            {
+                if (isHighlighted == value)
+                {
+                    return;
+                }
+
+                isHighlighted = value;
+
+                OnPropertyChanged("IsHighlighted");
             }
         }
 

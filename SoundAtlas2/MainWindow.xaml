@@ -31,7 +31,7 @@
 
     <Window.Background>
         <SolidColorBrush Color="{Binding backgroundColor}"/>
-    </Window.Background> 
+    </Window.Background>
     <!-- 
     Including this in binding statements for diagnostics:
     diagnostics:PresentationTraceSources.TraceLevel=High
@@ -42,41 +42,65 @@
     </Window.DataContext>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.Resources>
-            <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
-        </Grid.Resources>
+        <Grid Name="MainGrid" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
+                <BitmapImage x:Key="EmailIcon" UriSource="Images/email.png"/>
+            </Grid.Resources>
 
-        <soundatlas:SearchControl 
-            x:Name="SearchControl" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlClosed">
-        </soundatlas:SearchControl>
-        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="{StaticResource controlBackground}">
-            <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+            <soundatlas:SearchControl 
+                x:Name="SearchControl" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlClosed">
+            </soundatlas:SearchControl>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="{StaticResource controlBackground}">
+                <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+                    <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
+                </Button>
+                <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Search" KeyDown="OnSearchPanelKeyDown" GotFocus="OnSearchPanelFocus" LostFocus="OnSearchPanelLostFocus" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
+                <Button x:Name="ClearSearchButton" ToolTip="Clear Search Text" Width="32" Height="32" HorizontalAlignment="Left" Click="OnClearSearchTextButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+                    <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="NotificationsButton" Click="OnNotificationClick" IsEnabled="{Binding IsLoggedIn}">
+                    <Image Stretch="Fill" Source="{StaticResource EmailIcon}"/>
+                </Button>
+                <soundatlas:LoginControl x:Name="LoginControl" Login="OnAccountLogin"/>
+            </StackPanel>
+
+            <soundatlas:PlaylistControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" PlaylistSelectionChanged="OnPlaylistSelectionChanged" PlaylistTrackSelectionChanged="OnPlaylistTrackSelectionChanged" IsEnabled="{Binding IsLoggedIn}"/>
+            <Button Grid.Row="2" x:Name="Recommend" ToolTip="Recommend Additions to Playlist" Width="190" Height="32" HorizontalAlignment="Left" Click="OnRecommendButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" Margin="0,4">
                 <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
             </Button>
-            <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Search" KeyDown="OnSearchPanelKeyDown" GotFocus="OnSearchPanelFocus" LostFocus="OnSearchPanelLostFocus" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
-            <Button x:Name="ClearSearchButton" ToolTip="Clear Search Text" Width="32" Height="32" HorizontalAlignment="Left" Click="OnClearSearchTextButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
-                <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
-            </Button>
-        </StackPanel>
-
-        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <soundatlas:LoginControl x:Name="LoginControl" Login="OnAccountLogin"/>
-        </StackPanel>
-
-        <soundatlas:PlaylistControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" SelectionChanged="OnPlaylistSelectionChanged" IsEnabled="{Binding IsLoggedIn}"/>
-        <soundatlas:Atlas Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AtlasView" AddTracks="OnAddTracksClick" IsEnabled="{Binding IsLoggedIn}">
-            <soundatlas:Atlas.DataContext>
-                <soundatlas:AtlasViewModel />
-            </soundatlas:Atlas.DataContext>
-        </soundatlas:Atlas>
+            <soundatlas:StartUpHelper x:Name="StartUpHelper" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
+            <soundatlas:Atlas Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AtlasView" AddTracks="OnAddTracksClick" FollowArtist="OnFollowArtistClick" UnfollowArtist="OnUnfollowArtistClick" IsEnabled="{Binding IsLoggedIn}" RegenerateNetwork="OnRegenerateNetwork" Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}">
+                <soundatlas:Atlas.DataContext>
+                    <soundatlas:AtlasViewModel />
+                </soundatlas:Atlas.DataContext>
+            </soundatlas:Atlas>
+        </Grid>
+        <Grid Name="NewsGrid" Visibility="Hidden">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Opacity="0" Click="OnNewsFeedGridClick"/>
+            <soundatlas:NewsFeedPopup Grid.Column="1" x:Name="NewsFeedPopup" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AddToPlaylist="OnNewsFeedAddToPlaylist"/>
+            <Button Grid.Column="2" Opacity="0" Click="OnNewsFeedGridClick"/>
+        </Grid>
     </Grid>
 </Window>

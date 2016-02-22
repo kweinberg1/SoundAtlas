@@ -9,6 +9,10 @@
         x:Key="booleanToVisibilityConverter" 
         />
 
+    <SoundAtlas:InverseBooleanToVisibilityConverter
+        x:Key="inverseBooleanToVisibilityConverter" 
+        />
+
     <SoundAtlas:InverseBooleanConverter
         x:Key="InverseBooleanConverter" 
         />
@@ -77,6 +81,10 @@
         <Setter
             Property="IsSelected"
             Value="{Binding IsSelected}"
+            />
+        <Setter
+            Property="IsHighlighted"
+            Value="{Binding IsHighlighted}"
             />
     </Style>
     
@@ -152,6 +160,11 @@
     
     <DataTemplate
         x:Key="searchControlTemplate">
-        <Label Content="{Binding Name, Mode=OneWay}" Foreground="{StaticResource nodeTextBrush}"/>
+        <Label Content="{Binding Name, Mode=OneWay}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
+    </DataTemplate>
+
+    <DataTemplate
+        x:Key="newsFeedItemTemplate">
+        <Label Content="{Binding Artist.Name}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
     </DataTemplate>
 </ResourceDictionary>

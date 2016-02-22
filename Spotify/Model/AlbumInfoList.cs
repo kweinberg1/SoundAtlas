@@ -8,28 +8,28 @@ using Newtonsoft.Json;
 
 namespace Spotify.Model
 {
-    public class AlbumList : IPaged
+    public class AlbumInfoList : IPaged
     {
         #region Properties
         [JsonProperty("href")]
         public String Link;
 
         [JsonProperty("items")]
-        public List<Album> Items;
+        public List<AlbumInfo> Items;
 
         #endregion
 
         #region Constructors
-        public AlbumList()
+        public AlbumInfoList()
         {
-            this.Items = new List<Album>();
+            this.Items = new List<AlbumInfo>();
         }
         #endregion
 
         #region IPaged Implementation
         public override void Combine(IPaged pagedObject)
         {
-            AlbumList otherInfoList = (AlbumList)pagedObject;
+            AlbumInfoList otherInfoList = (AlbumInfoList)pagedObject;
             this.Items.AddRange(otherInfoList.Items);
         }
         #endregion

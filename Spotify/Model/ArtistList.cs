@@ -9,21 +9,31 @@ using Newtonsoft.Json;
 
 namespace Spotify.Model
 {
-    public class ArtistList
+    public class ArtistList : IPaged
     {
         [JsonProperty("artists")]
         public ArtistGroup ArtistGroup { get; set; }
+
+        #region Constructor
+        public ArtistList()
+        {
+            ArtistGroup = new ArtistGroup();
+        }
+        #endregion
+
+        #region IPaged Implementation
+        public override void Combine(IPaged pagedObject)
+        {
+            ArtistList otherArtistList = (ArtistList)pagedObject;
+
+            this.ArtistGroup.Combine(otherArtistList.ArtistGroup);
+        }
+        #endregion
     }
 
-    public class ArtistGroup
+    public class ArtistGroup : IPaged
     {
         #region Properties
-        [JsonProperty("href")]
-        public String Link;
-
-        [JsonProperty("items")]
-        public List<Artist> Items;
-
         [JsonProperty("artists")]
         public List<Artist> Artists;
         #endregion
@@ -31,9 +41,16 @@ namespace Spotify.Model
         #region Constructor
         public ArtistGroup()
         {
-            Link = null;
-            Items = null;
-            Artists = null;
+            Artists = new List<Artist>();
+        }
+        #endregion
+
+        #region IPaged Implementation
+        public override void Combine(IPaged pagedObject)
+        {
+            ArtistGroup otherArtistList = (ArtistGroup)pagedObject;
+
+            this.Artists.AddRange(otherArtistList.Artists);
         }
         #endregion
     }

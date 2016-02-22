@@ -19,6 +19,8 @@ namespace SoundAtlas2
     /// </summary>
     public partial class LoginWindow : Window
     {
+        private bool _isClosed;
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -26,6 +28,8 @@ namespace SoundAtlas2
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            _isClosed = false;
+
             Task<bool> listenerTask = Task<bool>.Run(() => ListenForAuthorization());
             listenerTask.ContinueWith((task) =>
                 {
@@ -34,8 +38,11 @@ namespace SoundAtlas2
                         {
                             Spotify.SpotifyClientService.Login();
 
-                            DialogResult = task.Result;
-                            Close();
+                            if (!_isClosed)
+                            {
+                                DialogResult = task.Result;
+                                Close();
+                            }
                         });
                 });
             LaunchAuthorization();
@@ -52,6 +59,11 @@ namespace SoundAtlas2
             Task<bool> authorizationListener = Spotify.SpotifyClientService.Client.ListenForAuthorization();
             authorizationListener.Wait();
             return authorizationListener.Result;
+        }
+
+        private void OnWindowClosed(object sender, EventArgs e)
+        {
+            _isClosed = true;
         }
     }
 }

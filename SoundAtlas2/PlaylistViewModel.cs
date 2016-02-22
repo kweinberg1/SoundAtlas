@@ -52,6 +52,20 @@ namespace SoundAtlas2
         {
             get { return _displayPlaylists; }
         }
+
+        private bool _showTutorialInfo;
+        public bool ShowTutorialInfo
+        {
+            get
+            {
+                return _showTutorialInfo;
+            }
+            set
+            {
+                _showTutorialInfo = value;
+                NotifyPropertyChanged();
+            }
+        }
         #endregion
 
         #region Constructors
@@ -60,6 +74,7 @@ namespace SoundAtlas2
             _playlist = null;
             _client = SpotifyClientService.Client;
 
+            _showTutorialInfo = true;
             _playlists = _client.GetPlaylists(SpotifyClientService.User.Id);
 
             _displayPlaylists = _playlists.Playlists;
@@ -82,9 +97,17 @@ namespace SoundAtlas2
         {
             IEnumerable<Track> addedTracks = AddArtistSongsToPlaylist(artist);
 
-            PlaylistTracks = null;
-            PlaylistTracks = _playlist.Tracks.Select(playlistTrack => playlistTrack.Track);
+            RefreshPlaylist();
+
             return addedTracks.Count();
+        }
+
+        public void AddAlbum(Album album)
+        {
+            AlbumTrackList albumTrackList = _client.GetAlbumTracks(album);
+            _client.AddTracksToPlaylist(_playlist, albumTrackList.Tracks);
+
+            RefreshPlaylist();
         }
 
         public IEnumerable<Track> AddArtistSongsToPlaylist(Artist artist)
@@ -108,9 +131,9 @@ namespace SoundAtlas2
 
             if (!songsToAdd.Any())
             {
-                AlbumList albumList = _client.GetArtistAlbums(artist);
+                AlbumInfoList albumList = _client.GetArtistAlbums(artist);
 
-                foreach (Album album in albumList.Items)
+                foreach (AlbumInfo album in albumList.Items)
                 {
                     AlbumTrackList albumTrackList = _client.GetAlbumTracks(album);
                     IEnumerable<Track> albumTracksByPopularity = albumTrackList.Tracks.OrderByDescending(track => track.Popularity);
@@ -130,11 +153,8 @@ namespace SoundAtlas2
                 }
             }
 
-            _client.AddTracksToPlaylist(_playlist, songsToAdd);
 
-            //Update the playlist's track listings.
-            PlaylistTrackList trackList = _client.GetPlaylistTracks(_playlist);
-            _playlist.SetPlaylistTracks(trackList);
+            _client.AddTracksToPlaylist(_playlist, songsToAdd);
 
             return songsToAdd;
         }
@@ -147,6 +167,16 @@ namespace SoundAtlas2
         public int GetArtistTrackCount(Artist artist)
         {
             return _playlist.Tracks.SelectMany(track => track.Track.Artists).Where(trackArtist => trackArtist.ID == artist.ID).Count();
+        }
+
+        private void RefreshPlaylist()
+        {
+            //Update the playlist's track listings.
+            PlaylistTrackList trackList = _client.GetPlaylistTracks(_playlist);
+            _playlist.SetPlaylistTracks(trackList);
+
+            PlaylistTracks = null;
+            PlaylistTracks = _playlist.Tracks.Select(playlistTrack => playlistTrack.Track);
         }
         #endregion Methods
     }

@@ -17,7 +17,7 @@ namespace Spotify
         public String Previous { get; set; }
 
         [JsonProperty("next")]
-        public String Next { get; set; }
+        public virtual String Next { get; set; }
 
         [JsonProperty("offset")]
         public int Offset { get; set; }

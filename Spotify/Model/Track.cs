@@ -31,7 +31,7 @@ namespace Spotify.Model
         public List<Artist> Artists { get; set; }
 
         [JsonProperty("album")]
-        public Album Album { get; set; }
+        public AlbumInfo Album { get; set; }
 
         /// <summary>
         /// 

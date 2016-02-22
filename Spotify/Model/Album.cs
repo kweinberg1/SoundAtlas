@@ -8,20 +8,18 @@ using Newtonsoft.Json;
 
 namespace Spotify.Model
 {
-    public class Album
+    public class Album : AlbumInfo
     {
         #region Properties
-        [JsonProperty("name")]
-        public String Name { get; set; }
+        [JsonProperty("release_date")]
+        [JsonConverter(typeof(Spotify.Converters.DateTimeJsonConverter))]
+        public DateTime ReleaseDate { get; set; }
 
-        [JsonProperty("type")]
-        public String Type { get; set; }
+        [JsonProperty("popularity")]
+        public int Popularity { get; set; }
 
-        [JsonProperty("id")]
-        public String ID { get; set; }
-
-        [JsonProperty("uri")]
-        public String Uri { get; set; }
+        [JsonProperty("artists")]
+        public List<Artist> Artists { get; set; }
         #endregion
 
         #region Constructors

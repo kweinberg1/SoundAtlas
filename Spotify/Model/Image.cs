@@ -18,5 +18,7 @@ namespace Spotify.Model
 
         [JsonProperty("height")]
         public int? Height { get; set; }
+
+        public Image() { }
     }
 }

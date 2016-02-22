@@ -13,11 +13,11 @@ namespace SoundAtlas2
     /// <summary>
     /// The view-model for the main window.
     /// </summary>
-    public class MainWindowViewModel : AbstractModelBase
+    public class MainWindowViewModel : ViewModelBase
     {
         public MainWindowViewModel()
         {
-
+            
         }
 
         private bool _isLoggedIn;
@@ -30,6 +30,7 @@ namespace SoundAtlas2
             set
             {
                 _isLoggedIn = value;
+                NotifyPropertyChanged();
             }
         }
     }

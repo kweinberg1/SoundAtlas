@@ -15,7 +15,7 @@ namespace Spotify
         #region Test Serialization
         private static void TestSerializeArtist(this SpotifyClient client)
         {
-            List<String> genres = new List<String> { "chillwave", "grave wave", "metropopolis" };
+            /*List<String> genres = new List<String> { "chillwave", "grave wave", "metropopolis" };
             Dictionary<String, String> externalURLs = new Dictionary<String, String>();
             externalURLs.Add("Spotify", "http://...");
             Dictionary<String, object> followers = new Dictionary<String, object>();
@@ -26,7 +26,7 @@ namespace Spotify
             using (StreamWriter writer = new StreamWriter("testdata.txt"))
             {
                 writer.WriteLine(serialized);
-            }
+            }*/
         }
         #endregion
     }

@@ -34,16 +34,34 @@ namespace SoundAtlas2
             remove { RemoveHandler(CreatePlaylistEvent, value); }
         }
 
-        public event RoutedEventHandler SelectionChanged
+        public event RoutedEventHandler PlaylistSelectionChanged
         {
-            add { AddHandler(SelectionChangedEvent, value); }
-            remove { RemoveHandler(SelectionChangedEvent, value); }
+            add { AddHandler(PlaylistSelectionChangedEvent, value); }
+            remove { RemoveHandler(PlaylistSelectionChangedEvent, value); }
+        }
+
+        public event RoutedEventHandler PlaylistTrackSelectionChanged
+        {
+            add { AddHandler(PlaylistTrackSelectionChangedEvent, value); }
+            remove { RemoveHandler(PlaylistTrackSelectionChangedEvent, value); }
+        }
+
+        /// <summary>
+        /// Convenient accessor for the view-model.
+        /// </summary>
+        public PlaylistViewModel ViewModel
+        {
+            get
+            {
+                return (PlaylistViewModel)DataContext;
+            }
         }
         #endregion
 
         #region Events
         public readonly RoutedEvent CreatePlaylistEvent = EventManager.RegisterRoutedEvent("CreatePlaylist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
-        public readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent("SelectionChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
+        public readonly RoutedEvent PlaylistSelectionChangedEvent = EventManager.RegisterRoutedEvent("PlaylistSelectionChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
+        public readonly RoutedEvent PlaylistTrackSelectionChangedEvent = EventManager.RegisterRoutedEvent("PlaylistTrackSelectionChanged", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
         #endregion
 
 
@@ -65,6 +83,12 @@ namespace SoundAtlas2
             PlaylistComboBox.SelectedItem = playlist;
         }
 
+        public void SelectPlaylist(Playlist playlist)
+        {
+            _viewModel.Playlist = playlist;
+            PlaylistComboBox.SelectedItem = playlist;
+        }
+
         private void OnAddPlaylist(object sender, RoutedEventArgs e)
         {
             RaiseCreatePlaylistEvent(sender, e);
@@ -78,7 +102,13 @@ namespace SoundAtlas2
 
         private void RaiseSelectionChangedEvent(object sender, RoutedEventArgs e)
         {
-            RoutedEventArgs newEventArgs = new RoutedEventArgs(SelectionChangedEvent, e);
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(PlaylistSelectionChangedEvent, e);
+            RaiseEvent(newEventArgs);
+        }
+
+        private void RaiseTrackSelectionChangedEvent(object sender, SelectionChangedEventArgs e)
+        {
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(PlaylistTrackSelectionChangedEvent, e);
             RaiseEvent(newEventArgs);
         }
 
@@ -110,7 +140,10 @@ namespace SoundAtlas2
                 RaiseSelectionChangedEvent(sender, e);
             }
         }
-        
 
+        private void OnPlaylistListBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RaiseTrackSelectionChangedEvent(sender, e);
+        }
     }
 }

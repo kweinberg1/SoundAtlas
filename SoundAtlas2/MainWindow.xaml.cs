@@ -30,6 +30,11 @@ namespace SoundAtlas2
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Fields
+        private LoginWindow _openLoginWindow;
+        private UserCache _userCache;
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
@@ -68,7 +73,19 @@ namespace SoundAtlas2
             overviewWindow.DataContext = this.AtlasView.ViewModel; // Pass the view model onto the overview window.
             overviewWindow.Show();
             */
+        }
 
+        void AddTracks(NodeViewModel targetNodeViewModel)
+        {
+            ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
+            PlaylistViewModel playlistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+            if (playlistViewModel != null)
+            {
+                targetViewModel.IsFlagged = true;
+                int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+
+                targetNodeViewModel.NumTracks += trackCount;
+            }
         }
 
         #region Search Events
@@ -78,9 +95,9 @@ namespace SoundAtlas2
             if (e.Key == Key.Enter)
             {
                 //For now, push the popup control.
-                ArtistList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
+                ArtistSearchList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
 
-                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistGroup.Items;
+                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistItems.Items;
                 this.SearchControl.IsOpen = true;
             }
         }
@@ -89,10 +106,13 @@ namespace SoundAtlas2
         {
             Artist selectedArtist = this.SearchControl.SelectedItem;
 
-            List<Artist> artistList = new List<Artist>() { selectedArtist };
-            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
+            if (selectedArtist != null)
+            {
+                List<Artist> artistList = new List<Artist>() { selectedArtist };
+                this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
 
-            this.AtlasView.UpdateNetwork();
+                this.AtlasView.UpdateNetwork();
+            }
         }
 
         private void OnSearchPanelFocus(object sender, RoutedEventArgs e)
@@ -112,6 +132,11 @@ namespace SoundAtlas2
             if (searchPanelTextBox.Text.Length == 0)
             {
                 searchPanelTextBox.Text = DefaultSearchText;
+            }
+
+            if (this.SearchControl.IsOpen == true)
+            {
+                this.SearchControl.IsOpen = false;
             }
         }
 
@@ -149,10 +174,42 @@ namespace SoundAtlas2
         /// <param name="e"></param>
         private void OnPlaylistSelectionChanged(object sender, RoutedEventArgs e)
         {
+            if (this.StartUpHelper.Visibility == Visibility.Visible)
+            {
+                this.StartUpHelper.Visibility = Visibility.Hidden;
+                this.AtlasView.ViewModel.IsVisible = true;
+                this.PlaylistView.ViewModel.ShowTutorialInfo = false;
+            }
+
             PlaylistControl playlistControl = (PlaylistControl)sender;
             PlaylistViewModel playlistViewModel = (PlaylistViewModel)playlistControl.DataContext;
 
             IEnumerable<Artist> distinctArtists = playlistViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
+
+            this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+
+            this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
+            this.AtlasView.UpdateNetwork();
+        }
+
+        private void OnPlaylistTrackSelectionChanged(object sender, RoutedEventArgs e)
+        {
+            SelectionChangedEventArgs args = (SelectionChangedEventArgs)e.OriginalSource;
+            ListBox sourceListBox = (ListBox)args.Source;
+
+            List<Spotify.Model.Track> selectedTracks = new List<Spotify.Model.Track>();
+            foreach (Spotify.Model.Track selectedTrack in sourceListBox.SelectedItems)
+            {
+                selectedTracks.Add(selectedTrack);
+            }
+
+            IEnumerable<Artist> distinctArtists = selectedTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
+            this.AtlasView.ViewModel.SelectArtistNodes(distinctArtists);
+        }
+
+        private void OnRegenerateNetwork(object sender, RoutedEventArgs e)
+        {
+            IEnumerable<Artist> distinctArtists = this.PlaylistView.ViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
 
             this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
 
@@ -168,14 +225,26 @@ namespace SoundAtlas2
         private void OnAddTracksClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
-            ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
-            PlaylistViewModel playlistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-            if (playlistViewModel != null)
-            {
-                targetViewModel.IsFlagged = true;
-                int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+            AddTracks(targetNodeViewModel);
+        }
 
-                targetNodeViewModel.NumTracks += trackCount;
+        private void OnFollowArtistClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
+
+            if (!SpotifyCacheService.IsArtistFollowed(targetNodeViewModel.ArtistViewModel.Artist))
+            {
+                SpotifyCacheService.FollowArtist(targetNodeViewModel.ArtistViewModel.Artist);
+            }
+        }
+
+        private void OnUnfollowArtistClick(object sender, RoutedEventArgs e)
+        {
+            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
+
+            if (SpotifyCacheService.IsArtistFollowed(targetNodeViewModel.ArtistViewModel.Artist))
+            {
+                SpotifyCacheService.UnfollowArtist(targetNodeViewModel.ArtistViewModel.Artist);
             }
         }
 
@@ -186,15 +255,13 @@ namespace SoundAtlas2
         #endregion
 
         #region Login Methods
-        LoginWindow openLoginWindow = null;
-
         private bool? ShowLoginWindow()
         {
             if (!SpotifyClientService.Client.HasAuthorizationAccess())
             {   
-                openLoginWindow = new LoginWindow();
-                openLoginWindow.ShowDialog();
-                return openLoginWindow.DialogResult;
+                _openLoginWindow = new LoginWindow();
+                _openLoginWindow.ShowDialog();
+                return _openLoginWindow.DialogResult;
             }
 
             return true;
@@ -205,6 +272,10 @@ namespace SoundAtlas2
             if (ShowLoginWindow() == true)
             {
                 this.PlaylistView.Initialize();
+
+                _userCache = UserCache.Load(SpotifyClientService.User.Id);
+
+                GetNewsFeed(_userCache);
 
                 //TODO:  Support other music services.  This should be broken out into a separate UI action.
                 LoginViewModel loginViewModel = (LoginViewModel)this.LoginControl.DataContext;
@@ -227,5 +298,133 @@ namespace SoundAtlas2
         }
 
         #endregion
+
+        #region News Feed
+        private void GetNewsFeed(UserCache userCache)
+        {
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                AlbumType filter = AlbumType.Album | AlbumType.Single;
+                DateTime cutoff = DateTime.Now.AddMonths(-3);
+                int maxSuggestions = 3;
+
+                FollowedArtistList followedArtists = SpotifyCacheService.GetFollowedArtists();
+                List<NewsFeedItem> newsItems = new List<NewsFeedItem>();
+    
+                foreach (Artist followedArtist in followedArtists.ArtistItems.Items)
+                {
+                    //Find if there's any new content available from this artist.
+                    AlbumInfoList albums = SpotifyClientService.Client.GetArtistAlbums(followedArtist, filter);
+
+                    foreach (AlbumInfo album in albums.Items)
+                    {
+                        if (userCache.SeenNewsItem(album.ID)) continue;
+
+                        Album albumInfo = SpotifyClientService.Client.GetAlbum(album);
+
+                        if (albumInfo.ReleaseDate > cutoff)
+                        {
+                            newsItems.Add(new NewsFeedItem(followedArtist, albumInfo));
+                            if (newsItems.Count >= maxSuggestions)
+                                break;
+                        }
+                        else
+                        {
+                            //Assume that albums are returned by Spotify by release date, descending.
+                            //If we miss the cutoff, skip out.
+                            break;
+                        }
+                    }
+
+                    if (newsItems.Count >= maxSuggestions)
+                        break;
+                }
+
+                if (newsItems.Any())
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        //Display a popup.
+
+                        this.MainGrid.Visibility = Visibility.Hidden;
+                        this.NewsGrid.Visibility = Visibility.Visible;
+                        this.NewsFeedPopup.DataContext = new NewsFeedViewModel(newsItems, userCache);
+                    });
+                }
+            });
+        }
+
+        private void OnNewsFeedGridClick(object sender, RoutedEventArgs e)
+        {
+            this.MainGrid.Visibility = Visibility.Visible;
+            this.NewsGrid.Visibility = Visibility.Hidden;
+            this.NewsGrid.DataContext = null;
+        }
+
+        private void OnNotificationClick(object sender, RoutedEventArgs e)
+        {
+            GetNewsFeed(_userCache);
+        }
+
+        private void OnNewsFeedAddToPlaylist(object sender, RoutedEventArgs e)
+        {
+            AddToPlaylistEventArgs playlistArgs = (AddToPlaylistEventArgs)e;
+            string discoveryPlaylistName = "Sound Atlas - Discovery";
+            Playlist discoveryPlaylist = this.PlaylistView.ViewModel.Playlists.Where(playlist => playlist.Name.Equals(discoveryPlaylistName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+            if (discoveryPlaylist == null)
+            {
+                //TODO: Prompt users.
+
+                //Create the playlist in Spotify first.
+                Playlist newPlaylist = SpotifyClientService.Client.CreatePlaylist(discoveryPlaylistName, SpotifyClientService.User.Id);
+
+                this.PlaylistView.OnCreatePlaylist(newPlaylist);
+            }
+            else
+            {
+                this.PlaylistView.SelectPlaylist(discoveryPlaylist);
+            }
+
+            this.PlaylistView.ViewModel.AddAlbum(playlistArgs.Album);        
+ 
+            this.NewsFeedPopup.SetNotificationText(String.Format("{0} has been added to the {1} playlist.", playlistArgs.Album.Name, discoveryPlaylistName));
+        }
+        #endregion
+
+        #region Recommendations
+        private void OnRecommendButtonClick(object sender, RoutedEventArgs e)
+        {
+            Playlist selectedPlaylist = (Playlist)this.PlaylistView.PlaylistComboBox.SelectedItem;
+            if (selectedPlaylist == null)
+                return;
+
+            RecommendationEngine engine = new RecommendationEngine();
+            Artist recommendedArtist = engine.Recommend(SpotifyClientService.Client, selectedPlaylist);
+
+            RecommendationWindow recommendationWindow = new RecommendationWindow(recommendedArtist);
+            bool? result = recommendationWindow.ShowDialog();
+
+            if (result.Value == true)
+            {
+                NodeViewModel targetNodeViewModel = this.AtlasView.ViewModel.FindNodeOfArtist(recommendedArtist);
+
+                if (targetNodeViewModel == null)
+                {
+                    this.AtlasView.ViewModel.AddArtistsToHierarchy(new List<Artist>() { recommendedArtist });
+                    this.AtlasView.UpdateNetwork();
+
+                    targetNodeViewModel = this.AtlasView.ViewModel.FindNodeOfArtist(recommendedArtist);
+                } 
+
+                AddTracks(targetNodeViewModel);
+            }
+        }
+        #endregion
+
+        private void PlaylistView_PlaylistTrackSelectionChanged(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

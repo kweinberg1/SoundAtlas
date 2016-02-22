@@ -13,7 +13,12 @@
         x:Key="selectionBorderColor"
         Color="Blue"
         />
-    
+
+    <SolidColorBrush
+        x:Key="highlightBorderColor"
+        Color="Yellow"
+        />
+
     <SolidColorBrush
         x:Key="selectionBorderBackgroundColor"
         Color="Blue"
@@ -118,6 +123,19 @@
                                 TargetName="selectionBorder"
                                 Property="Background"
                                 Value="{StaticResource selectionBorderBackgroundColor}"
+                                />
+                        </Trigger>
+
+                        <Trigger 
+                            Property="IsHighlighted"
+                            Value="True"
+                            >
+
+                            <!-- When the node is selected, set the color of 'selectionBorder' to blue. -->
+                            <Setter
+                                TargetName="selectionBorder"
+                                Property="BorderBrush"
+                                Value="{StaticResource highlightBorderColor}"
                                 />
                         </Trigger>
                     </ControlTemplate.Triggers>

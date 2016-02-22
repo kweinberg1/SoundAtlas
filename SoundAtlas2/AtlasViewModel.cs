@@ -77,7 +77,8 @@ namespace SoundAtlas2
         public AtlasViewModel()
         {
             // Add some test data to the view-model.
-            PopulateWithTestData();
+            // Disabled:
+            // PopulateWithTestData();
         }
         #endregion
         /// <summary>
@@ -221,6 +222,21 @@ namespace SoundAtlas2
             }
         }
 
+
+        private bool _isVisible;
+        public bool IsVisible
+        {
+            get
+            {
+                return _isVisible;
+            }
+            set
+            {
+                _isVisible = value;
+                OnPropertyChanged("IsVisible");
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -229,6 +245,8 @@ namespace SoundAtlas2
             get;
             set;
         }
+
+
 
         /// <summary>
         /// Called when the user has started to drag out a connector, thus creating a new connection.
@@ -467,7 +485,6 @@ namespace SoundAtlas2
 
             node.X = nodeLocation.X;
             node.Y = nodeLocation.Y;
-
             node.InputConnectors.Add(new ConnectorViewModel("", ConnectorType.Input));
             node.OutputConnectors.Add(new ConnectorViewModel("", ConnectorType.Output));
 
@@ -612,6 +629,21 @@ namespace SoundAtlas2
             selectedNode.IsChildrenExpanded = _hierarchy.IsSubTreeExpanded(selectedNode.ArtistViewModel.HierarchyNode);
         }
 
+        public void SelectArtistNodes(IEnumerable<Artist> artists)
+        {
+            foreach (NodeViewModel node in this.Network.Nodes)
+            {
+                if (artists.Where(artist => artist.ID == node.ArtistViewModel.Artist.ID).Any())
+                {
+                    node.IsSelected = true;
+                }
+                else
+                {
+                    node.IsSelected = false;
+                }
+            }
+        }
+
         #region Private Methods
 
         /// <summary>
@@ -672,6 +704,8 @@ namespace SoundAtlas2
                 Point graphNodeLocation = new Point(0, offset);
                 NodeViewModel graphNode = CreateNode(node.ArtistViewModel, graphNodeLocation, false);
                 node.GraphNodeViewModel = graphNode;
+
+                graphNode.IsHighlighted = SpotifyCacheService.IsArtistFollowed(node.ArtistViewModel.Artist);
 
                 if (PlaylistViewModel != null)
                 {
@@ -775,10 +809,7 @@ namespace SoundAtlas2
 
                     allLevelNodes.Add(levelNodes);
                     level++;
-                }
-
-
-              
+                }              
 
                 foreach (NodeViewModel nodeViewModel in this.Network.Nodes)
                 {
@@ -808,6 +839,11 @@ namespace SoundAtlas2
 
                 return totalDepth;
             }
+        }
+
+        public NodeViewModel FindNodeOfArtist(Artist artist)
+        {
+            return this.Network.Nodes.Where(node => String.Equals(node.ArtistViewModel.Artist.ID, artist.ID)).FirstOrDefault();
         }
         #endregion
     }

@@ -1,0 +1,40 @@
+﻿<Grid x:Class="SoundAtlas2.NewsFeedPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:soundatlas="clr-namespace:SoundAtlas2"
+        mc:Ignorable="d" 
+        d:DesignHeight="300" d:DesignWidth="300"
+        DataContextChanged="Panel_DataContextChanged"
+        >
+    <Grid.DataContext>
+        <soundatlas:NewsFeedViewModel />
+    </Grid.DataContext>
+    <Grid.Resources>
+        <ResourceDictionary 
+            Source="SharedVisualTemplates.xaml"
+            />
+    </Grid.Resources>
+    <Grid.Background>
+        <SolidColorBrush Color="{Binding backgroundColor}"/>
+    </Grid.Background>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="40"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+    </Grid.ColumnDefinitions>
+    <Label Grid.Row="0" Grid.ColumnSpan="3" Content="New Releases" Background="{StaticResource nodeFillBrush}" Foreground="{StaticResource nodeTextBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" />
+    <WebBrowser Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Name="WebBrowserControl"/>
+    <Button Grid.Row="3" Grid.Column="0" Content="Previous" Panel.ZIndex="1000" Click="OnLeftButtonClick" />
+    <Button Grid.Row="3" Grid.Column="2" Content="Next" Panel.ZIndex="1000" Click="OnRightButtonClick"/>
+    <Button Grid.Row="3" Name="AddToPlaylistButton" Grid.Column="1" Content="Add to Playlist" Click="OnAddToPlaylistClick"/>
+    <Label Grid.Row="2" Grid.ColumnSpan="3" Content="{Binding NotificationPopupText}" Background="{StaticResource nodeFillBrush}" Foreground="{StaticResource nodeTextBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+    
+</Grid>

@@ -27,6 +27,7 @@
 
             <!-- UI commands. -->
 
+            <RoutedUICommand x:Key="Commands.GenerateNetwork" />
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes" />
             <RoutedUICommand x:Key="Commands.CreateNode" />
             <RoutedUICommand x:Key="Commands.ZoomOut" />
@@ -252,6 +253,18 @@
                                 ToolTip="Added tracks to the playlist."
                                 Tag="{Binding}"
                                 />
+                            <MenuItem
+                                Header="Follow Artist"
+                                Click="OnFollowArtistClick"
+                                ToolTip="Follow the artist."
+                                Tag="{Binding}"
+                                Visibility="{Binding IsHighlighted, Converter={StaticResource inverseBooleanToVisibilityConverter}}"/>
+                            <MenuItem
+                                Header="Unfollow Artist"
+                                Click="OnUnfollowArtistClick"
+                                ToolTip="Unfollow the artist."
+                                Tag="{Binding}"
+                                Visibility="{Binding IsHighlighted, Converter={StaticResource booleanToVisibilityConverter}}"/>
                         </ContextMenu>
                     </Grid.ContextMenu>
                         
@@ -409,6 +422,10 @@
         <!-- Bind commands to event handlers.-->
 
         <CommandBinding 
+            Command="{StaticResource Commands.GenerateNetwork}"
+            Executed="GenerateNetwork_Executed"
+            />
+        <CommandBinding 
             Command="{StaticResource Commands.DeleteSelectedNodes}" 
             Executed="DeleteSelectedNodes_Executed" 
             />
@@ -448,6 +465,12 @@
 
         <ContextMenu>
 
+            <MenuItem
+                Header="Regenerate Network"
+                Command="{StaticResource Commands.GenerateNetwork}"
+                ToolTip="Regenerates the network to better organize the graph."
+                />
+            
             <!-- Clicking this menu item creates a new node. -->
 
             <MenuItem
