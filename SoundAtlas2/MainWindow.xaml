@@ -10,10 +10,11 @@
     x:Name="mainWindow"
     MinWidth="400"
     MinHeight="150"
-	Width="800"
-    Height="500"
-	Loaded="MainWindow_Loaded"
-    FocusManager.FocusedElement="{Binding ElementName=networkControl}"
+	Width="1024"
+    Height="768"
+	Loaded="MainWindow_Loaded"     
+    AllowsTransparency="True"
+    WindowStyle="None"
     >
     <Window.Resources>
         <ResourceDictionary>
@@ -30,7 +31,7 @@
     </Window.Resources>
 
     <Window.Background>
-        <SolidColorBrush Color="{Binding backgroundColor}"/>
+        <SolidColorBrush Color="Black"/>
     </Window.Background>
     <!-- 
     Including this in binding statements for diagnostics:
@@ -42,65 +43,208 @@
     </Window.DataContext>
 
     <Grid>
+        <Rectangle x:Name="leftSizeGrip"
+            Width="5"
+            HorizontalAlignment="Left"
+            Panel.ZIndex="1000"
+            Cursor="SizeWE"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="rightSizeGrip"
+            Width="5"
+            HorizontalAlignment="Right"
+            Panel.ZIndex="1000"
+            Cursor="SizeWE"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="topSizeGrip"
+            Height="5"
+            VerticalAlignment="Top"
+            Panel.ZIndex="1000"
+            Cursor="SizeNS"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="bottomSizeGrip"
+            Height="5"
+            VerticalAlignment="Bottom"
+            Panel.ZIndex="1000"
+            Cursor="SizeNS"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+
+        <Rectangle x:Name="topLeftSizeGrip"
+            Height="5"
+            Width="5"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            Panel.ZIndex="1000"
+            Cursor="SizeNWSE"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="topRightSizeGrip"
+            Height="5"
+            Width="5"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Right"
+            Panel.ZIndex="1000"
+            Cursor="SizeNESW"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="bottomLeftSizeGrip"
+            Height="5"
+            Width="5"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Left"
+            Panel.ZIndex="1000"
+            Cursor="SizeNESW"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+        <Rectangle x:Name="bottomRightSizeGrip"
+            Height="5"
+            Width="5"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Right"
+            Panel.ZIndex="1000"
+            Cursor="SizeNWSE"
+            Style="{StaticResource ResizeGripBorderStyle}" />
+
+        <Rectangle x:Name="maximizeDragGrip"
+            Margin="5"
+            Height="30"
+            VerticalAlignment="Top"
+            Panel.ZIndex="1000"
+            Style="{StaticResource MaximizeDragGripBorderStyle}"/>
+
         <Grid Name="MainGrid" Visibility="Visible">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="32"/>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="32"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="200"/>
             </Grid.RowDefinitions>
             <Grid.Resources>
                 <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
                 <BitmapImage x:Key="EmailIcon" UriSource="Images/email.png"/>
+                <BitmapImage x:Key="SearchIcon" UriSource="Images/search.png"/>
+                <BitmapImage x:Key="ClearTextIcon" UriSource="Images/cleartext.png"/>
+                <BitmapImage x:Key="MinimizeIcon" UriSource="Images/cleartext.png"/>
+                <BitmapImage x:Key="MaximizeIcon" UriSource="Images/cleartext.png"/>
+                <BitmapImage x:Key="CloseIcon" UriSource="Images/cleartext.png"/>
+                <BitmapImage x:Key="ApplicationIcon" UriSource="Images/cleartext.png"/>
             </Grid.Resources>
 
-            <soundatlas:SearchControl 
-                x:Name="SearchControl" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlClosed">
-            </soundatlas:SearchControl>
-            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="{StaticResource controlBackground}">
-                <Button x:Name="SearchButton" ToolTip="Add Artist to Atlas" Width="32" Height="32" HorizontalAlignment="Left" Click="OnAddArtistExecuted" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
-                    <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
-                </Button>
-                <TextBox x:Name="SearchTextBox" VerticalAlignment="Center" Width="150" Text="Search" KeyDown="OnSearchPanelKeyDown" GotFocus="OnSearchPanelFocus" LostFocus="OnSearchPanelLostFocus" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
-                <Button x:Name="ClearSearchButton" ToolTip="Clear Search Text" Width="32" Height="32" HorizontalAlignment="Left" Click="OnClearSearchTextButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
-                    <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
-                </Button>
-            </StackPanel>
+            <Grid Grid.Row="0" Grid.ColumnSpan="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="NotificationsButton" Click="OnNotificationClick" IsEnabled="{Binding IsLoggedIn}">
+                <Button Grid.ColumnSpan="3" 
+                    Content="{Binding ApplicationName}" 
+                    BorderThickness="0" 
+                    HorizontalContentAlignment="Center" 
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Center" 
+                    Focusable="False"    
+                    Style="{StaticResource BorderlessButtonStyle}" Height="32"
+                    />
+                <Button Grid.Column="0" HorizontalAlignment="Left" BorderBrush="{x:Null}" Width="32" Height="32" Click="OnClearSearchTextButtonClick" Background="{x:Null}">
+                    <Image Stretch="Fill" Source="{StaticResource ApplicationIcon}"/>
+                </Button>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{x:Null}" Width="32" Height="16" Click="OnMinimizeButtonClick"  Background="{x:Null}">
+                        <Image Stretch="Fill" Source="{StaticResource MinimizeIcon}"/>
+                    </Button>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{x:Null}" Width="32" Height="16" Click="OnMaximizeButtonClick" Background="{x:Null}">
+                        <Image Stretch="Fill" Source="{StaticResource MaximizeIcon}"/>
+                    </Button>
+                    <Button HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{x:Null}" Width="64" Height="16" Click="OnCloseButtonClick" Background="{x:Null}">
+                        <Image Stretch="Fill" Source="{StaticResource CloseIcon}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Orientation="Horizontal" >
+                <Menu Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}">
+                    <MenuItem Header="File" Width="Auto" Height="Auto" />
+                </Menu>
+            </StackPanel>
+            <soundatlas:SearchControlPopup x:Name="SearchControlPopup" PlacementTarget="{Binding ElementName=SearchButton}" Closed="OnSearchControlPopupClosed">
+            </soundatlas:SearchControlPopup>
+            <Border Grid.Row="2" Grid.Column="1" Background="White" BorderBrush="Black" CornerRadius="15" Margin="0, 3, 0, 3">
+                <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                    <Button Background="{x:Null}" BorderBrush="{x:Null}" Width="16" Height="16">
+                        <Image Stretch="Fill" Source="{StaticResource SearchIcon}"/>
+                    </Button>
+                    <TextBox 
+                        x:Name="SearchTextBox" 
+                        Text="Search"
+                        VerticalContentAlignment="Center" 
+                        BorderThickness="0" 
+                        BorderBrush="{x:Null}" 
+                        SelectionBrush="{x:Null}"
+                        Background="{x:Null}"
+                        Width="150" 
+                        KeyDown="OnSearchPanelKeyDown" 
+                        GotFocus="OnSearchPanelFocus" 
+                        LostFocus="OnSearchPanelLostFocus" 
+                        Margin="0,3,0,3"  
+                        />
+                    <Button x:Name="ClearSearchButton" ToolTip="Clear Search Text" HorizontalAlignment="Right" BorderBrush="{x:Null}" Width="16" Height="16" Click="OnClearSearchTextButtonClick" Background="{x:Null}" Visibility="Hidden">
+                        <Image Stretch="Fill" Source="{StaticResource ClearTextIcon}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+
+                <Button Click="OnNotificationClick" Height="32" Width="32" IsEnabled="{Binding IsLoggedIn}" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
                     <Image Stretch="Fill" Source="{StaticResource EmailIcon}"/>
                 </Button>
+                <Border Background="DarkBlue" BorderBrush="Black" CornerRadius="20" Margin="-20, 9, 0, 5" >
+                    <Label Content="0" VerticalAlignment="Center" HorizontalContentAlignment="Center"  Foreground="White" Width="20" FontSize="9" Margin="-2,-2,0,0"/>
+                </Border>
                 <soundatlas:LoginControl x:Name="LoginControl" Login="OnAccountLogin"/>
             </StackPanel>
 
-            <soundatlas:PlaylistControl Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" x:Name="PlaylistView" CreatePlaylist="OnCreatePlaylist" PlaylistSelectionChanged="OnPlaylistSelectionChanged" PlaylistTrackSelectionChanged="OnPlaylistTrackSelectionChanged" IsEnabled="{Binding IsLoggedIn}"/>
-            <Button Grid.Row="2" x:Name="Recommend" ToolTip="Recommend Additions to Playlist" Width="190" Height="32" HorizontalAlignment="Left" Click="OnRecommendButtonClick" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" Margin="0,4">
+            <soundatlas:NavigationControl 
+                x:Name="NavigationControl" 
+                Grid.Row="2" 
+                Grid.Column="0" 
+                Grid.RowSpan="2" 
+                CreatePlaylist="OnCreatePlaylist" 
+                PlaylistSelectionChanged="OnPlaylistSelectionChanged"/>
+
+            <soundatlas:PlaylistControl 
+                x:Name="PlaylistView"
+                Grid.Row="4"
+                Grid.Column="1" 
+                Grid.ColumnSpan="2" 
+                Width="Auto"  
+                PlaylistTrackSelectionChanged="OnPlaylistTrackSelectionChanged" 
+                IsEnabled="{Binding IsLoggedIn}"/>
+
+            <Button 
+                x:Name="Recommend" 
+                Grid.Row="4" 
+                Width="190" 
+                Height="32"
+                Background="{StaticResource controlBackground}" 
+                Foreground="{StaticResource nodeTextBrush}" 
+                Margin="0,4"
+                ToolTip="Recommend Additions to Playlist" 
+                HorizontalAlignment="Left" 
+                Click="OnRecommendButtonClick">
                 <Image Stretch="Fill" Source="{StaticResource UnselectedIcon}"/>
             </Button>
             <soundatlas:StartUpHelper x:Name="StartUpHelper" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
-            <soundatlas:Atlas Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AtlasView" AddTracks="OnAddTracksClick" FollowArtist="OnFollowArtistClick" UnfollowArtist="OnUnfollowArtistClick" IsEnabled="{Binding IsLoggedIn}" RegenerateNetwork="OnRegenerateNetwork" Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}">
+            <soundatlas:Atlas Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" x:Name="AtlasView" AddTracks="OnAddTracksClick" FollowArtist="OnFollowArtistClick" UnfollowArtist="OnUnfollowArtistClick" IsEnabled="{Binding IsLoggedIn}" RegenerateNetwork="OnRegenerateNetwork" Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}">
                 <soundatlas:Atlas.DataContext>
                     <soundatlas:AtlasViewModel />
                 </soundatlas:Atlas.DataContext>
             </soundatlas:Atlas>
+
         </Grid>
-        <Grid Name="NewsGrid" Visibility="Hidden">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="4*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Opacity="0" Click="OnNewsFeedGridClick"/>
-            <soundatlas:NewsFeedPopup Grid.Column="1" x:Name="NewsFeedPopup" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AddToPlaylist="OnNewsFeedAddToPlaylist"/>
-            <Button Grid.Column="2" Opacity="0" Click="OnNewsFeedGridClick"/>
-        </Grid>
+
+        <soundatlas:NewsFeedPopup x:Name="NewsFeedPopup" PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Grid}}" Placement="Center" AddToPlaylist="OnNewsFeedAddToPlaylist"/>
     </Grid>
 </Window>

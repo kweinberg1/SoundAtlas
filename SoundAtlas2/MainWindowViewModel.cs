@@ -15,6 +15,12 @@ namespace SoundAtlas2
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
+        private const String _applicationName = "Sound Atlas";
+        public String ApplicationName 
+        {
+            get { return _applicationName; }
+        }
+
         public MainWindowViewModel()
         {
             

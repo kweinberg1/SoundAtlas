@@ -20,7 +20,7 @@ namespace SoundAtlas2
     /// <summary>
     /// Interaction logic for NewsFeedPopup.xaml
     /// </summary>
-    public partial class NewsFeedPopup : Grid
+    public partial class NewsFeedPopup : Popup
     {
         public readonly RoutedEvent AddToPlaylistEvent = EventManager.RegisterRoutedEvent("AddToPlaylist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
 
@@ -101,6 +101,11 @@ namespace SoundAtlas2
                     newsFeedItem.Added = true;
                 }
             }
+        }
+
+        private void OnCloseClick(object sender, RoutedEventArgs e)
+        {
+            this.IsOpen = false;
         }
     }
 

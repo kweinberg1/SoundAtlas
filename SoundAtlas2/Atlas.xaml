@@ -9,7 +9,7 @@
              xmlns:NetworkModel="clr-namespace:SoundAtlas2.Model;assembly=SoundAtlas2.Model"
              xmlns:ZoomAndPan="clr-namespace:ZoomAndPan;assembly=ZoomAndPan"
              mc:Ignorable="d" 
-            d:DesignHeight="300" d:DesignWidth="300">
+            d:DesignHeight="300" d:DesignWidth="300" >
 
     <!-- Grid placed below the zoom and pan control that contains the zoom slider, zoom label and some buttons. -->
     <DockPanel.Resources>
@@ -273,8 +273,6 @@
                     <Rectangle
                         Stroke="{StaticResource nodeBorderBrush}"
                         StrokeThickness="1.3"
-                        RadiusX="4"
-                        RadiusY="4"
                         Fill="{StaticResource nodeFillBrush}"
                         />
 
@@ -388,7 +386,10 @@
 
         </ResourceDictionary>
 
-        </DockPanel.Resources>
+    </DockPanel.Resources>
+    <DockPanel.Background>
+        <SolidColorBrush Color="{Binding backgroundColor}"/>
+    </DockPanel.Background>
 
     <DockPanel.InputBindings>
 
@@ -525,6 +526,7 @@
             CanContentScroll="True"
             VerticalScrollBarVisibility="Visible"
             HorizontalScrollBarVisibility="Visible"
+            Background="{StaticResource controlBackground}"
             Focusable="False"
             >
 
@@ -539,7 +541,7 @@
                 ContentOffsetY="{Binding ContentOffsetY, Mode=TwoWay}"
                 ContentViewportWidth="{Binding ContentViewportWidth, Mode=OneWayToSource}"
                 ContentViewportHeight="{Binding ContentViewportHeight, Mode=OneWayToSource}"
-                Background="{StaticResource controlBackground}"
+
                 Focusable="False"
                 >
             <!--

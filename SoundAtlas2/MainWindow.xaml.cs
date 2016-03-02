@@ -92,19 +92,29 @@ namespace SoundAtlas2
         private const String DefaultSearchText = "Search";
         private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
         {
+            TextBox searchPanelTextBox = (TextBox)sender;
+            if (searchPanelTextBox.Text.Length > 0)
+            {
+                this.ClearSearchButton.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                this.ClearSearchButton.Visibility = System.Windows.Visibility.Hidden;
+            }
+
             if (e.Key == Key.Enter)
             {
                 //For now, push the popup control.
                 ArtistSearchList searchResults = SpotifyClientService.Client.SearchArtists(this.SearchTextBox.Text);
 
-                ((SearchControlViewModel)this.SearchControl.DataContext).SearchResults = searchResults.ArtistItems.Items;
-                this.SearchControl.IsOpen = true;
+                ((SearchControlPopupViewModel)this.SearchControlPopup.DataContext).SearchResults = searchResults.ArtistItems.Items;
+                this.SearchControlPopup.IsOpen = true;
             }
         }
 
-        private void OnSearchControlClosed(object sender, EventArgs e)
+        private void OnSearchControlPopupClosed(object sender, EventArgs e)
         {
-            Artist selectedArtist = this.SearchControl.SelectedItem;
+            Artist selectedArtist = this.SearchControlPopup.SelectedItem;
 
             if (selectedArtist != null)
             {
@@ -134,15 +144,16 @@ namespace SoundAtlas2
                 searchPanelTextBox.Text = DefaultSearchText;
             }
 
-            if (this.SearchControl.IsOpen == true)
+            if (this.SearchControlPopup.IsOpen == true)
             {
-                this.SearchControl.IsOpen = false;
+                this.SearchControlPopup.IsOpen = false;
             }
         }
 
         private void OnClearSearchTextButtonClick(object sender, RoutedEventArgs e)
         {
             this.SearchTextBox.Text = String.Empty;
+            this.ClearSearchButton.Visibility = System.Windows.Visibility.Hidden;
         }
         #endregion
 
@@ -163,7 +174,7 @@ namespace SoundAtlas2
                 //Create the playlist in Spotify first.
                 Playlist newPlaylist = SpotifyClientService.Client.CreatePlaylist(playlistName, SpotifyClientService.User.Id);
 
-                this.PlaylistView.OnCreatePlaylist(newPlaylist);
+                this.NavigationControl.OnCreatePlaylist(newPlaylist);
             }
         }
 
@@ -181,35 +192,39 @@ namespace SoundAtlas2
                 this.PlaylistView.ViewModel.ShowTutorialInfo = false;
             }
 
-            PlaylistControl playlistControl = (PlaylistControl)sender;
-            PlaylistViewModel playlistViewModel = (PlaylistViewModel)playlistControl.DataContext;
+            NavigationControl navigationControl = (NavigationControl)sender;
+            NavigationViewModel navigationViewModel = (NavigationViewModel)navigationControl.DataContext;
 
-            IEnumerable<Artist> distinctArtists = playlistViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
+            if (navigationViewModel.SelectedPlaylist != null)
+            {
+                IEnumerable<Artist> distinctArtists = navigationViewModel.SelectedPlaylist.Tracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
 
-            this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+                this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
+                this.AtlasView.ViewModel.PlaylistViewModel.UpdatePlaylist(navigationViewModel.SelectedPlaylist); //TODO: Temporary -- need a better way to communicate across controls.
 
-            this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
-            this.AtlasView.UpdateNetwork();
+                this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
+                this.AtlasView.UpdateNetwork();
+            }
         }
 
         private void OnPlaylistTrackSelectionChanged(object sender, RoutedEventArgs e)
         {
             SelectionChangedEventArgs args = (SelectionChangedEventArgs)e.OriginalSource;
-            ListBox sourceListBox = (ListBox)args.Source;
+            DataGrid sourceDataGrid = (DataGrid)args.Source;
 
-            List<Spotify.Model.Track> selectedTracks = new List<Spotify.Model.Track>();
-            foreach (Spotify.Model.Track selectedTrack in sourceListBox.SelectedItems)
+            List<Spotify.Model.PlaylistTrack> selectedTracks = new List<Spotify.Model.PlaylistTrack>();
+            foreach (Spotify.Model.PlaylistTrack selectedTrack in sourceDataGrid.SelectedItems)
             {
                 selectedTracks.Add(selectedTrack);
             }
 
-            IEnumerable<Artist> distinctArtists = selectedTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
+            IEnumerable<Artist> distinctArtists = selectedTracks.SelectMany(playlistTrack => playlistTrack.Track.Artists).Distinct().Select(artist => artist);
             this.AtlasView.ViewModel.SelectArtistNodes(distinctArtists);
         }
 
         private void OnRegenerateNetwork(object sender, RoutedEventArgs e)
         {
-            IEnumerable<Artist> distinctArtists = this.PlaylistView.ViewModel.PlaylistTracks.SelectMany(track => track.Artists).Distinct().Select(artist => artist);
+            IEnumerable<Artist> distinctArtists = this.PlaylistView.ViewModel.PlaylistTracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
 
             this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
 
@@ -247,11 +262,6 @@ namespace SoundAtlas2
                 SpotifyCacheService.UnfollowArtist(targetNodeViewModel.ArtistViewModel.Artist);
             }
         }
-
-        private void OnAddArtistExecuted(object sender, RoutedEventArgs e)
-        {
-           //TODO: Placeholder.  This may not be required.
-        }
         #endregion
 
         #region Login Methods
@@ -272,6 +282,7 @@ namespace SoundAtlas2
             if (ShowLoginWindow() == true)
             {
                 this.PlaylistView.Initialize();
+                this.NavigationControl.Initialize();
 
                 _userCache = UserCache.Load(SpotifyClientService.User.Id);
 
@@ -306,7 +317,7 @@ namespace SoundAtlas2
             {
                 AlbumType filter = AlbumType.Album | AlbumType.Single;
                 DateTime cutoff = DateTime.Now.AddMonths(-3);
-                int maxSuggestions = 3;
+                int maxSuggestions = 1;
 
                 FollowedArtistList followedArtists = SpotifyCacheService.GetFollowedArtists();
                 List<NewsFeedItem> newsItems = new List<NewsFeedItem>();
@@ -345,20 +356,13 @@ namespace SoundAtlas2
                     Dispatcher.Invoke(() =>
                     {
                         //Display a popup.
-
-                        this.MainGrid.Visibility = Visibility.Hidden;
-                        this.NewsGrid.Visibility = Visibility.Visible;
                         this.NewsFeedPopup.DataContext = new NewsFeedViewModel(newsItems, userCache);
+                        this.NewsFeedPopup.Width = this.RenderSize.Width * 0.8;
+                        this.NewsFeedPopup.Height = this.RenderSize.Height * 0.8;
+                        this.NewsFeedPopup.IsOpen = true;
                     });
                 }
             });
-        }
-
-        private void OnNewsFeedGridClick(object sender, RoutedEventArgs e)
-        {
-            this.MainGrid.Visibility = Visibility.Visible;
-            this.NewsGrid.Visibility = Visibility.Hidden;
-            this.NewsGrid.DataContext = null;
         }
 
         private void OnNotificationClick(object sender, RoutedEventArgs e)
@@ -379,11 +383,11 @@ namespace SoundAtlas2
                 //Create the playlist in Spotify first.
                 Playlist newPlaylist = SpotifyClientService.Client.CreatePlaylist(discoveryPlaylistName, SpotifyClientService.User.Id);
 
-                this.PlaylistView.OnCreatePlaylist(newPlaylist);
+                this.NavigationControl.OnCreatePlaylist(newPlaylist);
             }
             else
             {
-                this.PlaylistView.SelectPlaylist(discoveryPlaylist);
+                this.NavigationControl.SelectPlaylist(discoveryPlaylist);
             }
 
             this.PlaylistView.ViewModel.AddAlbum(playlistArgs.Album);        
@@ -395,7 +399,7 @@ namespace SoundAtlas2
         #region Recommendations
         private void OnRecommendButtonClick(object sender, RoutedEventArgs e)
         {
-            Playlist selectedPlaylist = (Playlist)this.PlaylistView.PlaylistComboBox.SelectedItem;
+            Playlist selectedPlaylist = (Playlist)this.NavigationControl.ViewModel.SelectedPlaylist;
             if (selectedPlaylist == null)
                 return;
 
@@ -426,5 +430,44 @@ namespace SoundAtlas2
         {
 
         }
+
+        #region Application Options
+        private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = System.Windows.WindowState.Minimized;
+        }
+
+        private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
+        {
+            //TODO: Change image based on state.
+
+            if (this.WindowState == System.Windows.WindowState.Normal)
+            {
+                this.WindowState = System.Windows.WindowState.Maximized;
+            }
+            else
+            {
+                this.WindowState = System.Windows.WindowState.Normal;
+            }
+        }
+
+        private void OnCloseButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+    
+
+        private void OnApplicationBannerMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left
+                && e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }        
+        #endregion Application Options
+
+
     }
 }

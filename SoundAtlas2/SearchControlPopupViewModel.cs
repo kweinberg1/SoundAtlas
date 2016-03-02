@@ -10,10 +10,10 @@ using Spotify.Model;
 
 namespace SoundAtlas2
 {
-    public class SearchControlViewModel : ViewModelBase
+    public class SearchControlPopupViewModel : ViewModelBase
     {
         #region Constructors
-        public SearchControlViewModel()
+        public SearchControlPopupViewModel()
         {
             _searchResults = new List<Artist>();
         }

@@ -21,6 +21,6 @@
             </ResourceDictionary>
         </Grid.Resources>
 
-        <Label Content="Choose a Playlist to View" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Text="Choose a playlist to view.&#x0a;Then add new artists and songs to your selected playlist." TextWrapping="Wrap" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Height="48" Margin="90,142,36,110" Width="174"/>
     </Grid>
 </UserControl>

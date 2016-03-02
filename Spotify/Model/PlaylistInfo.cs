@@ -17,12 +17,6 @@ namespace Spotify.Model
             get; set; 
         }
 
-        //TODO: Remove this.
-        /*public List<PlaylistEntry> Entries
-        {
-            get; set; 
-        }*/
-
         [JsonProperty("id")]
         public String ID
         {

@@ -34,6 +34,17 @@ namespace Spotify.Model
         public AlbumInfo Album { get; set; }
 
         /// <summary>
+        /// Display property for all artists.
+        /// </summary>
+        public String ArtistName
+        {
+            get
+            {
+                return String.Join(",", Artists.Select(artist => artist.Name));
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         public String ArtistDisplay

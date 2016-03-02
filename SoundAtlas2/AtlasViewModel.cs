@@ -710,9 +710,9 @@ namespace SoundAtlas2
                 if (PlaylistViewModel != null)
                 {
                     //TODO:  Handle this within the playlistViewModel itself?
-                    foreach (Track playlistTrack in PlaylistViewModel.PlaylistTracks)
+                    foreach (PlaylistTrack playlistTrack in PlaylistViewModel.PlaylistTracks)
                     {
-                        if (playlistTrack.Artists.Contains(node.ArtistViewModel.Artist))
+                        if (playlistTrack.Track.Artists.Contains(node.ArtistViewModel.Artist))
                         {
                             graphNode.IsInPlaylist = true;
                         }
@@ -738,9 +738,9 @@ namespace SoundAtlas2
                 if (PlaylistViewModel != null)
                 {
                     //TODO:  Handle this within the playlistViewModel itself?
-                    foreach (Track playlistTrack in PlaylistViewModel.PlaylistTracks)
+                    foreach (PlaylistTrack playlistTrack in PlaylistViewModel.PlaylistTracks)
                     {
-                        if (playlistTrack.Artists.Contains(node.ArtistViewModel.Artist))
+                        if (playlistTrack.Track.Artists.Contains(node.ArtistViewModel.Artist))
                         {
                             graphNode.IsInPlaylist = true;
                         }

@@ -21,9 +21,9 @@ namespace SoundAtlas2
     /// <summary>
     /// Interaction logic for SearchControl.xaml
     /// </summary>
-    public partial class SearchControl : Popup
+    public partial class SearchControlPopup : Popup
     {
-        public SearchControl()
+        public SearchControlPopup()
         {
             InitializeComponent();
         }

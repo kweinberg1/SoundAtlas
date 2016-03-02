@@ -240,7 +240,6 @@ namespace SoundAtlas2
             RaiseEvent(newEventArgs);
         }
 
-
         private void OnExpandRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;

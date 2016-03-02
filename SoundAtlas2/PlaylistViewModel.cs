@@ -27,8 +27,8 @@ namespace SoundAtlas2
             get { return _playlist.Name; }
         }
 
-        private IEnumerable<Track> _playlistTracks;
-        public IEnumerable<Track> PlaylistTracks
+        private IEnumerable<PlaylistTrack> _playlistTracks;
+        public IEnumerable<PlaylistTrack> PlaylistTracks
         {
             get { return _playlistTracks; }
             set
@@ -83,6 +83,12 @@ namespace SoundAtlas2
         #endregion
 
         #region Methods
+
+        public void UpdatePlaylist(Playlist playlist)
+        {
+            Playlist = playlist;
+            RefreshPlaylist();
+        }
         /// <summary>
         /// Determines whether the track already exists in the playlist.
         /// </summary>
@@ -176,7 +182,7 @@ namespace SoundAtlas2
             _playlist.SetPlaylistTracks(trackList);
 
             PlaylistTracks = null;
-            PlaylistTracks = _playlist.Tracks.Select(playlistTrack => playlistTrack.Track);
+            PlaylistTracks = _playlist.Tracks;
         }
         #endregion Methods
     }
