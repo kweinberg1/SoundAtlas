@@ -1,71 +1,47 @@
-﻿using System;
-
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using System.Windows.Controls.Primitives;
-using NetworkUI;
-using Utils;
-using SoundAtlas2.Model;
-using Spotify;
-using Spotify.Model;
-using ZoomAndPan;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using Model;
+    using Spotify;
+    using Spotify.Model;
+
     /// <summary>
     /// This is a Window that uses NetworkView to display a flow-chart.
     /// </summary>
     public partial class MainWindow : Window
     {
         #region Fields
+        private const String DefaultSearchText = "Search";
+
         private LoginWindow _openLoginWindow;
         private UserCache _userCache;
         #endregion
 
+        #region Constructors
         public MainWindow()
         {
             InitializeComponent();
         }
+        #endregion
 
+        #region Properties
         /// <summary>
         /// Convenient accessor for the view-model.
         /// </summary>
-        public MainWindowViewModel ViewModel
-        {
-            get
-            {
-                return (MainWindowViewModel)DataContext;
-            }
-        }
+        public MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
+        #endregion
 
+        #region Event Handlers
         /// <summary>
         /// Event raised when the Window has loaded.
         /// </summary>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            //
-            // Display help text for the sample app.
-            //
-            /*HelpTextWindow helpTextWindow = new HelpTextWindow();
-            helpTextWindow.Left = this.Left + this.Width + 5;
-            helpTextWindow.Top = this.Top;
-            helpTextWindow.Owner = this;
-            helpTextWindow.Show();
-            */
-
             /*OverviewWindow overviewWindow = new OverviewWindow();
             overviewWindow.Left = this.Left;
             overviewWindow.Top = this.Top + this.Height + 5;
@@ -75,32 +51,30 @@ namespace SoundAtlas2
             */
         }
 
-        void AddTracks(NodeViewModel targetNodeViewModel)
+        /// <summary>
+        /// Adds tracks to the playlist based on the selected node.
+        /// </summary>
+        /// <param name="targetNodeViewModel"></param>
+        private void AddTracks(NodeViewModel targetNodeViewModel)
         {
             ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
             PlaylistViewModel playlistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-            if (playlistViewModel != null)
-            {
-                targetViewModel.IsFlagged = true;
-                int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
+            if (playlistViewModel == null)
+                return;
+            
+            targetViewModel.IsFlagged = true;
+            int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
 
-                targetNodeViewModel.NumTracks += trackCount;
-            }
+            targetNodeViewModel.NumTracks += trackCount;
         }
+        #endregion 
 
-        #region Search Events
-        private const String DefaultSearchText = "Search";
+        #region Search Event Handlers
         private void OnSearchPanelKeyDown(object sender, KeyEventArgs e)
         {
             TextBox searchPanelTextBox = (TextBox)sender;
-            if (searchPanelTextBox.Text.Length > 0)
-            {
-                this.ClearSearchButton.Visibility = System.Windows.Visibility.Visible;
-            }
-            else
-            {
-                this.ClearSearchButton.Visibility = System.Windows.Visibility.Hidden;
-            }
+
+            this.ClearSearchButton.Visibility = searchPanelTextBox.Text.Length > 0 ? Visibility.Visible : Visibility.Hidden;
 
             if (e.Key == Key.Enter)
             {
@@ -112,29 +86,45 @@ namespace SoundAtlas2
             }
         }
 
+        /// <summary>
+        /// Event handler when the search popup is closed.  Adds the artist to the atlas
+        /// if there a valid selection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnSearchControlPopupClosed(object sender, EventArgs e)
         {
             Artist selectedArtist = this.SearchControlPopup.SelectedItem;
 
-            if (selectedArtist != null)
-            {
-                List<Artist> artistList = new List<Artist>() { selectedArtist };
-                this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
+            if (selectedArtist == null)
+                return;
 
-                this.AtlasView.UpdateNetwork();
-            }
+            List<Artist> artistList = new List<Artist>() { selectedArtist };
+            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
+
+            this.AtlasView.UpdateNetwork();
         }
 
+        /// <summary>
+        /// Event handler when the search panel gets focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnSearchPanelFocus(object sender, RoutedEventArgs e)
         {
             TextBox searchControlTextBox = (TextBox) sender;
 
-            if (String.Equals(searchControlTextBox.Text, DefaultSearchText))
+            if (searchControlTextBox.Text.Equals(DefaultSearchText))
             {
                 searchControlTextBox.Text = String.Empty;
             }
         }
 
+        /// <summary>
+        /// Eveht handler when the search panel loses focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnSearchPanelLostFocus(object sender, RoutedEventArgs e)
         {
             TextBox searchPanelTextBox = (TextBox) sender;
@@ -150,6 +140,12 @@ namespace SoundAtlas2
             }
         }
 
+        /// <summary>
+        /// Event handler when the clear search text button is clicked.
+        /// This will search the search box's text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnClearSearchTextButtonClick(object sender, RoutedEventArgs e)
         {
             this.SearchTextBox.Text = String.Empty;
@@ -199,29 +195,36 @@ namespace SoundAtlas2
             {
                 IEnumerable<Artist> distinctArtists = navigationViewModel.SelectedPlaylist.Tracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
 
+                //Notify the playlist view model that the playlist has been updated.
                 this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-                this.AtlasView.ViewModel.PlaylistViewModel.UpdatePlaylist(navigationViewModel.SelectedPlaylist); //TODO: Temporary -- need a better way to communicate across controls.
+                this.AtlasView.ViewModel.PlaylistViewModel.UpdatePlaylist(navigationViewModel.SelectedPlaylist);
 
                 this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
                 this.AtlasView.UpdateNetwork();
             }
         }
-
+        
+        /// <summary>
+        /// Event handler when the playlist track selection has changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnPlaylistTrackSelectionChanged(object sender, RoutedEventArgs e)
         {
             SelectionChangedEventArgs args = (SelectionChangedEventArgs)e.OriginalSource;
             DataGrid sourceDataGrid = (DataGrid)args.Source;
 
-            List<Spotify.Model.PlaylistTrack> selectedTracks = new List<Spotify.Model.PlaylistTrack>();
-            foreach (Spotify.Model.PlaylistTrack selectedTrack in sourceDataGrid.SelectedItems)
-            {
-                selectedTracks.Add(selectedTrack);
-            }
+            List<Spotify.Model.PlaylistTrack> selectedTracks = sourceDataGrid.SelectedItems.OfType<PlaylistTrack>().ToList();
 
             IEnumerable<Artist> distinctArtists = selectedTracks.SelectMany(playlistTrack => playlistTrack.Track.Artists).Distinct().Select(artist => artist);
             this.AtlasView.ViewModel.SelectArtistNodes(distinctArtists);
         }
 
+        /// <summary>
+        /// Regenerates the entire network.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnRegenerateNetwork(object sender, RoutedEventArgs e)
         {
             IEnumerable<Artist> distinctArtists = this.PlaylistView.ViewModel.PlaylistTracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
@@ -265,6 +268,10 @@ namespace SoundAtlas2
         #endregion
 
         #region Login Methods
+        /// <summary>
+        /// Displays the login window.
+        /// </summary>
+        /// <returns></returns>
         private bool? ShowLoginWindow()
         {
             if (!SpotifyClientService.Client.HasAuthorizationAccess())
@@ -277,25 +284,28 @@ namespace SoundAtlas2
             return true;
         }
 
-        private void Login()
-        {
-            if (ShowLoginWindow() == true)
-            {
-                this.PlaylistView.Initialize();
-                this.NavigationControl.Initialize();
+        /// <summary>
+        /// Displays the login window and will initialize the application with
+        /// login credentials.
+        /// </summary>
+        private void Login() {
+            if (ShowLoginWindow() == false)
+                return;
+            
+            this.PlaylistView.Initialize();
+            this.NavigationControl.Initialize();
 
-                _userCache = UserCache.Load(SpotifyClientService.User.Id);
+            _userCache = UserCache.Load(SpotifyClientService.User.Id);
 
-                GetNewsFeed(_userCache);
+            GetNewsFeed(_userCache);
 
-                //TODO:  Support other music services.  This should be broken out into a separate UI action.
-                LoginViewModel loginViewModel = (LoginViewModel)this.LoginControl.DataContext;
-                loginViewModel.AccountName = SpotifyClientService.User.DisplayName;
-                loginViewModel.MusicService = MusicService.Spotify;
+            //TODO:  Support other music services.  This should be broken out into a separate UI action.
+            LoginViewModel loginViewModel = (LoginViewModel)this.LoginControl.DataContext;
+            loginViewModel.AccountName = SpotifyClientService.User.DisplayName;
+            loginViewModel.MusicService = MusicService.Spotify;
 
-                MainWindowViewModel mainWindowViewModel = (MainWindowViewModel)this.DataContext;
-                mainWindowViewModel.IsLoggedIn = true;
-            }
+            MainWindowViewModel mainWindowViewModel = (MainWindowViewModel)this.DataContext;
+            mainWindowViewModel.IsLoggedIn = true;
         }
 
         /// <summary>
@@ -307,17 +317,22 @@ namespace SoundAtlas2
         {
             Login();
         }
-
         #endregion
 
-        #region News Feed
+        #region News Feed Methods
+        /// <summary>
+        /// Spawn a background task to find any new albums or tracks
+        /// based on what the user is following.  A news feed item will
+        /// popup if an item is found.
+        /// </summary>
+        /// <param name="userCache"></param>
         private void GetNewsFeed(UserCache userCache)
         {
             System.Threading.Tasks.Task.Run(() =>
             {
                 AlbumType filter = AlbumType.Album | AlbumType.Single;
-                DateTime cutoff = DateTime.Now.AddMonths(-3);
-                int maxSuggestions = 1;
+                DateTime cutoff = DateTime.Now.AddMonths(-3); //TODO: Data-drive this setting.
+                int maxSuggestions = 1;  //TODO: Data-drive this setting.
 
                 FollowedArtistList followedArtists = SpotifyCacheService.GetFollowedArtists();
                 List<NewsFeedItem> newsItems = new List<NewsFeedItem>();
@@ -397,7 +412,7 @@ namespace SoundAtlas2
         #endregion
 
         #region Recommendations
-        private void OnRecommendButtonClick(object sender, RoutedEventArgs e)
+        private void OnRecommend(object sender, RoutedEventArgs e)
         {
             Playlist selectedPlaylist = (Playlist)this.NavigationControl.ViewModel.SelectedPlaylist;
             if (selectedPlaylist == null)
@@ -409,7 +424,7 @@ namespace SoundAtlas2
             RecommendationWindow recommendationWindow = new RecommendationWindow(recommendedArtist);
             bool? result = recommendationWindow.ShowDialog();
 
-            if (result.Value == true)
+            if (result != null && result.Value == true)
             {
                 NodeViewModel targetNodeViewModel = this.AtlasView.ViewModel.FindNodeOfArtist(recommendedArtist);
 
@@ -426,21 +441,25 @@ namespace SoundAtlas2
         }
         #endregion
 
-        private void PlaylistView_PlaylistTrackSelectionChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         #region Application Options
+        /// <summary>
+        /// Minimizes the application.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnMinimizeButtonClick(object sender, RoutedEventArgs e)
         {
             this.WindowState = System.Windows.WindowState.Minimized;
         }
 
+        /// <summary>
+        /// Maximizes or restores the window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnMaximizeButtonClick(object sender, RoutedEventArgs e)
         {
             //TODO: Change image based on state.
-
             if (this.WindowState == System.Windows.WindowState.Normal)
             {
                 this.WindowState = System.Windows.WindowState.Maximized;
@@ -451,13 +470,31 @@ namespace SoundAtlas2
             }
         }
 
+        /// <summary>
+        /// Closes the application.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnCloseButtonClick(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-    
+        /// <summary>
+        /// Event handler for users exiting the application via the File menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnExitMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
 
+        /// <summary>
+        /// Event handler when users click on the top application bar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnApplicationBannerMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left
@@ -467,7 +504,5 @@ namespace SoundAtlas2
             }
         }        
         #endregion Application Options
-
-
     }
 }

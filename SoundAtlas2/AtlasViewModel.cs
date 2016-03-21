@@ -45,12 +45,12 @@ namespace SoundAtlas2
         ///
         /// The width of the content (in content coordinates).
         /// 
-        private double contentWidth = 1000;
+        private double contentWidth = 0;
 
         ///
         /// The heigth of the content (in content coordinates).
         /// 
-        private double contentHeight = 1000;
+        private double contentHeight = 0;
 
         ///
         /// The width of the viewport onto the content (in content coordinates).
@@ -618,11 +618,10 @@ namespace SoundAtlas2
             return nodeSelected;
         }
 
-
-        public void CreateNodeChildren(NodeViewModel selectedNode, bool addAllChildren)
+        public void CreateNodeChildren(NodeViewModel selectedNode, AtlasCreateChildSetting childSetting)
         {
             int previousLimit = _hierarchy.AddChildrenLimit;
-            _hierarchy.AddChildrenLimit = (addAllChildren ? int.MaxValue : previousLimit);
+            _hierarchy.AddChildrenLimit = ((childSetting == AtlasCreateChildSetting.CreateAllChildren) ? int.MaxValue : previousLimit);
             _hierarchy.GenerateSubTree(selectedNode.ArtistViewModel.HierarchyNode);
             _hierarchy.AddChildrenLimit = previousLimit;
 
@@ -813,13 +812,12 @@ namespace SoundAtlas2
 
                 foreach (NodeViewModel nodeViewModel in this.Network.Nodes)
                 {
-                    NetworkExtents.X = Math.Max(NetworkExtents.Y, nodeViewModel.X);
-                    NetworkExtents.Y = Math.Max(NetworkExtents.Y, nodeViewModel.Y);
+                    NetworkExtents.X = Math.Max(NetworkExtents.X, nodeViewModel.X + nodeViewModel.Size.Width);
+                    NetworkExtents.Y = Math.Max(NetworkExtents.Y, nodeViewModel.Y + nodeViewModel.Size.Height);
                 }
-
-                double extraPadding = 500; //TODO:  There has to be a better way.
-                this.ContentWidth = NetworkExtents.X + extraPadding;
-                this.ContentHeight = NetworkExtents.Y + extraPadding;
+                
+                this.ContentWidth = NetworkExtents.X;
+                this.ContentHeight = NetworkExtents.Y;
             }
         }
 

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Shapes;
-using System.Windows;
-using System.Windows.Media;
-using System.Diagnostics;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Windows.Shapes;
+    using System.Windows;
+    using System.Windows.Media;
+    using System.Diagnostics;
+    
     /// <summary>
     /// Defines an arrow that has multiple points.
     /// </summary>
@@ -30,6 +26,7 @@ namespace SoundAtlas2
 
         #endregion Dependency Property/Event Definitions
 
+        #region Properties
         /// <summary>
         /// The angle (in degrees) of the arrow head.
         /// </summary>
@@ -74,6 +71,7 @@ namespace SoundAtlas2
                 SetValue(PointsProperty, value);
             }
         }
+        #endregion Properties
 
         #region Private Methods
 

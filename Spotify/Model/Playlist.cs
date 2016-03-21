@@ -17,6 +17,9 @@ namespace Spotify.Model
             get;
             private set;
         }
+
+        [JsonIgnore]
+        public bool IsEditable => (this.UserInfo.Id.Equals(SpotifyClientService.User.Id));
         #endregion
 
         #region Constructors

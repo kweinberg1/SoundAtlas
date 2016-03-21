@@ -9,18 +9,18 @@
     <Popup.DataContext>
         <local:SearchControlPopupViewModel/>
     </Popup.DataContext>
-    
-    <Grid>
-        <Grid.Resources>
-                <ResourceDictionary 
-                        Source="SharedVisualTemplates.xaml"
-                        />
-        </Grid.Resources>
+    <Popup.Resources>
+        <ResourceDictionary Source="SharedVisualTemplates.xaml"/>
+    </Popup.Resources>
+
+    <Grid Background="{StaticResource controlSecondaryBackground}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource searchControlTemplate}" SelectionChanged="ListBox_SelectionChanged">
+        <ListBox ItemsSource="{Binding SearchResults}" 
+                 ItemTemplate="{StaticResource searchControlTemplate}" 
+                 SelectionChanged="ListBox_SelectionChanged">
         </ListBox>
     </Grid>
 </Popup>

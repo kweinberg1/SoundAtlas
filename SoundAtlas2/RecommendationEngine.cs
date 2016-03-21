@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spotify;
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
-    class RecommendationEngine
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using Spotify;
+    using Spotify.Model;
+
+    internal class RecommendationEngine
     {
+        #region Methods
         public Artist Recommend(SpotifyClient client, Playlist playlist)
         {
             //Find a common ancestor for a portion of the artists in the playlist.
@@ -69,5 +67,6 @@ namespace SoundAtlas2
             KeyValuePair<string, RecommendationCriteria> recommendedEntry = orderedDictionary.First();
             return recommendedEntry.Value.TargetedArtist;
         }
+        #endregion
     }
 }

@@ -34,25 +34,29 @@
                   HeadersVisibility="Column" 
                   GridLinesVisibility="None" 
                   SelectionUnit="FullRow"
-                  Background="{StaticResource controlBackground}"
+                  Background="{StaticResource controlSecondaryBackground}"
                   Foreground="{StaticResource nodeTextBrush}" 
-                  SelectionChanged="OnPlaylistListBoxSelectionChanged">
+                  BorderBrush="{x:Null}"
+                  SelectionChanged="OnPlaylistListBoxSelectionChanged" FontSize="14.667">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="Background" Value="{StaticResource controlBackground}" />
+                    <Setter Property="Background" Value="{StaticResource controlSecondaryBackground}" />
+                    <Setter Property="Foreground" Value="{StaticResource nodeTextBrush}"/>
                 </Style>
             </DataGrid.Resources>
             <DataGrid.RowStyle>
                 <Style TargetType="{x:Type DataGridRow}">
-                    <Setter Property="Background" Value="{StaticResource controlBackground}"/>
+                    <Setter Property="Background" Value="{StaticResource controlSecondaryBackground}"/>
+                    <Setter Property="Foreground" Value="{StaticResource nodeTextBrush}"/>
+                    <Setter Property="Padding" Value="0,3,0,0"/>
                 </Style>
             </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Track.Name}" Width="150" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Artist" Binding="{Binding Track.ArtistName}" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Album" Binding="{Binding Track.Album.Name}" Width="150" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Popularity" Binding="{Binding Track.Popularity}" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Added On" Binding="{Binding AddedAt}" Width="125" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Track.Name}" Width="3*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Artist" Binding="{Binding Track.ArtistName}" Width="2*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Album" Binding="{Binding Track.Album.Name}" Width="2*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Popularity" Binding="{Binding Track.Popularity}" Width="1*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Added On" Binding="{Binding AddedAt}" Width="2*" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

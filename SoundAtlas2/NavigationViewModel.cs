@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Spotify.Model;
-using Spotify;
-using SoundAtlas2.Model;
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Collections.Generic;
+    using Spotify.Model;
+    using Spotify;
+    using SoundAtlas2.Model;
+
     public class NavigationViewModel : ViewModelBase
     {
+        #region Properties
         private List<Playlist> _playlists;
         public List<Playlist> Playlists
         {
@@ -29,13 +27,13 @@ namespace SoundAtlas2
                 NotifyPropertyChanged(); 
             }
         }
-
+        #endregion
 
         #region Constructors
         public NavigationViewModel()
         {
             PlaylistList servicePlaylists = SpotifyClientService.Client.GetPlaylists(SpotifyClientService.User.Id);
-
+            
             _playlists = servicePlaylists.Playlists;
         }
         #endregion

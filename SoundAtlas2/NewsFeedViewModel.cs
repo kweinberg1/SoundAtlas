@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SoundAtlas2.Model;
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using SoundAtlas2.Model;
+
     public class NewsFeedViewModel : ViewModelBase
     {
+        #region Properties
+        private readonly UserCache _cache;
+        private int _index;
+
         private string _notificationPopupText;
         public string NotificationPopupText
         {
@@ -32,15 +31,13 @@ namespace SoundAtlas2
                 NotifyPropertyChanged(); 
             }
         }
+        #endregion
 
-        private int _index;
-        private UserCache _cache;
-
+        #region Constructors
         public NewsFeedViewModel()
         {
             NewsItems = new List<NewsFeedItem>();
-            
-            _index = 0;
+            _cache = null;
         }
 
         public NewsFeedViewModel(List<NewsFeedItem> newsItems, UserCache userCache)
@@ -51,7 +48,9 @@ namespace SoundAtlas2
             if (NewsItems.Any())
                 _cache.LogViewedNewsItem(NewsItems[_index].Album.ID);
         }
+        #endregion
 
+        #region Public Methods
         public NewsFeedItem GetPreviousNewsFeedItem()
         {
             _index = (_index - 1) % NewsItems.Count;
@@ -74,5 +73,6 @@ namespace SoundAtlas2
             _cache.LogViewedNewsItem(NewsItems[_index].Album.ID);
             return NewsItems[_index]; 
         }
+        #endregion
     }
 }

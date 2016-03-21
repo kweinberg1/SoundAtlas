@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spotify;
-using Spotify.Model;
-
-using SoundAtlas2.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Spotify;
+    using Spotify.Model;
+    using SoundAtlas2.Model;
+
     public class PlaylistViewModel : ViewModelBase
     {
         #region Members
@@ -22,10 +16,7 @@ namespace SoundAtlas2
         #endregion 
 
         #region Properties
-        public String PlaylistName
-        {
-            get { return _playlist.Name; }
-        }
+        public String PlaylistName => _playlist.Name;
 
         private IEnumerable<PlaylistTrack> _playlistTracks;
         public IEnumerable<PlaylistTrack> PlaylistTracks
@@ -48,10 +39,7 @@ namespace SoundAtlas2
         }
 
         private List<Playlist> _displayPlaylists;
-        public List<Playlist> Playlists
-        {
-            get { return _displayPlaylists; }
-        }
+        public List<Playlist> Playlists => _displayPlaylists;
 
         private bool _showTutorialInfo;
         public bool ShowTutorialInfo

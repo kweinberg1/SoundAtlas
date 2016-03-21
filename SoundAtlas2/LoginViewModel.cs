@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SoundAtlas2.Model;
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using SoundAtlas2.Model;
+
     public class LoginViewModel : ViewModelBase
     {
         #region Properties
+        private readonly String NotLoggedInString = "Not Logged In"; //TODO:  Localize.
         private String _accountName;
         public String AccountName
         {
@@ -39,7 +36,6 @@ namespace SoundAtlas2
         }
         #endregion Properties
 
-        private readonly String NotLoggedInString = "Not Logged In";
         #region Constructors
         public LoginViewModel()
         {

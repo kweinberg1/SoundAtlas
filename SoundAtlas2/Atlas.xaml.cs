@@ -1,44 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-using NetworkUI;
-using SoundAtlas2.Model;
-using Utils;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using NetworkUI;
+    using SoundAtlas2.Model;
+    
     /// <summary>
     /// Interaction logic for Atlas.xaml
     /// </summary>
     public partial class Atlas : DockPanel
     {
+        #region Constructors
         public Atlas()
         {
             InitializeComponent();
         }
+        #endregion
 
+        #region Properties
         /// <summary>
         /// Convenient accessor for the view-model.
         /// </summary>
-        public AtlasViewModel ViewModel
-        {
-            get
-            {
-                return (AtlasViewModel)DataContext;
-            }
-        }
+        public AtlasViewModel ViewModel => (AtlasViewModel) DataContext;
+        #endregion
 
         #region Events
         public event RoutedEventHandler AddTracks
@@ -46,7 +31,6 @@ namespace SoundAtlas2
             add { AddHandler(AddTracksEvent, value); }
             remove { RemoveHandler(AddTracksEvent, value); }
         }
-       
         public readonly RoutedEvent AddTracksEvent = EventManager.RegisterRoutedEvent("AddTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
 
         public event RoutedEventHandler FollowArtist
@@ -54,7 +38,6 @@ namespace SoundAtlas2
             add { AddHandler(FollowArtistEvent, value); }
             remove { RemoveHandler(FollowArtistEvent, value); }
         }
-
         public readonly RoutedEvent FollowArtistEvent = EventManager.RegisterRoutedEvent("FollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
 
         public event RoutedEventHandler UnfollowArtist
@@ -62,7 +45,6 @@ namespace SoundAtlas2
             add { AddHandler(UnfollowArtistEvent, value); }
             remove { RemoveHandler(UnfollowArtistEvent, value); }
         }
-
         public readonly RoutedEvent UnfollowArtistEvent = EventManager.RegisterRoutedEvent("UnfollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
 
         public event RoutedEventHandler RegenerateNetwork
@@ -70,18 +52,18 @@ namespace SoundAtlas2
             add { AddHandler(RegenerateNetworkEvent, value); }
             remove { RemoveHandler(RegenerateNetworkEvent, value); }
         }
-
         public readonly RoutedEvent RegenerateNetworkEvent = EventManager.RegisterRoutedEvent("RegenerateNetwork", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
 
         #endregion
 
+        #region Event Handlers
         /// <summary>
         /// Event raised when the user has started to drag out a connection.
         /// </summary>
-        private void networkControl_ConnectionDragStarted(object sender, ConnectionDragStartedEventArgs e)
-        {
+        private void NetworkControl_ConnectionDragStarted(object sender, ConnectionDragStartedEventArgs e) {
+            NetworkView networkView = sender as NetworkView;
             var draggedOutConnector = (ConnectorViewModel)e.ConnectorDraggedOut;
-            var curDragPoint = Mouse.GetPosition(networkControl);
+            var curDragPoint = Mouse.GetPosition(networkView);
 
             //
             // Delegate the real work to the view model.
@@ -98,7 +80,7 @@ namespace SoundAtlas2
         /// <summary>
         /// Event raised, to query for feedback, while the user is dragging a connection.
         /// </summary>
-        private void networkControl_QueryConnectionFeedback(object sender, QueryConnectionFeedbackEventArgs e)
+        private void NetworkControl_QueryConnectionFeedback(object sender, QueryConnectionFeedbackEventArgs e)
         {
             var draggedOutConnector = (ConnectorViewModel)e.ConnectorDraggedOut;
             var draggedOverConnector = (ConnectorViewModel)e.DraggedOverConnector;
@@ -123,9 +105,10 @@ namespace SoundAtlas2
         /// <summary>
         /// Event raised while the user is dragging a connection.
         /// </summary>
-        private void networkControl_ConnectionDragging(object sender, ConnectionDraggingEventArgs e)
+        private void NetworkControl_ConnectionDragging(object sender, ConnectionDraggingEventArgs e)
         {
-            Point curDragPoint = Mouse.GetPosition(networkControl);
+            NetworkView networkView = sender as NetworkView;
+            Point curDragPoint = Mouse.GetPosition(networkView);
             var connection = (ConnectionViewModel)e.Connection;
             this.ViewModel.ConnectionDragging(curDragPoint, connection);
         }
@@ -133,7 +116,7 @@ namespace SoundAtlas2
         /// <summary>
         /// Event raised when the user has finished dragging out a connection.
         /// </summary>
-        private void networkControl_ConnectionDragCompleted(object sender, ConnectionDragCompletedEventArgs e)
+        private void NetworkControl_ConnectionDragCompleted(object sender, ConnectionDragCompletedEventArgs e)
         {
             var connectorDraggedOut = (ConnectorViewModel)e.ConnectorDraggedOut;
             var connectorDraggedOver = (ConnectorViewModel)e.ConnectorDraggedOver;
@@ -152,26 +135,17 @@ namespace SoundAtlas2
         /// <summary>
         /// Event raised to create a new node.
         /// </summary>
-        private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            CreateNode();
-        }
-
-        /// <summary>
-        /// Event raised to delete a node.
-        /// </summary>
-        private void DeleteNode_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            var node = (NodeViewModel)e.Parameter;
-            this.ViewModel.DeleteNode(node);
+        private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e) {
+            NetworkView networkView = sender as NetworkView;
+            CreateNode(networkView);
         }
 
         /// <summary>
         /// Creates a new node in the network at the current mouse location.
         /// </summary>
-        private void CreateNode()
+        private void CreateNode(NetworkView networkView)
         {
-            var newNodePosition = Mouse.GetPosition(networkControl);
+            var newNodePosition = Mouse.GetPosition(networkView);
             this.ViewModel.CreateNode("New Node!", newNodePosition, true);
         }
 
@@ -189,11 +163,6 @@ namespace SoundAtlas2
             node.Size = new Size(element.ActualWidth, element.ActualHeight);
         }
 
-        private void networkControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         /// <summary>
         /// Event raised to delete the selected node.
         /// </summary>
@@ -203,6 +172,9 @@ namespace SoundAtlas2
             RaiseEvent(newEventArgs);
         }
 
+        /// <summary>
+        /// Updates a network with an entirely new view.
+        /// </summary>
         public void UpdateNetwork()
         {
             this.ViewModel.GenerateNetwork();
@@ -210,6 +182,11 @@ namespace SoundAtlas2
             this.ViewModel.ArrangeNetwork();
         }
 
+        /// <summary>
+        /// Event handler for adding tracks.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnAddTracksClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
@@ -220,6 +197,11 @@ namespace SoundAtlas2
             RaiseEvent(newEventArgs);
         }
 
+        /// <summary>
+        /// Event handler for following an artist.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnFollowArtistClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
@@ -230,6 +212,11 @@ namespace SoundAtlas2
             RaiseEvent(newEventArgs);
         }
 
+        /// <summary>
+        /// Event handler for unfollowing an artist.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnUnfollowArtistClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
@@ -240,20 +227,31 @@ namespace SoundAtlas2
             RaiseEvent(newEventArgs);
         }
 
+        /// <summary>
+        /// Event handler to expand an artist's node with another related artist.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnExpandRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
 
-            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, false);
+            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, AtlasCreateChildSetting.CreateOneChild);
             UpdateNetwork();
         }
 
+        /// <summary>
+        /// Event handler to expand an artist's node with all other related artists.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnExpandAllRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {
             NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
 
-            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, true);
+            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, AtlasCreateChildSetting.CreateAllChildren);
             UpdateNetwork();
         }
+        #endregion
     }
 }

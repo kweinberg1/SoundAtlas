@@ -1,27 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Controls.Primitives;
+
     /// <summary>
     /// Interaction logic for NewsFeedPopup.xaml
     /// </summary>
     public partial class NewsFeedPopup : Popup
     {
+        #region Events
         public readonly RoutedEvent AddToPlaylistEvent = EventManager.RegisterRoutedEvent("AddToPlaylist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
 
         public event RoutedEventHandler AddToPlaylist
@@ -29,22 +17,30 @@ namespace SoundAtlas2
             add { AddHandler(AddToPlaylistEvent, value); }
             remove { RemoveHandler(AddToPlaylistEvent, value); }
         }
+        #endregion
 
+        #region Properties
         public NewsFeedViewModel ViewModel
         {
             get { return (NewsFeedViewModel)this.DataContext; }
         }
+        #endregion
 
+        #region Constructors
         public NewsFeedPopup()
         {
             InitializeComponent();
         }
+        #endregion
 
+        #region Methods
         public void SetNotificationText(string text)
         {
             ViewModel.NotificationPopupText = text;
         }
+        #endregion
 
+        #region Event Handlers
         private void Panel_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             NewsFeedViewModel viewModel = (NewsFeedViewModel)this.DataContext;
@@ -107,16 +103,6 @@ namespace SoundAtlas2
         {
             this.IsOpen = false;
         }
-    }
-
-    public class AddToPlaylistEventArgs : RoutedEventArgs
-    {
-        public Album Album { get; private set; }
-
-        public AddToPlaylistEventArgs(RoutedEvent e, Album album)
-            : base(e)
-        {
-            Album = album;
-        }
+        #endregion
     }
 }

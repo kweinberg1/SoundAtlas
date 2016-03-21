@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Globalization;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Windows.Data;
+    using System.Globalization;
+
     /// <summary>
     /// Used in MainWindow.xaml to converts a scale value to a percentage.
     /// It is used to display the 50%, 100%, etc that appears underneath the zoom and pan control.
     /// </summary>
     public class ScaleToPercentConverter : IValueConverter
     {
+        #region Methods
         /// <summary>
         /// Convert a fraction to a percentage.
         /// <returns></returns>
@@ -29,5 +27,6 @@ namespace SoundAtlas2
         {
             return (double)value / 100.0;
         }
+        #endregion
     }
 }

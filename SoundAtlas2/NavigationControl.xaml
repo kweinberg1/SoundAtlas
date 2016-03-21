@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:soundatlas="clr-namespace:SoundAtlas2"
              xmlns:spotifymodel="clr-namespace:Spotify.Model;assembly=Spotify"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
@@ -22,20 +21,96 @@
             </ResourceDictionary>
         </Grid.Resources>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+            </Grid.Resources>
+            
+            <Image Grid.Column="0"
+                   Stretch="Fill" 
+                   Source="{StaticResource NewPlaylistIcon}"/>
+            <Button Grid.Column="1"
+                HorizontalAlignment="Stretch" 
+                HorizontalContentAlignment="Left"
+                Content="New Playlist"
+                Style="{StaticResource ApplicationButton}"
+                Click="OnNewPlaylistButtonClick"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+            </Grid.Resources>
+
+            <Image Grid.Column="0"
+                   Stretch="Fill" 
+                   Source="{StaticResource NewPlaylistIcon}"/>
+            <Button 
+                Grid.Column="1"
+                HorizontalAlignment="Stretch" 
+                HorizontalContentAlignment="Left"
+                Content="Recommend"
+                Height="32"
+                Style="{StaticResource ApplicationButton}"
+                Click="OnRecommendButtonClick"/>
+        </Grid>
+
+        <Rectangle Grid.Row="2" Fill="{StaticResource controlBackground}"/>
         <ListBox x:Name="PlaylistListBox" 
+                 Grid.Row="3"
                  ItemsSource="{Binding Playlists}" 
-                 Background="{StaticResource controlBackground}" 
+                 BorderThickness="1"
+                 BorderBrush="{x:Null}"
+                 Background="{StaticResource controlSecondaryBackground}" 
                  Foreground="{StaticResource nodeTextBrush}"
                  SelectionChanged="OnPlaylistSelectionChanged" 
+                 ScrollViewer.VerticalScrollBarVisibility="Visible"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.Resources>
+                <BitmapImage x:Key="EditablePlaylistIcon" UriSource="Images/music.png"/>
+                <BitmapImage x:Key="ReadOnlyPlaylistIcon" UriSource="Images/lock.png"/>
+            </ListBox.Resources>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="4"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type spotifymodel:Playlist}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock>
+                        <Image Width="16" Height="16">
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True" Binding="{Binding IsEditable}">
+                                            <Setter Property="Source" Value="{StaticResource EditablePlaylistIcon}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Value="False" Binding="{Binding IsEditable}">
+                                            <Setter Property="Source" Value="{StaticResource ReadOnlyPlaylistIcon}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <TextBlock Margin="4,0,0,0">
                             <TextBlock.Text>
                                 <MultiBinding StringFormat="{}{0}">
                                     <Binding Path="Name" />

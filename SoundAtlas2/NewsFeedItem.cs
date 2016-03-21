@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using Spotify.Model;
+
     public class NewsFeedItem
     {
+        #region Properties
         public Artist Artist
         {
             get;
@@ -27,12 +22,15 @@ namespace SoundAtlas2
             get;
             set;
         }
+        #endregion
 
+        #region Constructors
         public NewsFeedItem(Artist artist, Album album)
         {
             Artist = artist;
             Album = album;
             Added = false;
         }
+        #endregion
     }
 }

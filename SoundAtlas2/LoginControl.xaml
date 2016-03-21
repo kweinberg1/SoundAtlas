@@ -29,7 +29,7 @@
         <StackPanel.Resources>
             <BitmapImage x:Key="LockIcon" UriSource="Images/lock.png"/>
             <BitmapImage x:Key="SpotifyIcon" UriSource="Images/spotify.png"/>
-            <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/downwardarrow.png"/>
+            <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/user.png"/>
         </StackPanel.Resources>
         
         <Image x:Name="MusicServiceIcon" Width="32" Height="32" HorizontalAlignment="Left" Stretch="Fill">
@@ -46,8 +46,13 @@
                 </Style>
             </Image.Style>
         </Image>
-        <Label x:Name="UserName" Content="{Binding AccountName}" VerticalAlignment="Center" Width="150" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
-        <Button Click="OnLoginOptionsClick">
+        <Label x:Name="UserName" 
+               Content="{Binding AccountName}" 
+               VerticalAlignment="Center" 
+               Width="150" 
+               Background="{StaticResource controlSecondaryBackground}" 
+               Foreground="{StaticResource nodeTextBrush}"/>
+        <Button Click="OnLoginOptionsClick" BorderBrush="{x:Null}" Background="{x:Null}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
             <Image HorizontalAlignment="Left" Width="32" Height="32" Stretch="Fill" Source="{StaticResource DownwardArrowIcon}"/>
         </Button>
     </StackPanel>

@@ -1,36 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
-    public class UserCacheData
-    {
-        public UserCacheData()
-        {
-            ViewedNewsItems = new HashSet<string>();
-        }
-
-        public HashSet<string> ViewedNewsItems;
-    }
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using Newtonsoft.Json;
 
     public class UserCache
     {
-        private string _cacheLocation;
+        #region Properties
+        private readonly string _cacheLocation;
         private UserCacheData _cacheData;
+        #endregion
 
+        #region Constructors
         public UserCache(string accountName)
         {
             string applicationDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             _cacheLocation = System.IO.Path.Combine(applicationDataDirectory, Assembly.GetExecutingAssembly().GetName().Name, string.Format("{0}.json", accountName));
             _cacheData = new UserCacheData();
         }
+        #endregion
 
+        #region Methods
         public void LogViewedNewsItem(string key)
         {
             if (!_cacheData.ViewedNewsItems.Contains(key))
@@ -44,7 +35,9 @@ namespace SoundAtlas2
         {
             return _cacheData.ViewedNewsItems.Contains(key);
         }
+        #endregion
 
+        #region Serialization Methods
         public static UserCache Load(string userName)
         {
             UserCache newCache = new UserCache(userName);
@@ -88,5 +81,6 @@ namespace SoundAtlas2
 
             return true;
         }
+        #endregion
     }
 }

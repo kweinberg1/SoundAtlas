@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
     /// <summary>
     /// Defines the current state of the mouse handling logic.

@@ -1,35 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Windows;
+    using Spotify.Model;
+
     /// <summary>
     /// Interaction logic for RecommendationWindow.xaml
     /// </summary>
     public partial class RecommendationWindow : Window
     {
+        #region Properties
         private Artist _artist;
+        #endregion
 
+        #region Constructors
         public RecommendationWindow(Artist artist)
         {
             _artist = artist;
 
             InitializeComponent();
         }
+        #endregion
 
+        #region Event Handlers
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             this.WebBrowserControl.Navigate(_artist.ExternalURLs["spotify"]);
@@ -46,5 +38,6 @@ namespace SoundAtlas2
             DialogResult = false;
             Close();
         }
+        #endregion
     }
 }

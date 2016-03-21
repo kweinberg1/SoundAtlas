@@ -96,13 +96,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AddArtistPrompt.xaml.cs">
-      <DependentUpon>AddArtistPrompt.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Atlas.xaml.cs">
       <DependentUpon>Atlas.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AtlasCreateChildSetting.cs" />
     <Compile Include="AtlasViewModel.cs" />
+    <Compile Include="AddToPlaylistEventArgs.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="Converter\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="LoginControl.xaml.cs">
@@ -136,27 +135,12 @@
       <DependentUpon>StartUpHelper.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserCache.cs" />
-    <Page Include="AddArtistPrompt.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Compile Include="UserCacheData.cs" />
     <Page Include="Atlas.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CreatePlaylistDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="HelpText.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="HelpTextWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -226,9 +210,6 @@
     <Compile Include="ConnectionBadIndicator.cs" />
     <Compile Include="ConnectionOkIndicator.cs" />
     <Compile Include="CurvedArrow.cs" />
-    <Compile Include="HelpTextWindow.xaml.cs">
-      <DependentUpon>HelpTextWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Atlas_ZoomAndPan.cs" />
     <Compile Include="MouseHandlingMode.cs" />
@@ -328,9 +309,6 @@
     <Resource Include="Images\downwardarrow.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\addtracks.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\spotify.png" />
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +322,28 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\user.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\atlas.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\minimizewindow.png" />
+    <Resource Include="Images\restorewindow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\music.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\plus.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

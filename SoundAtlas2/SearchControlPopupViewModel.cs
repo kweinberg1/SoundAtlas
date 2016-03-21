@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SoundAtlas2.Model;
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Collections.Generic;
+    using SoundAtlas2.Model;
+    using Spotify.Model;
+
     public class SearchControlPopupViewModel : ViewModelBase
     {
         #region Constructors

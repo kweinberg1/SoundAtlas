@@ -3,13 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:ac="clr-namespace:AdornedControl;assembly=AdornedControl"
              xmlns:local="clr-namespace:SoundAtlas2"
              xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
              xmlns:NetworkModel="clr-namespace:SoundAtlas2.Model;assembly=SoundAtlas2.Model"
              xmlns:ZoomAndPan="clr-namespace:ZoomAndPan;assembly=ZoomAndPan"
              mc:Ignorable="d" 
-            d:DesignHeight="300" d:DesignWidth="300" >
+            d:DesignHeight="300" d:DesignWidth="300">
 
     <!-- Grid placed below the zoom and pan control that contains the zoom slider, zoom label and some buttons. -->
     <DockPanel.Resources>
@@ -76,140 +75,7 @@
                         />
                 </Grid>
             </DataTemplate>
-
-            <!-- 
-            Define the visual style for a 'ConnectorItem'.
-            -->
-            <Style 
-                TargetType="{x:Type NetworkUI:ConnectorItem}"
-                >
-                <!-- 
-                Data-binding for the connector hotspot.
-                ConnectorItem automatically computes its center points and assings this value
-                to the 'Hotspot' property.  This data-binding then 'pushes' the value into the application
-                view-model.
-                -->
-                <Setter 
-                    Property="Hotspot"
-                    Value="{Binding Hotspot, Mode=OneWayToSource}"
-                    />
-
-                <!-- The visual template. -->
-                <Setter 
-                    Property="Template"
-                    >
-                    <Setter.Value>
-                        <ControlTemplate 
-                            TargetType="{x:Type NetworkUI:ConnectorItem}"
-                            >
-                            <!-- The visual for the connector. -->
-                            <!--<Ellipse
-                                Stroke="{StaticResource nodeBorderBrush}"
-                                Fill="{StaticResource connectorBackgroundBrush}"
-                                />-->
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- 
-            Template for the button that is used to delete nodes and connections in the graph.
-            This button is displayed in an adorner when the user hovers the mouse over a node or connection.
-            -->
-            <ControlTemplate 
-                x:Key="deleteButtonTemplate"
-                TargetType="{x:Type Button}"
-                >
-                <Grid
-                    x:Name="grid"
-                    >
-                    <Grid.RenderTransform>
-                        <ScaleTransform
-                            ScaleX="1"
-                            ScaleY="1"
-                            CenterX="10"
-                            CenterY="10"
-                            />
-                    </Grid.RenderTransform>
-                    <Ellipse
-                        x:Name="shadow"
-                        VerticalAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        Fill="Gray"
-                        >
-                        <Ellipse.RenderTransform>
-                            <TranslateTransform
-                                X="1.5"
-                                Y="1.5"
-                                />
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
-                    <Ellipse
-                        x:Name="ellipse"
-                        Stroke="Black"
-                        VerticalAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        Fill="White"
-                        />
-                    <Image
-                        Source="Resources\scissors.png" 
-                        Margin="2"
-                        />
-                </Grid>
-                <ControlTemplate.Triggers>
-                    <EventTrigger
-                        RoutedEvent="Mouse.MouseEnter"
-                        >
-                        <!-- 
-                        Make the 'delete connection button' larger when the mouse 
-                        cursor is hovered over it.
-                        -->
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation
-                                    Storyboard.TargetName="grid"
-                                    Storyboard.TargetProperty="RenderTransform.ScaleX"
-                                    To="1.3"
-                                    Duration="0:0:0.25"
-                                    />
-                                <DoubleAnimation
-                                    Storyboard.TargetName="grid"
-                                    Storyboard.TargetProperty="RenderTransform.ScaleY"
-                                    To="1.3"
-                                    Duration="0:0:0.25"
-                                    />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-
-                    <EventTrigger
-                        RoutedEvent="Mouse.MouseLeave"
-                        >
-                        <!-- 
-                        Return the 'delete connection button' to normal size when the mouse
-                        cursor is moved away.
-                        -->
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation
-                                    Storyboard.TargetName="grid"
-                                    Storyboard.TargetProperty="RenderTransform.ScaleX"
-                                    To="1"
-                                    Duration="0:0:0.05"
-                                    />
-                                <DoubleAnimation
-                                    Storyboard.TargetName="grid"
-                                    Storyboard.TargetProperty="RenderTransform.ScaleY"
-                                    To="1"
-                                    Duration="0:0:0.05"
-                                    />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </ControlTemplate.Triggers>
-
-            </ControlTemplate>
-
+            
             <!-- 
             Data-template for ConectionViewModel.
             
@@ -221,8 +87,6 @@
             <DataTemplate
                 DataType="{x:Type NetworkModel:ConnectionViewModel}"
                 >
-
-             
                 <!-- The connection is represented by a curved arrow. -->
                 <local:CurvedArrow
                     Stroke="{StaticResource connectionBrush}"
@@ -269,7 +133,6 @@
                     </Grid.ContextMenu>
                         
                     <!-- This rectangle is the main visual for the node. -->
-
                     <Rectangle
                         Stroke="{StaticResource nodeBorderBrush}"
                         StrokeThickness="1.3"
@@ -295,11 +158,8 @@
                         </Grid.RowDefinitions>
 
                         <Grid.Resources>
-                            <BitmapImage x:Key="UnselectedIcon" UriSource="Images/unselected.png"/>
-                            <BitmapImage x:Key="StarredIcon" UriSource="Images/starred.png"/>
-                            <BitmapImage x:Key="DownwardArrowIcon" UriSource="Images/downwardarrow.png"/>
-                            <BitmapImage x:Key="HeadphonesIcon" UriSource="Images/headphones.png"/>
-                            <BitmapImage x:Key="AddTracksIcon" UriSource="Images/addtracks.png"/>
+                            <BitmapImage x:Key="OptionsIcon" UriSource="Images/unselected.png"/>
+                            <BitmapImage x:Key="AddTracksIcon" UriSource="Images/music.png"/>
                         </Grid.Resources>
 
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
@@ -313,7 +173,7 @@
                                 />
 
                             <Button Click="OnAddTracksClick" Tag="{Binding}" ToolTip="Add Tracks to Playlist" Padding="-4">
-                                <Image Stretch="Fill" Width="24" Height="24" Source="{StaticResource AddTracksIcon}"/>
+                                <Image Stretch="Fill" Width="24" Height="24" Margin="2,2,2,2" Source="{StaticResource AddTracksIcon}"/>
                             </Button>
 
                             <TextBlock Margin="5,0,5,0"
@@ -344,7 +204,8 @@
                                 <Button.Template>
                                     <ControlTemplate>
                                         <Border HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <Image Source="{StaticResource UnselectedIcon}" 
+                                            <Image Source="{StaticResource OptionsIcon}" 
+                                            Stretch="Fill"
                                             Width="16" 
                                             Height="16"/>
                                         </Border>
@@ -541,7 +402,6 @@
                 ContentOffsetY="{Binding ContentOffsetY, Mode=TwoWay}"
                 ContentViewportWidth="{Binding ContentViewportWidth, Mode=OneWayToSource}"
                 ContentViewportHeight="{Binding ContentViewportHeight, Mode=OneWayToSource}"
-
                 Focusable="False"
                 >
             <!--
@@ -562,21 +422,18 @@
                     <!-- In this sample the NetworkView is the content displayed by the ZoomAndPanControl. -->
 
                     <NetworkUI:NetworkView
-                            x:Name="networkControl"
-                            
                             NodesSource="{Binding Network.Nodes}"
                             ConnectionsSource="{Binding Path=Network.Connections}"
                             
-                            ConnectionDragStarted="networkControl_ConnectionDragStarted"
-                            QueryConnectionFeedback="networkControl_QueryConnectionFeedback"
-                            ConnectionDragging="networkControl_ConnectionDragging"                            
-                            ConnectionDragCompleted="networkControl_ConnectionDragCompleted"
-                            SelectionChanged="networkControl_SelectionChanged"
+                            ConnectionDragStarted="NetworkControl_ConnectionDragStarted"
+                            QueryConnectionFeedback="NetworkControl_QueryConnectionFeedback"
+                            ConnectionDragging="NetworkControl_ConnectionDragging"                            
+                            ConnectionDragCompleted="NetworkControl_ConnectionDragCompleted"
                             
-                            MouseDown="networkControl_MouseDown"
-                            MouseUp="networkControl_MouseUp"
-                            MouseMove="networkControl_MouseMove"
-                            MouseWheel="networkControl_MouseWheel"
+                            MouseDown="NetworkControl_MouseDown"
+                            MouseUp="NetworkControl_MouseUp"
+                            MouseMove="NetworkControl_MouseMove"
+                            MouseWheel="NetworkControl_MouseWheel"
                             Background="{StaticResource controlBackground}"
                             />
 

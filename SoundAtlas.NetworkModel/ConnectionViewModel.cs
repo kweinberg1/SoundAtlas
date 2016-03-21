@@ -211,8 +211,9 @@ namespace SoundAtlas2.Model
             computedPoints.Add(new Point(midPointX, this.DestConnectorHotspot.Y));
 
             //Add an extra point to the curve that allows the line into the destination look visually pleasing.
-            if ( (this.DestConnectorHotspot.X - 5.0) > midPointX)
-                computedPoints.Add(new Point(this.DestConnectorHotspot.X - 5.0, this.DestConnectorHotspot.Y));
+            const double precedingPoint = 2.5;
+            if ( (this.DestConnectorHotspot.X - precedingPoint) > midPointX)
+                computedPoints.Add(new Point(this.DestConnectorHotspot.X - precedingPoint, this.DestConnectorHotspot.Y));
 
             computedPoints.Add(this.DestConnectorHotspot);
             computedPoints.Freeze();

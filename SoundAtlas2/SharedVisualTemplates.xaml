@@ -55,9 +55,12 @@
         x:Key="controlBackground"
         Color="Black"
         />
-    
     <Color x:Key="backgroundColor" R="0" G="0" B="0"/>
-    
+
+    <SolidColorBrush
+        x:Key="controlSecondaryBackground"
+        Color="#FF3A3A3A"
+        />
     <!--
     Define a style for 'NodeItem'.
     
@@ -88,7 +91,36 @@
             Value="{Binding IsHighlighted}"
             />
     </Style>
-    
+
+    <!-- 
+            Define the visual style for a 'ConnectorItem'.
+            -->
+    <Style TargetType="{x:Type NetworkUI:ConnectorItem}">
+        <!-- 
+        Data-binding for the connector hotspot.
+        ConnectorItem automatically computes its center points and assings this value
+        to the 'Hotspot' property.  This data-binding then 'pushes' the value into the application
+        view-model.
+        -->
+        <Setter Property="Hotspot"
+                    Value="{Binding Hotspot, Mode=OneWayToSource}"
+                    />
+
+        <!-- The visual template. -->
+        <Setter Property="Template"
+                    >
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type NetworkUI:ConnectorItem}">
+                    <!-- The visual for the connector. -->
+                    <!--<Ellipse
+                                Stroke="{StaticResource nodeBorderBrush}"
+                                Fill="{StaticResource connectorBackgroundBrush}"
+                                />-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- 
     A data-template that defines the UI for input connectors.
     -->
@@ -161,12 +193,16 @@
     
     <DataTemplate
         x:Key="searchControlTemplate">
-        <Label Content="{Binding Name, Mode=OneWay}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
+        <Label Content="{Binding Name, Mode=OneWay}" 
+               Background="{StaticResource controlSecondaryBackground}" 
+               Foreground="{StaticResource nodeTextBrush}"/>
     </DataTemplate>
 
     <DataTemplate
         x:Key="newsFeedItemTemplate">
-        <Label Content="{Binding Artist.Name}" Background="{StaticResource controlBackground}" Foreground="{StaticResource nodeTextBrush}"/>
+        <Label Content="{Binding Artist.Name}" 
+               Background="{StaticResource controlSecondaryBackground}" 
+               Foreground="{StaticResource nodeTextBrush}"/>
     </DataTemplate>
 
     <ControlTemplate x:Key="TextBoxBaseControlTemplate" TargetType="{x:Type TextBoxBase}">
@@ -189,7 +225,7 @@
 
     <Style x:Key="BorderlessButtonStyle" TargetType="Button">
 
-        <Setter Property="Background" Value="{x:Null}"/>
+        <Setter Property="Background" Value="{StaticResource controlSecondaryBackground}"/>
         <Setter Property="Foreground" Value="{StaticResource nodeTextBrush}"/>
         <Setter Property="BorderBrush" Value="{x:Null}"/>
         <Setter Property="Template">
@@ -309,24 +345,19 @@
         </Setter>
     </Style>
 
+    <Style TargetType="{x:Type GridSplitter}">
+        <Setter Property="Background" Value="{StaticResource controlSecondaryBackground}" />
+    </Style>
+
+    <Style x:Key="ApplicationButton" TargetType="Button" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+        <Setter Property="Background" Value="{x:Null}"/>
+        <Setter Property="BorderBrush" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="{StaticResource nodeTextBrush}"/>
+    </Style>
+    
     <!-- Scroll Viewer -->
     <!-- TODO: Need to find out how to get click-and-drag working with this control style. -->
-    <!--<Style TargetType="ScrollViewer">
-        <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="VerticalContentAlignment" Value="Top" />
-        <Setter Property="VerticalScrollBarVisibility" Value="Visible" />
-        <Setter Property="Padding" Value="4"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush">
-            <Setter.Value>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FFA3AEB9" Offset="0"/>
-                    <GradientStop Color="#FF8399A9" Offset="0.375"/>
-                    <GradientStop Color="#FF718597" Offset="0.375"/>
-                    <GradientStop Color="#FF617584" Offset="1"/>
-                </LinearGradientBrush>
-            </Setter.Value>
-        </Setter>
+    <Style x:Key="UpdatedScrollViewerStyle" TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollViewer">
@@ -373,5 +404,5 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>-->
+    </Style>
 </ResourceDictionary>

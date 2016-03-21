@@ -1,28 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
-using Spotify;
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Windows;
+    using System.Windows.Controls;
+
+    using Spotify;
+    using Spotify.Model;
+
+
     /// <summary>
     /// Interaction logic for NavigationControl.xaml
     /// </summary>
     public partial class NavigationControl : UserControl
     {
+        #region Properties
         private NavigationViewModel _viewModel;
         public NavigationViewModel ViewModel
         {
@@ -31,9 +21,10 @@ namespace SoundAtlas2
                 return _viewModel;
             }
         }
+        #endregion
 
+        #region Events
         public readonly RoutedEvent CreatePlaylistEvent = EventManager.RegisterRoutedEvent("CreatePlaylist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
-        
         public event RoutedEventHandler CreatePlaylist
         {
             add { AddHandler(CreatePlaylistEvent, value); }
@@ -47,18 +38,36 @@ namespace SoundAtlas2
             remove { RemoveHandler(PlaylistSelectionChangedEvent, value); }
         }
 
+        public readonly RoutedEvent RecommendEvent = EventManager.RegisterRoutedEvent("Recommend", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
+        public event RoutedEventHandler Recommend
+        {
+            add { AddHandler(RecommendEvent, value); }
+            remove { RemoveHandler(RecommendEvent, value); }
+        }
+        #endregion
+
+        #region Constructors
         public NavigationControl()
         {
             InitializeComponent();
         }
+        #endregion
 
+        #region Methods
         public void Initialize()
         {
             _viewModel = new NavigationViewModel();
             this.DataContext = _viewModel;
         }
+        
+        public void SelectPlaylist(Playlist playlist)
+        {
+            _viewModel.SelectedPlaylist = playlist;
+            this.PlaylistListBox.SelectedItem = playlist;
+        }
+        #endregion
 
-
+        #region Event Handlers
         private void RaiseCreatePlaylistEvent(object sender, RoutedEventArgs e)
         {
             RoutedEventArgs newEventArgs = new RoutedEventArgs(CreatePlaylistEvent, e);
@@ -68,6 +77,12 @@ namespace SoundAtlas2
         private void RaiseSelectionChangedEvent(object sender, RoutedEventArgs e)
         {
             RoutedEventArgs newEventArgs = new RoutedEventArgs(PlaylistSelectionChangedEvent, e);
+            RaiseEvent(newEventArgs);
+        }
+
+        private void RaiseRecommendEvent(object sender, RoutedEventArgs e)
+        {
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(RecommendEvent, e);
             RaiseEvent(newEventArgs);
         }
 
@@ -94,19 +109,22 @@ namespace SoundAtlas2
             //Reinitialize the Atlas control.
             RaiseSelectionChangedEvent(sender, e);
         }
-
-
+        
         public void OnCreatePlaylist(Playlist playlist)
         {
             _viewModel.SelectedPlaylist = playlist;
             this.PlaylistListBox.SelectedItem = playlist;
         }
 
-        public void SelectPlaylist(Playlist playlist)
-        {
-            _viewModel.SelectedPlaylist = playlist;
-            this.PlaylistListBox.SelectedItem = playlist;
+        private void OnNewPlaylistButtonClick(object sender, RoutedEventArgs e) {
+
+            RaiseCreatePlaylistEvent(sender, e);
         }
 
+        private void OnRecommendButtonClick(object sender, RoutedEventArgs e)
+        {
+            RaiseRecommendEvent(sender, e);
+        }
+        #endregion
     }
 }

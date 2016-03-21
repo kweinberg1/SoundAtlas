@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using ZoomAndPan;
-using SoundAtlas2.Model;
-using System.Collections;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Collections;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Input;
+    using Model;
+    using NetworkUI;
+    using ZoomAndPan;
+
     /// <summary>
     /// This is a partial implementation of MainWindow that just contains most of the zooming and panning functionality.
     /// </summary>
     public partial class Atlas
     {
+        #region Fields
         /// <summary>
         /// Specifies the current state of the mouse handling logic.
         /// </summary>
@@ -50,18 +49,21 @@ namespace SoundAtlas2
         /// Set to 'true' when the previous zoom rect is saved.
         /// </summary>
         private bool prevZoomRectSet = false;
+        #endregion
 
+        #region Event Handlers
         /// <summary>
         /// Event raised on mouse down in the NetworkView.
         /// </summary> 
-        private void networkControl_MouseDown(object sender, MouseButtonEventArgs e)
+        private void NetworkControl_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            networkControl.Focus();
-            Keyboard.Focus(networkControl);
+            NetworkView networkView = sender as NetworkView;
+            networkView.Focus();
+            Keyboard.Focus(networkView);
 
             mouseButtonDown = e.ChangedButton;
             origZoomAndPanControlMouseDownPoint = e.GetPosition(zoomAndPanControl);
-            origContentMouseDownPoint = e.GetPosition(networkControl);
+            origContentMouseDownPoint = e.GetPosition(networkView);
 
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 &&
                 (e.ChangedButton == MouseButton.Left ||
@@ -84,7 +86,7 @@ namespace SoundAtlas2
             if (mouseHandlingMode != MouseHandlingMode.None)
             {
                 // Capture the mouse so that we eventually receive the mouse up event.
-                networkControl.CaptureMouse();
+                networkView.CaptureMouse();
                 e.Handled = true;
             }
         }
@@ -92,21 +94,13 @@ namespace SoundAtlas2
         /// <summary>
         /// Event raised on mouse up in the NetworkView.
         /// </summary>
-        private void networkControl_MouseUp(object sender, MouseButtonEventArgs e)
+        private void NetworkControl_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (mouseHandlingMode != MouseHandlingMode.None)
-            {
-                if (mouseHandlingMode == MouseHandlingMode.Panning)
-                { 
-                    //
-                    // Panning was initiated but dragging was abandoned before the mouse
-                    // cursor was dragged further than the threshold distance.
-                    // This means that this basically just a regular left mouse click.
-                    // Because it was a mouse click in empty space we need to clear the current selection.
-                    //
-                }
-                else if (mouseHandlingMode == MouseHandlingMode.Zooming)
-                {
+            NetworkView networkView = sender as NetworkView;
+            switch (mouseHandlingMode) {
+                case MouseHandlingMode.None:
+                    return;
+                case MouseHandlingMode.Zooming:
                     if (mouseButtonDown == MouseButton.Left)
                     {
                         // Shift + left-click zooms in on the content.
@@ -117,118 +111,138 @@ namespace SoundAtlas2
                         // Shift + left-click zooms out from the content.
                         ZoomOut(origContentMouseDownPoint);
                     }
-                }
-                else if (mouseHandlingMode == MouseHandlingMode.DragZooming)
-                {
+                    break;
+                case MouseHandlingMode.DragZooming:
                     // When drag-zooming has finished we zoom in on the rectangle that was highlighted by the user.
                     ApplyDragZoomRect();
-                }
-
-                //
-                // Reenable clearing of selection when empty space is clicked.
-                // This is disabled when drag panning is in progress.
-                //
-                networkControl.IsClearSelectionOnEmptySpaceClickEnabled = true;
-
-                //
-                // Reset the override cursor.
-                // This is set to a special cursor while drag panning is in progress.
-                //
-                Mouse.OverrideCursor = null;
-
-                networkControl.ReleaseMouseCapture();
-                mouseHandlingMode = MouseHandlingMode.None;
-                e.Handled = true;
+                    break;
+                case MouseHandlingMode.Panning:
+                    //
+                    // Panning was initiated but dragging was abandoned before the mouse
+                    // cursor was dragged further than the threshold distance.
+                    // This means that this basically just a regular left mouse click.
+                    // Because it was a mouse click in empty space we need to clear the current selection.
+                    //
+                    break;
+                default:
+                    break;
             }
+
+            //
+            // Reenable clearing of selection when empty space is clicked.
+            // This is disabled when drag panning is in progress.
+            //
+            networkView.IsClearSelectionOnEmptySpaceClickEnabled = true;
+
+            //
+            // Reset the override cursor.
+            // This is set to a special cursor while drag panning is in progress.
+            //
+            Mouse.OverrideCursor = null;
+
+            networkView.ReleaseMouseCapture();
+            mouseHandlingMode = MouseHandlingMode.None;
+            e.Handled = true;
         }
 
         /// <summary>
         /// Event raised on mouse move in the NetworkView.
         /// </summary>
-        private void networkControl_MouseMove(object sender, MouseEventArgs e)
+        private void NetworkControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseHandlingMode == MouseHandlingMode.Panning)
+            NetworkView networkView = sender as NetworkView;
+            switch(mouseHandlingMode)
             {
-                Point curZoomAndPanControlMousePoint = e.GetPosition(zoomAndPanControl);
-                Vector dragOffset = curZoomAndPanControlMousePoint - origZoomAndPanControlMouseDownPoint;
-                double dragThreshold = 10;
-                if (Math.Abs(dragOffset.X) > dragThreshold ||
-                    Math.Abs(dragOffset.Y) > dragThreshold)
+                case MouseHandlingMode.Panning:
                 {
-                    //
-                    // The user has dragged the cursor further than the threshold distance, initiate
-                    // drag panning.
-                    //
-                    mouseHandlingMode = MouseHandlingMode.DragPanning;
-                    networkControl.IsClearSelectionOnEmptySpaceClickEnabled = false;
-                    Mouse.OverrideCursor = Cursors.ScrollAll;
+                    Point curZoomAndPanControlMousePoint = e.GetPosition(zoomAndPanControl);
+                    Vector dragOffset = curZoomAndPanControlMousePoint - origZoomAndPanControlMouseDownPoint;
+                    const double dragThreshold = 10;
+                    if (Math.Abs(dragOffset.X) > dragThreshold ||
+                        Math.Abs(dragOffset.Y) > dragThreshold) {
+                        //
+                        // The user has dragged the cursor further than the threshold distance, initiate
+                        // drag panning.
+                        //
+                        mouseHandlingMode = MouseHandlingMode.DragPanning;
+                        networkView.IsClearSelectionOnEmptySpaceClickEnabled = false;
+                        Mouse.OverrideCursor = Cursors.ScrollAll;
+                    }
+
+                    e.Handled = true;
                 }
+                break;
+                case MouseHandlingMode.DragPanning:
+                    {
+                        //
+                        // The user is left-dragging the mouse.
+                        // Pan the viewport by the appropriate amount.
+                        //
+                        Point curContentMousePoint = e.GetPosition(networkView);
+                        Vector dragOffset = curContentMousePoint - origContentMouseDownPoint;
 
-                e.Handled = true;
+                        zoomAndPanControl.ContentOffsetX -= dragOffset.X;
+                        zoomAndPanControl.ContentOffsetY -= dragOffset.Y;
+
+                        e.Handled = true;
+                    }
+                    break;
+                case MouseHandlingMode.Zooming:
+                    {
+                        Point curZoomAndPanControlMousePoint = e.GetPosition(zoomAndPanControl);
+                        Vector dragOffset = curZoomAndPanControlMousePoint - origZoomAndPanControlMouseDownPoint;
+                        double dragThreshold = 10;
+                        if (mouseButtonDown == MouseButton.Left &&
+                            (Math.Abs(dragOffset.X) > dragThreshold ||
+                            Math.Abs(dragOffset.Y) > dragThreshold))
+                        {
+                            //
+                            // When Shift + left-down zooming mode and the user drags beyond the drag threshold,
+                            // initiate drag zooming mode where the user can drag out a rectangle to select the area
+                            // to zoom in on.
+                            //
+                            mouseHandlingMode = MouseHandlingMode.DragZooming;
+                            Point curContentMousePoint = e.GetPosition(networkView);
+                            InitDragZoomRect(origContentMouseDownPoint, curContentMousePoint);
+                        }
+
+                        e.Handled = true;
+                    }
+                    break;
+
+                case MouseHandlingMode.DragZooming:
+                    {
+                        //
+                        // When in drag zooming mode continously update the position of the rectangle
+                        // that the user is dragging out.
+                        //
+                        Point curContentMousePoint = e.GetPosition(networkView);
+                        SetDragZoomRect(origContentMouseDownPoint, curContentMousePoint);
+
+                        e.Handled = true;
+                    }
+                    break;
+                default:
+                    break;
             }
-            else if (mouseHandlingMode == MouseHandlingMode.DragPanning)
-            {
-                //
-                // The user is left-dragging the mouse.
-                // Pan the viewport by the appropriate amount.
-                //
-                Point curContentMousePoint = e.GetPosition(networkControl);
-                Vector dragOffset = curContentMousePoint - origContentMouseDownPoint;
-
-                zoomAndPanControl.ContentOffsetX -= dragOffset.X;
-                zoomAndPanControl.ContentOffsetY -= dragOffset.Y;
-
-                e.Handled = true;
-            }
-            else if (mouseHandlingMode == MouseHandlingMode.Zooming)
-            {
-                Point curZoomAndPanControlMousePoint = e.GetPosition(zoomAndPanControl);
-                Vector dragOffset = curZoomAndPanControlMousePoint - origZoomAndPanControlMouseDownPoint;
-                double dragThreshold = 10;
-                if (mouseButtonDown == MouseButton.Left &&
-                    (Math.Abs(dragOffset.X) > dragThreshold ||
-                    Math.Abs(dragOffset.Y) > dragThreshold))
-                {
-                    //
-                    // When Shift + left-down zooming mode and the user drags beyond the drag threshold,
-                    // initiate drag zooming mode where the user can drag out a rectangle to select the area
-                    // to zoom in on.
-                    //
-                    mouseHandlingMode = MouseHandlingMode.DragZooming;
-                    Point curContentMousePoint = e.GetPosition(networkControl);
-                    InitDragZoomRect(origContentMouseDownPoint, curContentMousePoint);
-                }
-
-                e.Handled = true;
-            }
-            else if (mouseHandlingMode == MouseHandlingMode.DragZooming)
-            {
-                //
-                // When in drag zooming mode continously update the position of the rectangle
-                // that the user is dragging out.
-                //
-                Point curContentMousePoint = e.GetPosition(networkControl);
-                SetDragZoomRect(origContentMouseDownPoint, curContentMousePoint);
-
-                e.Handled = true;
-            }
+            
         }
 
         /// <summary>
         /// Event raised by rotating the mouse wheel.
         /// </summary>
-        private void networkControl_MouseWheel(object sender, MouseWheelEventArgs e)
-        {
+        private void NetworkControl_MouseWheel(object sender, MouseWheelEventArgs e) {
+            NetworkView networkView = sender as NetworkView;
             e.Handled = true;
 
             if (e.Delta > 0)
             {
-                Point curContentMousePoint = e.GetPosition(networkControl);
+                Point curContentMousePoint = e.GetPosition(networkView);
                 ZoomIn(curContentMousePoint);
             }
             else if (e.Delta < 0)
             {
-                Point curContentMousePoint = e.GetPosition(networkControl);
+                Point curContentMousePoint = e.GetPosition(networkView);
                 ZoomOut(curContentMousePoint);
             }
         }
@@ -237,10 +251,11 @@ namespace SoundAtlas2
         /// Event raised when the user has double clicked in the zoom and pan control.
         /// </summary>
         private void networkControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
+        {    
             if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
             {
-                Point doubleClickPoint = e.GetPosition(networkControl);
+                NetworkView networkView = sender as NetworkView;
+                Point doubleClickPoint = e.GetPosition(networkView);
                 zoomAndPanControl.AnimatedSnapTo(doubleClickPoint);
             }
         }
@@ -250,7 +265,8 @@ namespace SoundAtlas2
         /// </summary>
         private void ZoomIn_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            var o = networkControl.SelectedNode;
+            NetworkView networkView = sender as NetworkView;
+            var o = networkView.SelectedNode;
 
             ZoomIn(new Point(zoomAndPanControl.ContentZoomFocusX, zoomAndPanControl.ContentZoomFocusY));
         }
@@ -285,10 +301,10 @@ namespace SoundAtlas2
         private void FitContent_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             IList nodes = null;
-
-            if (networkControl.SelectedNodes.Count > 0)
+            NetworkView networkView = sender as NetworkView;
+            if (networkView.SelectedNodes.Count > 0)
             {
-                nodes = networkControl.SelectedNodes;
+                nodes = networkView.SelectedNodes;
             }
             else
             {
@@ -307,7 +323,8 @@ namespace SoundAtlas2
             // Inflate the content rect by a fraction of the actual size of the total content area.
             // This puts a nice border around the content we are fitting to the viewport.
             //
-            actualContentRect.Inflate(networkControl.ActualWidth / 40, networkControl.ActualHeight / 40);
+            const double bufferFactor = 40.0;
+            actualContentRect.Inflate(networkView.ActualWidth / bufferFactor, networkView.ActualHeight / bufferFactor);
 
             zoomAndPanControl.AnimatedZoomTo(actualContentRect);
         }
@@ -480,5 +497,6 @@ namespace SoundAtlas2
         {
             prevZoomRectSet = false;
         }
+        #endregion
     }
 }

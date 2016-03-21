@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System.Collections.Generic;
+    using Spotify.Model;
+
     public sealed class RecommendationCriteria
     {
         public Artist TargetedArtist;
