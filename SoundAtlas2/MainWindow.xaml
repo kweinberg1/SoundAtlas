@@ -96,13 +96,6 @@
             Cursor="SizeNWSE"
             Style="{StaticResource ResizeGripBorderStyle}" />
 
-        <Rectangle x:Name="maximizeDragGrip"
-            Margin="5"
-            Height="30"
-            VerticalAlignment="Top"
-            Panel.ZIndex="1000"
-            Style="{StaticResource MaximizeDragGripBorderStyle}"/>
-
         <Grid Name="MainGrid" Visibility="Visible" Background="{StaticResource controlSecondaryBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
@@ -121,7 +114,7 @@
                 <BitmapImage x:Key="SearchIcon" UriSource="Images/search.png"/>
                 <BitmapImage x:Key="ClearTextIcon" UriSource="Images/cleartext.png"/>
                 <BitmapImage x:Key="MinimizeIcon" UriSource="Images/minimizewindow.png"/>
-                <BitmapImage x:Key="MaximizeIcon" UriSource="Images/restorewindow.png"/>
+                <BitmapImage x:Key="RestoreIcon" UriSource="Images/restorewindow.png"/>
                 <BitmapImage x:Key="CloseIcon" UriSource="Images/close.png"/>
                 <BitmapImage x:Key="ApplicationIcon" UriSource="Images/atlas.png"/>
             </Grid.Resources>
@@ -142,6 +135,16 @@
                     Focusable="False"    
                     Style="{StaticResource BorderlessButtonStyle}" Height="32"
                     />
+                
+                <!-- Grip to maximize/restore when double-clicking at the top of the application. -->
+                <Rectangle x:Name="maximizeDragGrip"
+                    Grid.Column="1"
+                    Margin="0"
+                    Height="30"
+                    VerticalAlignment="Top"
+                    Panel.ZIndex="1000"
+                    Style="{StaticResource MaximizeDragGripBorderStyle}"/>
+                
                 <Button Grid.Column="0" 
                         HorizontalAlignment="Left" 
                         Style="{StaticResource ApplicationButton}"
@@ -165,7 +168,7 @@
                             Width="32" 
                             Height="32" 
                             Click="OnMaximizeButtonClick">
-                        <Image Stretch="Fill" Source="{StaticResource MaximizeIcon}"/>
+                        <Image Stretch="Fill" Source="{StaticResource RestoreIcon}"/>
                     </Button>
                     <Button HorizontalAlignment="Right" 
                             VerticalAlignment="Top" 
@@ -185,7 +188,10 @@
                 <Menu Background="{StaticResource controlSecondaryBackground}" 
                       Foreground="{StaticResource nodeTextBrush}">
                     <MenuItem Header="File" Width="Auto" Height="Auto">
-                        <MenuItem Header="Exit" Click="OnExitMenuItemClick"/>
+                        <MenuItem Header="Exit"  
+                                  Click="OnExitMenuItemClick"
+                                  Background="{StaticResource controlSecondaryBackground}" 
+                                  Foreground="{StaticResource nodeTextBrush}"/>
                     </MenuItem>
                 </Menu>
             </StackPanel>
@@ -255,8 +261,9 @@
                 Grid.RowSpan="3" 
                 CreatePlaylist="OnCreatePlaylist" 
                 PlaylistSelectionChanged="OnPlaylistSelectionChanged"
-                Recommend="OnRecommend"/>
-
+                Recommend="OnRecommend"
+                FollowedArtists="OnFollowedArtists"
+                NewReleases="OnNewReleases"/>
 
             <soundatlas:StartUpHelper x:Name="StartUpHelper" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
 
@@ -264,9 +271,6 @@
                               Grid.Row="3" 
                               Grid.Column="1" 
                               Grid.ColumnSpan="2" 
-                              AddTracks="OnAddTracksClick" 
-                              FollowArtist="OnFollowArtistClick" 
-                              UnfollowArtist="OnUnfollowArtistClick" 
                               IsEnabled="{Binding IsLoggedIn}" 
                               RegenerateNetwork="OnRegenerateNetwork" 
                               Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}">

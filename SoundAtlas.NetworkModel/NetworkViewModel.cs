@@ -18,7 +18,7 @@ namespace SoundAtlas2.Model
         /// <summary>
         /// The collection of nodes in the network.
         /// </summary>
-        private ImpObservableCollection<NodeViewModel> nodes = null;
+        private ImpObservableCollection<NetworkNodeViewModel> nodes = null;
 
         /// <summary>
         /// The collection of connections in the network.
@@ -30,13 +30,13 @@ namespace SoundAtlas2.Model
         /// <summary>
         /// The collection of nodes in the network.
         /// </summary>
-        public ImpObservableCollection<NodeViewModel> Nodes
+        public ImpObservableCollection<NetworkNodeViewModel> Nodes
         {
             get
             {
                 if (nodes == null)
                 {
-                    nodes = new ImpObservableCollection<NodeViewModel>();
+                    nodes = new ImpObservableCollection<NetworkNodeViewModel>();
                 }
 
                 return nodes;

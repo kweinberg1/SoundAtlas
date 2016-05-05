@@ -22,8 +22,7 @@
         </Grid.Resources>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="8"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -31,39 +30,42 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="32"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.Resources>
-                <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
-            </Grid.Resources>
-            
-            <Image Grid.Column="0"
+        <StackPanel 
+            Grid.Row="0"
+            Orientation="Vertical">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+                </Grid.Resources>
+
+                <Image Grid.Column="0"
                    Stretch="Fill" 
                    Source="{StaticResource NewPlaylistIcon}"/>
-            <Button Grid.Column="1"
+                <Button Grid.Column="1"
                 HorizontalAlignment="Stretch" 
                 HorizontalContentAlignment="Left"
                 Content="New Playlist"
                 Style="{StaticResource ApplicationButton}"
                 Click="OnNewPlaylistButtonClick"/>
-        </Grid>
+            </Grid>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="32"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.Resources>
-                <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
-            </Grid.Resources>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+                </Grid.Resources>
 
-            <Image Grid.Column="0"
+                <Image Grid.Column="0"
                    Stretch="Fill" 
                    Source="{StaticResource NewPlaylistIcon}"/>
-            <Button 
+                <Button 
                 Grid.Column="1"
                 HorizontalAlignment="Stretch" 
                 HorizontalContentAlignment="Left"
@@ -71,9 +73,55 @@
                 Height="32"
                 Style="{StaticResource ApplicationButton}"
                 Click="OnRecommendButtonClick"/>
-        </Grid>
+            </Grid>
 
-        <Rectangle Grid.Row="2" Fill="{StaticResource controlBackground}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+                </Grid.Resources>
+
+                <Image Grid.Column="0"
+                   Stretch="Fill" 
+                   Source="{StaticResource NewPlaylistIcon}"/>
+                <Button 
+                Grid.Column="1"
+                HorizontalAlignment="Stretch" 
+                HorizontalContentAlignment="Left"
+                Content="Followed Artists"
+                Height="32"
+                Style="{StaticResource ApplicationButton}"
+                Click="OnFollowedArtistsClick"/>
+            </Grid>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <BitmapImage x:Key="NewPlaylistIcon" UriSource="Images/plus.png"/>
+                </Grid.Resources>
+
+                <Image Grid.Column="0"
+                   Stretch="Fill" 
+                   Source="{StaticResource NewPlaylistIcon}"/>
+                <Button 
+                Grid.Column="1"
+                HorizontalAlignment="Stretch" 
+                HorizontalContentAlignment="Left"
+                Content="New Releases"
+                Height="32"
+                Style="{StaticResource ApplicationButton}"
+                Click="OnNewReleasesClick"/>
+            </Grid>
+        </StackPanel>
+        
+        <Rectangle Grid.Row="2" 
+                   Fill="{StaticResource controlBackground}"/>
         <ListBox x:Name="PlaylistListBox" 
                  Grid.Row="3"
                  ItemsSource="{Binding Playlists}" 

@@ -19,7 +19,10 @@
         /// <summary>
         /// Convenient accessor for the view-model.
         /// </summary>
-        public PlaylistViewModel ViewModel => (PlaylistViewModel) DataContext;
+        public PlaylistViewModel ViewModel
+        {
+            get { return _viewModel; }
+        }
         #endregion
 
         #region Events

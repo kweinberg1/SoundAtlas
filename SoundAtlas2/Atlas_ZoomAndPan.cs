@@ -334,12 +334,12 @@
         /// </summary>
         private Rect DetermineAreaOfNodes(IList nodes)
         {
-            NodeViewModel firstNode = (NodeViewModel)nodes[0];
+            NetworkNodeViewModel firstNode = (NetworkNodeViewModel)nodes[0];
             Rect actualContentRect = new Rect(firstNode.X, firstNode.Y, firstNode.Size.Width, firstNode.Size.Height);
 
             for (int i = 1; i < nodes.Count; ++i)
             {
-                NodeViewModel node = (NodeViewModel)nodes[i];
+                NetworkNodeViewModel node = (NetworkNodeViewModel)nodes[i];
                 Rect nodeRect = new Rect(node.X, node.Y, node.Size.Width, node.Size.Height);
                 actualContentRect = Rect.Union(actualContentRect, nodeRect);
             }

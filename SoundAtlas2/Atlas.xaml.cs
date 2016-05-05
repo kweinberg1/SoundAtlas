@@ -5,7 +5,7 @@
     using System.Windows.Input;
     using NetworkUI;
     using SoundAtlas2.Model;
-    
+
     /// <summary>
     /// Interaction logic for Atlas.xaml
     /// </summary>
@@ -26,27 +26,6 @@
         #endregion
 
         #region Events
-        public event RoutedEventHandler AddTracks
-        {
-            add { AddHandler(AddTracksEvent, value); }
-            remove { RemoveHandler(AddTracksEvent, value); }
-        }
-        public readonly RoutedEvent AddTracksEvent = EventManager.RegisterRoutedEvent("AddTracks", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
-
-        public event RoutedEventHandler FollowArtist
-        {
-            add { AddHandler(FollowArtistEvent, value); }
-            remove { RemoveHandler(FollowArtistEvent, value); }
-        }
-        public readonly RoutedEvent FollowArtistEvent = EventManager.RegisterRoutedEvent("FollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
-
-        public event RoutedEventHandler UnfollowArtist
-        {
-            add { AddHandler(UnfollowArtistEvent, value); }
-            remove { RemoveHandler(UnfollowArtistEvent, value); }
-        }
-        public readonly RoutedEvent UnfollowArtistEvent = EventManager.RegisterRoutedEvent("UnfollowArtist", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Atlas));
-
         public event RoutedEventHandler RegenerateNetwork
         {
             add { AddHandler(RegenerateNetworkEvent, value); }
@@ -133,23 +112,6 @@
         }
 
         /// <summary>
-        /// Event raised to create a new node.
-        /// </summary>
-        private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e) {
-            NetworkView networkView = sender as NetworkView;
-            CreateNode(networkView);
-        }
-
-        /// <summary>
-        /// Creates a new node in the network at the current mouse location.
-        /// </summary>
-        private void CreateNode(NetworkView networkView)
-        {
-            var newNodePosition = Mouse.GetPosition(networkView);
-            this.ViewModel.CreateNode("New Node!", newNodePosition, true);
-        }
-
-        /// <summary>
         /// Event raised when the size of a node has changed.
         /// </summary>
         private void Node_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -159,7 +121,7 @@
             // has changed.  Push the size of the node through to the view-model.
             //
             var element = (FrameworkElement)sender;
-            var node = (NodeViewModel)element.DataContext;
+            var node = (NetworkNodeViewModel)element.DataContext;
             node.Size = new Size(element.ActualWidth, element.ActualHeight);
         }
 
@@ -189,12 +151,8 @@
         /// <param name="e"></param>
         private void OnAddTracksClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
-            
-            viewModel.IsInPlaylist = true;
-
-            RoutedEventArgs newEventArgs = new RoutedEventArgs(AddTracksEvent, viewModel);
-            RaiseEvent(newEventArgs);
+            NetworkNodeViewModel viewModel = (NetworkNodeViewModel)((FrameworkElement)sender).Tag;
+            viewModel.AddTracks();
         }
 
         /// <summary>
@@ -204,12 +162,8 @@
         /// <param name="e"></param>
         private void OnFollowArtistClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
-
-            viewModel.IsHighlighted = true;
-
-            RoutedEventArgs newEventArgs = new RoutedEventArgs(FollowArtistEvent, viewModel);
-            RaiseEvent(newEventArgs);
+            NetworkNodeViewModel viewModel = (NetworkNodeViewModel)((FrameworkElement)sender).Tag;
+            viewModel.FollowArtist();
         }
 
         /// <summary>
@@ -219,12 +173,8 @@
         /// <param name="e"></param>
         private void OnUnfollowArtistClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel viewModel = (NodeViewModel)((FrameworkElement)sender).Tag;
-
-            viewModel.IsHighlighted = false;
-
-            RoutedEventArgs newEventArgs = new RoutedEventArgs(UnfollowArtistEvent, viewModel);
-            RaiseEvent(newEventArgs);
+            ArtistNetworkNodeViewModel viewModel = (ArtistNetworkNodeViewModel)((FrameworkElement)sender).Tag;
+            viewModel.UnfollowArtist();
         }
 
         /// <summary>
@@ -234,9 +184,8 @@
         /// <param name="e"></param>
         private void OnExpandRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
-
-            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, AtlasCreateChildSetting.CreateOneChild);
+            NetworkNodeViewModel targetNode = (NetworkNodeViewModel)((FrameworkElement)sender).Tag;
+            targetNode.OnExpand(AtlasExpandChildSetting.CreateOneChild);
             UpdateNetwork();
         }
 
@@ -247,9 +196,8 @@
         /// <param name="e"></param>
         private void OnExpandAllRelatedArtistsButtonClick(object sender, RoutedEventArgs e)
         {
-            NodeViewModel targetNode = (NodeViewModel)((FrameworkElement)sender).Tag;
-
-            this.ViewModel.CreateNodeChildren(targetNode.ArtistViewModel.HierarchyNode.GraphNodeViewModel, AtlasCreateChildSetting.CreateAllChildren);
+            NetworkNodeViewModel targetNode = (NetworkNodeViewModel)((FrameworkElement)sender).Tag;
+            targetNode.OnExpand(AtlasExpandChildSetting.CreateAllChildren);
             UpdateNetwork();
         }
         #endregion

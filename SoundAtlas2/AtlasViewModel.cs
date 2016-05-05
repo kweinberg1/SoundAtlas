@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-using SoundAtlas2.Model;
-using Spotify;
-using Spotify.Model;
-using Utils;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Windows;
+
+    using SoundAtlas2.Model;
+    using Spotify;
+    using Spotify.Model;
+    using Utils;
+
     public class AtlasViewModel : AbstractModelBase
     {
         #region Internal Data Members
@@ -22,10 +20,15 @@ namespace SoundAtlas2
         private AtlasHierarchy _hierarchy;
 
         /// <summary>
+        /// Determines how the node hierarchy is displayed.
+        /// </summary>
+        private AtlasViewMode _viewMode;
+
+        /// <summary>
         /// This is the network that is displayed in the window.
         /// It is the main part of the view-model.
         /// </summary>
-        public NetworkViewModel network = null;
+        public NetworkViewModel _network;
 
         ///
         /// The current scale at which the content is being viewed.
@@ -76,9 +79,7 @@ namespace SoundAtlas2
         #region Constructors
         public AtlasViewModel()
         {
-            // Add some test data to the view-model.
-            // Disabled:
-            // PopulateWithTestData();
+
         }
         #endregion
         /// <summary>
@@ -89,11 +90,11 @@ namespace SoundAtlas2
         {
             get
             {
-                return network;
+                return _network;
             }
             set
             {
-                network = value;
+                _network = value;
 
                 OnPropertyChanged("Network");
             }
@@ -236,18 +237,7 @@ namespace SoundAtlas2
                 OnPropertyChanged("IsVisible");
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public PlaylistViewModel PlaylistViewModel
-        {
-            get;
-            set;
-        }
-
-
-
+        
         /// <summary>
         /// Called when the user has started to drag out a connector, thus creating a new connection.
         /// </summary>
@@ -426,20 +416,7 @@ namespace SoundAtlas2
             // Now we can just iterate attached connections of the source
             // and see if it each one is attached to the destination connector.
             //
-
-            foreach (var connection in sourceConnector.AttachedConnections)
-            {
-                if (connection.DestConnector == destConnector)
-                {
-                    //
-                    // Found a connection that is outgoing from the source connector
-                    // and incoming to the destination connector.
-                    //
-                    return connection;
-                }
-            }
-
-            return null;
+            return sourceConnector.AttachedConnections.FirstOrDefault(connection => connection.DestConnector == destConnector);
         }
 
         /// <summary>
@@ -462,7 +439,7 @@ namespace SoundAtlas2
         /// Delete the node from the view-model.
         /// Also deletes any connections to or from the node.
         /// </summary>
-        public void DeleteNode(NodeViewModel node)
+        public void DeleteNode(NetworkNodeViewModel node)
         {
             //
             // Remove all connections attached to the node.
@@ -476,57 +453,23 @@ namespace SoundAtlas2
         }
 
         /// <summary>
-        /// Create a node and add it to the view-model.
+        /// Create a graph node and add it to the view-model.
         /// </summary>
-        public NodeViewModel CreateNode(ArtistViewModel viewModel, Point nodeLocation, bool centerNode)
-        {
-            int numArtistTracks = this.PlaylistViewModel.GetArtistTrackCount(viewModel.Artist);
-            NodeViewModel node = new NodeViewModel(viewModel, numArtistTracks);
+        public NetworkNodeViewModel CreateArtistGraphNode(IHierarchyNode hierarchyNode, Point nodeLocation) {
 
+            Debug.Assert(hierarchyNode is ArtistHierarchyNode);
+
+            ArtistViewModel viewModel = ((ArtistHierarchyNode)hierarchyNode).ArtistViewModel;
+            ArtistNetworkNodeViewModel node = new ArtistNetworkNodeViewModel(viewModel, _hierarchy, ((ArtistHierarchyNode)hierarchyNode), PlaylistService.GetCurrentPlaylist());
+
+            // Initialize any style modifiers.
             node.X = nodeLocation.X;
             node.Y = nodeLocation.Y;
             node.InputConnectors.Add(new ConnectorViewModel("", ConnectorType.Input));
             node.OutputConnectors.Add(new ConnectorViewModel("", ConnectorType.Output));
 
-            if (centerNode)
-            {
-                // 
-                // We want to center the node.
-                //
-                // For this to happen we need to wait until the UI has determined the 
-                // size based on the node's data-template.
-                //
-                // So we define an anonymous method to handle the SizeChanged event for a node.
-                //
-                // Note: If you don't declare sizeChangedEventHandler before initializing it you will get
-                //       an error when you try and unsubscribe the event from within the event handler.
-                //
-                EventHandler<EventArgs> sizeChangedEventHandler = null;
-                sizeChangedEventHandler =
-                    delegate(object sender, EventArgs e)
-                    {
-                        //
-                        // This event handler will be called after the size of the node has been determined.
-                        // So we can now use the size of the node to modify its position.
-                        //
-                        node.X -= node.Size.Width / 2;
-                        node.Y -= node.Size.Height / 2;
-
-                        //
-                        // Don't forget to unhook the event, after the initial centering of the node
-                        // we don't need to be notified again of any size changes.
-                        //
-                        node.SizeChanged -= sizeChangedEventHandler;
-                    };
-
-                //
-                // Now we hook the SizeChanged event so the anonymous method is called later
-                // when the size of the node has actually been determined.
-                //
-                node.SizeChanged += sizeChangedEventHandler;
-            }
-
-            //
+            hierarchyNode.GraphNodeViewModel = node;
+            
             // Add the node to the view-model.
             //
             this.Network.Nodes.Add(node);
@@ -534,57 +477,25 @@ namespace SoundAtlas2
             return node;
         }
 
+
         /// <summary>
-        /// Create a node and add it to the view-model.
+        /// Create a graph node and add it to the view-model.
         /// </summary>
-        public NodeViewModel CreateNode(String name, Point nodeLocation, bool centerNode)
+        public NetworkNodeViewModel CreateNewReleasesGraphNode(IHierarchyNode hierarchyNode, Point nodeLocation)
         {
-            var node = new NodeViewModel(name);
+            Debug.Assert(hierarchyNode is NewReleaseHierarchyNode);
+
+            NewReleaseItem newReleaseItem = ((NewReleaseHierarchyNode)hierarchyNode).NewReleaseItem;
+            NewReleaseNetworkNodeViewModel node = new NewReleaseNetworkNodeViewModel(newReleaseItem);
+
+            // Initialize any style modifiers.
             node.X = nodeLocation.X;
             node.Y = nodeLocation.Y;
+            node.InputConnectors.Add(new ConnectorViewModel("", ConnectorType.Input));
+            node.OutputConnectors.Add(new ConnectorViewModel("", ConnectorType.Output));
 
-            node.InputConnectors.Add(new ConnectorViewModel("In1"));
-            node.OutputConnectors.Add(new ConnectorViewModel("Out1"));
+            hierarchyNode.GraphNodeViewModel = node;
 
-            if (centerNode)
-            {
-                // 
-                // We want to center the node.
-                //
-                // For this to happen we need to wait until the UI has determined the 
-                // size based on the node's data-template.
-                //
-                // So we define an anonymous method to handle the SizeChanged event for a node.
-                //
-                // Note: If you don't declare sizeChangedEventHandler before initializing it you will get
-                //       an error when you try and unsubscribe the event from within the event handler.
-                //
-                EventHandler<EventArgs> sizeChangedEventHandler = null;
-                sizeChangedEventHandler =
-                    delegate(object sender, EventArgs e)
-                    {
-                        //
-                        // This event handler will be called after the size of the node has been determined.
-                        // So we can now use the size of the node to modify its position.
-                        //
-                        node.X -= node.Size.Width / 2;
-                        node.Y -= node.Size.Height / 2;
-
-                        //
-                        // Don't forget to unhook the event, after the initial centering of the node
-                        // we don't need to be notified again of any size changes.
-                        //
-                        node.SizeChanged -= sizeChangedEventHandler;
-                    };
-
-                //
-                // Now we hook the SizeChanged event so the anonymous method is called later
-                // when the size of the node has actually been determined.
-                //
-                node.SizeChanged += sizeChangedEventHandler;
-            }
-
-            //
             // Add the node to the view-model.
             //
             this.Network.Nodes.Add(node);
@@ -601,16 +512,16 @@ namespace SoundAtlas2
         }
 
         /// <summary>
-        /// Populates the 
+        /// Populates the sub-tree for all selected nodes.
         /// </summary>
         public bool HandleSelectedNodes()
         {
             bool nodeSelected = false;
-            foreach (NodeViewModel node in this.Network.Nodes)
+            foreach(NetworkNodeViewModel node in this.Network.Nodes)
             {
                 if (node.IsSelected)
                 {
-                    _hierarchy.GenerateSubTree(node.ArtistViewModel.HierarchyNode);
+                    node.OnSelected();
                     nodeSelected = true;
                 }
             }
@@ -618,21 +529,11 @@ namespace SoundAtlas2
             return nodeSelected;
         }
 
-        public void CreateNodeChildren(NodeViewModel selectedNode, AtlasCreateChildSetting childSetting)
-        {
-            int previousLimit = _hierarchy.AddChildrenLimit;
-            _hierarchy.AddChildrenLimit = ((childSetting == AtlasCreateChildSetting.CreateAllChildren) ? int.MaxValue : previousLimit);
-            _hierarchy.GenerateSubTree(selectedNode.ArtistViewModel.HierarchyNode);
-            _hierarchy.AddChildrenLimit = previousLimit;
-
-            selectedNode.IsChildrenExpanded = _hierarchy.IsSubTreeExpanded(selectedNode.ArtistViewModel.HierarchyNode);
-        }
-
         public void SelectArtistNodes(IEnumerable<Artist> artists)
         {
-            foreach (NodeViewModel node in this.Network.Nodes)
+            foreach (ArtistNetworkNodeViewModel node in this.Network.Nodes.OfType<ArtistNetworkNodeViewModel>())
             {
-                if (artists.Where(artist => artist.ID == node.ArtistViewModel.Artist.ID).Any())
+                if (artists.Any(artist => artist.ID == node.ArtistViewModel.Artist.ID))
                 {
                     node.IsSelected = true;
                 }
@@ -643,52 +544,48 @@ namespace SoundAtlas2
             }
         }
 
-        #region Private Methods
-
-        /// <summary>
-        /// A function to conveniently populate the view-model with test data.
-        /// </summary>
-        private void PopulateWithTestData()
-        {
-            //
-            // Create a network, the root of the view-model.
-            //
-            this.Network = new NetworkViewModel();
-
-            //
-            // Create some nodes and add them to the view-model.
-            //
-            NodeViewModel node1 = CreateNode("Node1", new Point(100, 60), false);
-            NodeViewModel node2 = CreateNode("Node2", new Point(350, 80), false);
-
-            //
-            // Create a connection between the nodes.
-            //
-            ConnectionViewModel connection = new ConnectionViewModel();
-            connection.SourceConnector = node1.OutputConnectors[0];
-            connection.DestConnector = node2.InputConnectors[0];
-
-            //
-            // Add the connection to the view-model.
-            //
-            this.Network.Connections.Add(connection);
-        }
-        #endregion Private Methods
-
         #region Generation Methods
-        public void CreateHierarchy(IEnumerable<Artist> targetArtists)
+        public void CreatePlaylistHierarchy(IReadOnlyCollection<Artist> targetArtists, AtlasViewOptions options)
         {
-            //Create the hierarchy.
-            _hierarchy = new AtlasHierarchy(SpotifyClientService.Client, targetArtists);
+            _viewMode = AtlasViewMode.PlaylistView;
+            _hierarchy = new ArtistAtlasHierarchy(SpotifyClientService.Client, targetArtists, options);
         }
 
-        public void AddArtistsToHierarchy(IEnumerable<Artist> targetArtists)
+        public void CreateFollowedArtistHierarchy(IReadOnlyCollection<Artist> targetArtists, AtlasViewOptions options)
+        {
+            _viewMode = AtlasViewMode.FollowedArtistView;
+            _hierarchy = new ArtistAtlasHierarchy(SpotifyClientService.Client, targetArtists, options);
+        }
+
+        public void CreateNewReleaseHierarchy(IReadOnlyCollection<NewReleaseItem> newReleases, AtlasViewOptions options)
+        {
+            _viewMode = AtlasViewMode.NewReleasesView;
+            _hierarchy = new NewReleaseAtlasHierarchy(SpotifyClientService.Client, newReleases, options);
+        }
+
+        public void AddArtistsToHierarchy(IReadOnlyCollection<Artist> targetArtists, AtlasViewOptions options)
         {
             if (_hierarchy == null)
-                _hierarchy = new AtlasHierarchy(SpotifyClientService.Client, targetArtists);
+            {
+                _hierarchy = new ArtistAtlasHierarchy(SpotifyClientService.Client, targetArtists, options);
+            }
+            else
+            {
+                foreach (Artist artist in targetArtists)
+                    _hierarchy.AddRootNode(artist);
+            }
+        }
 
-            foreach (Artist artist in targetArtists)
-                _hierarchy.AddRootNode(artist);
+        public void AddNewReleasesToHierarchy(IReadOnlyCollection<NewReleaseItem> newReleases, AtlasViewOptions options) {
+
+            if (_hierarchy == null) {
+                _hierarchy = new NewReleaseAtlasHierarchy(SpotifyClientService.Client, newReleases, options);
+            }
+            else {
+                foreach (NewReleaseItem newReleaseItem in newReleases) {
+                    _hierarchy.AddRootNode(newReleaseItem);
+                }
+            }
         }
 
         public void GenerateNetwork()
@@ -697,53 +594,39 @@ namespace SoundAtlas2
             this.Network = new NetworkViewModel();
 
             int offset = 0;
-
-            foreach (AtlasHierarchy.HierarchyNode node in _hierarchy.RootNodes)
+            foreach (IHierarchyNode hierarchyNode in _hierarchy.RootNodes)
             {
                 Point graphNodeLocation = new Point(0, offset);
-                NodeViewModel graphNode = CreateNode(node.ArtistViewModel, graphNodeLocation, false);
-                node.GraphNodeViewModel = graphNode;
+                NetworkNodeViewModel graphNode = null;
 
-                graphNode.IsHighlighted = SpotifyCacheService.IsArtistFollowed(node.ArtistViewModel.Artist);
-
-                if (PlaylistViewModel != null)
-                {
-                    //TODO:  Handle this within the playlistViewModel itself?
-                    foreach (PlaylistTrack playlistTrack in PlaylistViewModel.PlaylistTracks)
-                    {
-                        if (playlistTrack.Track.Artists.Contains(node.ArtistViewModel.Artist))
-                        {
-                            graphNode.IsInPlaylist = true;
-                        }
-                    }
+                if (hierarchyNode is ArtistHierarchyNode) {
+                    graphNode = CreateArtistGraphNode(hierarchyNode, graphNodeLocation);
+                }
+                else if (hierarchyNode is NewReleaseHierarchyNode) {
+                    graphNode = CreateNewReleasesGraphNode(hierarchyNode, graphNodeLocation);
                 }
 
-                GenerateNodes(node, graphNode, new Point(1, 0));
-
+                GenerateNodes(hierarchyNode, graphNode, new Point(1, 0));
                 offset++;
             }
         }
         
-        private void GenerateNodes(AtlasHierarchy.HierarchyNode parentNode, NodeViewModel parentGraphNode, Point point)
+        private void GenerateNodes(IHierarchyNode parentNode, NetworkNodeViewModel parentGraphNode, Point point)
         {
             int offset = 0;
-
-            foreach (AtlasHierarchy.HierarchyNode node in parentNode.Children)
+            foreach (IHierarchyNode hierarchyNode in parentNode.Children)
             {
                 Point graphNodeLocation = new Point(point.X, offset);
-                NodeViewModel graphNode = CreateNode(node.ArtistViewModel, graphNodeLocation, false);
-                node.GraphNodeViewModel = graphNode;
 
-                if (PlaylistViewModel != null)
+                NetworkNodeViewModel graphNode = null;
+
+                if (hierarchyNode is ArtistHierarchyNode)
                 {
-                    //TODO:  Handle this within the playlistViewModel itself?
-                    foreach (PlaylistTrack playlistTrack in PlaylistViewModel.PlaylistTracks)
-                    {
-                        if (playlistTrack.Track.Artists.Contains(node.ArtistViewModel.Artist))
-                        {
-                            graphNode.IsInPlaylist = true;
-                        }
-                    }
+                    graphNode = CreateArtistGraphNode(hierarchyNode, graphNodeLocation);
+                }
+                else if (hierarchyNode is NewReleaseHierarchyNode)
+                {
+                    graphNode = CreateNewReleasesGraphNode(hierarchyNode, graphNodeLocation);
                 }
 
                 ConnectionViewModel connection = new ConnectionViewModel();
@@ -754,7 +637,7 @@ namespace SoundAtlas2
                 this.Network.Connections.Add(connection);
 
                 //Generate any children.
-                GenerateNodes(node, graphNode, new Point(point.X + 1, 0));
+                GenerateNodes(hierarchyNode, graphNode, new Point(point.X + 1, 0));
 
                 offset++;
             }
@@ -762,66 +645,84 @@ namespace SoundAtlas2
 
         public void ArrangeNetwork()
         {
-            if (this.Network.Nodes.Any())
-            {
-                NetworkExtents = new Point(this.ContentWidth, this.ContentWidth);
+            if (!this.Network.Nodes.Any())
+                return;
 
-                int level = 0;
-                double maxNodeLevelWidth = 0.0;
+            NetworkExtents = new Point(this.ContentWidth, this.ContentWidth);
 
-                List<IEnumerable<AtlasHierarchy.HierarchyNode>> allLevelNodes = new List<IEnumerable<AtlasHierarchy.HierarchyNode>>();
-                while(true)
+            switch (_viewMode) {
+                case AtlasViewMode.PlaylistView:
+                case AtlasViewMode.FollowedArtistView:
                 {
-                    IEnumerable<AtlasHierarchy.HierarchyNode> levelNodes = _hierarchy.GetNodesAtLevel(level);
-
-                    if (!levelNodes.Any())
+                    int level = 0;
+                    double maxNodeLevelWidth = 0.0;
+                    while (true)
                     {
-                        //No nodes in the tree at this level.  Break.
-                        break;
-                    }
+                        IEnumerable<IHierarchyNode> levelNodes = _hierarchy.GetNodesAtLevel(level);
 
-                    //Find the location of this node based on.
-                    double currentNodeWidth = maxNodeLevelWidth;
-                    double previousNodeHeight = 0.0;
-                    Point startLocation = new Point((level * currentNodeWidth) + (level != 0 ? (level * 50.0) : 0.0), 0.0);
-                    double heightPadding = 5.0;
-
-                    foreach(AtlasHierarchy.HierarchyNode levelNode in levelNodes)
-                    {
-                        levelNode.GraphNodeViewModel.X = startLocation.X;
-                        levelNode.GraphNodeViewModel.Y = previousNodeHeight;
-
-                        //Ensure that if the child node is not higher than its parent.
-                        if (levelNode.Parent != null && levelNode.GraphNodeViewModel.Y < levelNode.Parent.GraphNodeViewModel.Y)
+                        if (!levelNodes.Any())
                         {
-                            levelNode.GraphNodeViewModel.Y = levelNode.Parent.GraphNodeViewModel.Y;
+                            //No nodes in the tree at this level.  Break.
+                            break;
                         }
 
-                        if (levelNode.GraphNodeViewModel.Size.Width > maxNodeLevelWidth)
+                        //Find the location of this node based on.
+                        double currentNodeWidth = maxNodeLevelWidth;
+                        double previousNodeHeight = 0.0;
+                        Point startLocation = new Point((level * currentNodeWidth) + (level != 0 ? (level * 50.0) : 0.0), 0.0);
+                        double heightPadding = 5.0;
+
+                        foreach (IHierarchyNode levelNode in levelNodes)
                         {
-                            maxNodeLevelWidth = levelNode.GraphNodeViewModel.Size.Width;
+                            levelNode.GraphNodeViewModel.X = startLocation.X;
+                            levelNode.GraphNodeViewModel.Y = previousNodeHeight;
+
+                            //Ensure that if the child node is not higher than its parent.
+                            if (levelNode.Parent != null && levelNode.GraphNodeViewModel.Y < levelNode.Parent.GraphNodeViewModel.Y)
+                            {
+                                levelNode.GraphNodeViewModel.Y = levelNode.Parent.GraphNodeViewModel.Y;
+                            }
+
+                            if (levelNode.GraphNodeViewModel.Size.Width > maxNodeLevelWidth)
+                            {
+                                maxNodeLevelWidth = levelNode.GraphNodeViewModel.Size.Width;
+                            }
+
+                            int childrenCount = GetChildrenDepth(levelNode);
+                            previousNodeHeight = levelNode.GraphNodeViewModel.Y + (childrenCount * (levelNode.GraphNodeViewModel.Size.Height + heightPadding));
                         }
 
-                        int childrenCount = GetChildrenDepth(levelNode);
-                        previousNodeHeight = levelNode.GraphNodeViewModel.Y + (childrenCount * (levelNode.GraphNodeViewModel.Size.Height + heightPadding));
+                        level++;
                     }
-
-                    allLevelNodes.Add(levelNodes);
-                    level++;
-                }              
-
-                foreach (NodeViewModel nodeViewModel in this.Network.Nodes)
-                {
-                    NetworkExtents.X = Math.Max(NetworkExtents.X, nodeViewModel.X + nodeViewModel.Size.Width);
-                    NetworkExtents.Y = Math.Max(NetworkExtents.Y, nodeViewModel.Y + nodeViewModel.Size.Height);
                 }
-                
-                this.ContentWidth = NetworkExtents.X;
-                this.ContentHeight = NetworkExtents.Y;
+                break;
+                case AtlasViewMode.NewReleasesView:
+                {
+                    //There should only be nodes on the root level.
+                    Point startLocation = new Point(0.0f, 5.0f);
+                    double widthPadding = 5.0f;
+                    foreach(IHierarchyNode hierarchyNode in _hierarchy.RootNodes)
+                    {
+                        hierarchyNode.GraphNodeViewModel.X = startLocation.X;
+                        hierarchyNode.GraphNodeViewModel.Y = startLocation.Y;
+
+                        startLocation.X = hierarchyNode.GraphNodeViewModel.X + hierarchyNode.GraphNodeViewModel.Size.Width + widthPadding;
+                    }
+                }
+                break;
             }
+
+            foreach (NetworkNodeViewModel nodeViewModel in this.Network.Nodes)
+            {
+                NetworkExtents.X = Math.Max(NetworkExtents.X, nodeViewModel.X + nodeViewModel.Size.Width);
+                NetworkExtents.Y = Math.Max(NetworkExtents.Y, nodeViewModel.Y + nodeViewModel.Size.Height);
+            }
+                
+            this.ContentWidth = NetworkExtents.X;
+            this.ContentHeight = NetworkExtents.Y;
         }
 
-        public int GetChildrenDepth(AtlasHierarchy.HierarchyNode targetNode)
+        public int GetChildrenDepth(IHierarchyNode targetNode)
         {
             if (!targetNode.Children.Any())
             {
@@ -830,7 +731,7 @@ namespace SoundAtlas2
             else
             {
                 int totalDepth = 0;
-                foreach (AtlasHierarchy.HierarchyNode childNode in targetNode.Children)
+                foreach (IHierarchyNode childNode in targetNode.Children)
                 {
                     totalDepth += GetChildrenDepth(childNode);
                 }
@@ -838,10 +739,10 @@ namespace SoundAtlas2
                 return totalDepth;
             }
         }
-
-        public NodeViewModel FindNodeOfArtist(Artist artist)
+        
+        public T FindNode<T>(string id) where T : NetworkNodeViewModel
         {
-            return this.Network.Nodes.Where(node => String.Equals(node.ArtistViewModel.Artist.ID, artist.ID)).FirstOrDefault();
+            return this.Network.Nodes.OfType<T>().Where(node => String.Equals(node.ID, id)).FirstOrDefault();
         }
         #endregion
     }

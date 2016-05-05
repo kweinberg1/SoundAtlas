@@ -34,7 +34,7 @@
     <!-- Text color. -->
     <SolidColorBrush
         x:Key="nodeTextBrush"
-        Color="Gray"
+        Color="White"
         >
     </SolidColorBrush>
 
@@ -64,7 +64,7 @@
     <!--
     Define a style for 'NodeItem'.
     
-    Binds 'X' and 'Y' in the view-model (the 'NodeViewModel' class)
+    Binds 'X' and 'Y' in the view-model (the 'GraphNodeViewModel' class)
     to 'X' and 'Y' in the NodeItem class.
     
     This sets the position of the node within the Canvas.

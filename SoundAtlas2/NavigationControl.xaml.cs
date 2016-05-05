@@ -44,6 +44,20 @@
             add { AddHandler(RecommendEvent, value); }
             remove { RemoveHandler(RecommendEvent, value); }
         }
+
+        public readonly RoutedEvent FollowedArtistsEvent = EventManager.RegisterRoutedEvent("FollowedArtists", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
+        public event RoutedEventHandler FollowedArtists
+        {
+            add { AddHandler(FollowedArtistsEvent, value); }
+            remove { RemoveHandler(FollowedArtistsEvent, value); }
+        }
+
+        public readonly RoutedEvent NewReleasesEvent = EventManager.RegisterRoutedEvent("NewReleases", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(PlaylistControl));
+        public event RoutedEventHandler NewReleases
+        {
+            add { AddHandler(NewReleasesEvent, value); }
+            remove { RemoveHandler(NewReleasesEvent, value); }
+        }
         #endregion
 
         #region Constructors
@@ -86,6 +100,17 @@
             RaiseEvent(newEventArgs);
         }
 
+        private void RaiseFollowedArtistsEvent(object sender, RoutedEventArgs e)
+        {
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(FollowedArtistsEvent, e);
+            RaiseEvent(newEventArgs);
+        }
+        private void RaiseNewReleasesClick(object sender, RoutedEventArgs e)
+        {
+            RoutedEventArgs newEventArgs = new RoutedEventArgs(NewReleasesEvent, e);
+            RaiseEvent(newEventArgs);
+        }
+
         private void OnPlaylistSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ListBox playlistListBox  = (ListBox)sender;
@@ -124,6 +149,16 @@
         private void OnRecommendButtonClick(object sender, RoutedEventArgs e)
         {
             RaiseRecommendEvent(sender, e);
+        }
+
+        private void OnFollowedArtistsClick(object sender, RoutedEventArgs e)
+        {
+            RaiseFollowedArtistsEvent(sender, e);
+        }
+
+        private void OnNewReleasesClick(object sender, RoutedEventArgs e)
+        {
+            RaiseNewReleasesClick(sender, e);
         }
         #endregion
     }

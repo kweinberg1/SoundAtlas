@@ -111,7 +111,7 @@ namespace SoundAtlas2.Model
         /// <summary>
         /// The parent node that the connector is attached to, or null if the connector is not attached to any node.
         /// </summary>
-        public NodeViewModel ParentNode
+        public NetworkNodeViewModel ParentNode
         {
             get;
             internal set;

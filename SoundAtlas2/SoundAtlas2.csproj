@@ -96,10 +96,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ArtistAtlasHierarchy.cs" />
+    <Compile Include="ArtistHierarchyNode.cs" />
+    <Compile Include="ArtistNetworkNodeViewModel.cs" />
+    <Compile Include="ArtistViewModel.cs" />
     <Compile Include="Atlas.xaml.cs">
       <DependentUpon>Atlas.xaml</DependentUpon>
     </Compile>
     <Compile Include="AtlasCreateChildSetting.cs" />
+    <Compile Include="AtlasViewMode.cs" />
     <Compile Include="AtlasViewModel.cs" />
     <Compile Include="AddToPlaylistEventArgs.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
@@ -111,15 +116,27 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ModalDialog.xaml.cs">
+      <DependentUpon>ModalDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="NavigationControl.xaml.cs">
       <DependentUpon>NavigationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="NavigationViewModel.cs" />
+    <Compile Include="NewReleaseAtlasHierarchy.cs" />
+    <Compile Include="NewReleaseHierarchyNode.cs" />
+    <Compile Include="NewReleaseItem.cs" />
+    <Compile Include="NewReleaseNetworkNodeViewModel.cs" />
     <Compile Include="NewsFeedItem.cs" />
     <Compile Include="NewsFeedPopup.xaml.cs">
       <DependentUpon>NewsFeedPopup.xaml</DependentUpon>
     </Compile>
     <Compile Include="NewsFeedViewModel.cs" />
+    <Compile Include="PlaylistChooser.xaml.cs">
+      <DependentUpon>PlaylistChooser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PlaylistChooserViewModel.cs" />
+    <Compile Include="PlaylistService.cs" />
     <Compile Include="RecommendationCriteria.cs" />
     <Compile Include="RecommendationEngine.cs" />
     <Compile Include="RecommendationWindow.xaml.cs">
@@ -158,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="ModalDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="NavigationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -171,6 +192,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PlaylistChooser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PlaylistControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -344,6 +369,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\highpriority_filled.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

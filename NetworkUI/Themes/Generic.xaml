@@ -25,6 +25,16 @@
         Opacity="0.25"
         />
 
+    <SolidColorBrush
+        x:Key="unselectedBorderColor"
+        Color="Gray"
+        />
+
+    <SolidColorBrush
+        x:Key="unselectedBackgroundColor"
+        Color="Black"
+        />
+
     <!-- Default style and control-template for 'NodeItem'. -->
     <Style 
         TargetType="{x:Type local:NodeItem}"
@@ -126,6 +136,33 @@
                                 />
                         </Trigger>
 
+                        <Trigger 
+                            Property="IsSelected"
+                            Value="False"
+                            >
+
+                            <!-- When the node is selected, set the color of 'selectionBorder' to blue. -->
+                            <Setter
+                                TargetName="selectionBorder"
+                                Property="BorderBrush"
+                                Value="{StaticResource unselectedBorderColor}"
+                                />
+                        </Trigger>
+
+
+                        <Trigger 
+                            Property="IsSelected"
+                            Value="False"
+                            >
+
+                            <!-- When the node is selected, set the background of 'selectionBorder' to light blue. -->
+                            <Setter
+                                TargetName="selectionBorder"
+                                Property="Background"
+                                Value="{StaticResource unselectedBackgroundColor}"
+                                />
+                        </Trigger>
+                    
                         <Trigger 
                             Property="IsHighlighted"
                             Value="True"

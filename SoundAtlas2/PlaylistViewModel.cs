@@ -7,7 +7,7 @@
     using Spotify.Model;
     using SoundAtlas2.Model;
 
-    public class PlaylistViewModel : ViewModelBase
+    public class PlaylistViewModel : ViewModelBase, IPlaylistView
     {
         #region Members
         private Playlist _playlist;
@@ -90,9 +90,7 @@
         public int AddArtistTracks(Artist artist)
         {
             IEnumerable<Track> addedTracks = AddArtistSongsToPlaylist(artist);
-
             RefreshPlaylist();
-
             return addedTracks.Count();
         }
 
@@ -100,18 +98,14 @@
         {
             AlbumTrackList albumTrackList = _client.GetAlbumTracks(album);
             _client.AddTracksToPlaylist(_playlist, albumTrackList.Tracks);
-
             RefreshPlaylist();
         }
 
         public IEnumerable<Track> AddArtistSongsToPlaylist(Artist artist)
         {
             const int numSongsPerArtist = 3;  //TODO: Expose this to the user.
-
             TrackList popularSongs = _client.GetArtistTopTracks(artist);
-
             List<Track> songsToAdd = new List<Track>(numSongsPerArtist); 
-
             foreach (Track popularTrack in popularSongs.Tracks)
             {
                 if (!this.ContainsTrack(popularTrack))
@@ -153,16 +147,6 @@
             return songsToAdd;
         }
 
-        /// <summary>
-        /// Returns the number of tracks associated with the given artist.
-        /// </summary>
-        /// <param name="artist"></param>
-        /// <returns></returns>
-        public int GetArtistTrackCount(Artist artist)
-        {
-            return _playlist.Tracks.SelectMany(track => track.Track.Artists).Where(trackArtist => trackArtist.ID == artist.ID).Count();
-        }
-
         private void RefreshPlaylist()
         {
             //Update the playlist's track listings.
@@ -171,6 +155,16 @@
 
             PlaylistTracks = null;
             PlaylistTracks = _playlist.Tracks;
+        }
+
+        public int GetArtistTrackCount(Artist artist)
+        {
+            if (Playlist != null)
+            {
+                return Playlist.Tracks.SelectMany(track => track.Track.Artists).Count(trackArtist => trackArtist.ID == artist.ID);
+            }
+
+            return 0;
         }
         #endregion Methods
     }

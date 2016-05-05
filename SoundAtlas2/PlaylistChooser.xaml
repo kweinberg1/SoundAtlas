@@ -1,0 +1,74 @@
+﻿<Popup x:Class="SoundAtlas2.PlaylistChooser"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SoundAtlas2"
+             xmlns:spotifymodel="clr-namespace:Spotify.Model;assembly=Spotify"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300"
+             Height="300"
+             Width="150">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <!-- 
+                Merge in the resource dictionary that is shared between the main window and the overview window.
+                -->
+                    <ResourceDictionary 
+                    Source="SharedVisualTemplates.xaml"
+                    />
+
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Grid.Resources>
+        
+        <ListBox x:Name="PlaylistListBox" 
+                 ItemsSource="{Binding Playlists}" 
+                 BorderThickness="1"
+                 BorderBrush="{x:Null}"
+                 Background="{StaticResource controlSecondaryBackground}" 
+                 Foreground="{StaticResource nodeTextBrush}"
+                 SelectionChanged="OnPlaylistSelectionChanged" 
+                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.Resources>
+                <BitmapImage x:Key="EditablePlaylistIcon" UriSource="Images/music.png"/>
+                <BitmapImage x:Key="ReadOnlyPlaylistIcon" UriSource="Images/lock.png"/>
+            </ListBox.Resources>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="4"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type spotifymodel:Playlist}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Width="16" Height="16">
+                            <Image.Style>
+                                <Style TargetType="{x:Type Image}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True" Binding="{Binding IsEditable}">
+                                            <Setter Property="Source" Value="{StaticResource EditablePlaylistIcon}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Value="False" Binding="{Binding IsEditable}">
+                                            <Setter Property="Source" Value="{StaticResource ReadOnlyPlaylistIcon}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <TextBlock Margin="4,0,0,0">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}">
+                                    <Binding Path="Name" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Popup>

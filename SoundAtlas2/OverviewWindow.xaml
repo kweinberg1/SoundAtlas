@@ -18,7 +18,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- 
-                Merge in the resource dictionary that contains network visual templates
+                Merge in the resource dictionary that contains _network visual templates
                 that are shared between the main window and the overview window.
                 -->
                 <ResourceDictionary 
@@ -70,9 +70,9 @@
                     />
             </DataTemplate>
 
-            <!-- Define a data-template for the 'NodeViewModel' class. -->    
+            <!-- Define a data-template for the 'GraphNodeViewModel' class. -->    
             <DataTemplate
-                DataType="{x:Type NetworkModel:NodeViewModel}"
+                DataType="{x:Type NetworkModel:NetworkNodeViewModel}"
                 >
                 
                 <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->

@@ -20,6 +20,7 @@
 
         private LoginWindow _openLoginWindow;
         private UserCache _userCache;
+        private AtlasViewMode _atlasViewMode;
         #endregion
 
         #region Constructors
@@ -49,23 +50,6 @@
             overviewWindow.DataContext = this.AtlasView.ViewModel; // Pass the view model onto the overview window.
             overviewWindow.Show();
             */
-        }
-
-        /// <summary>
-        /// Adds tracks to the playlist based on the selected node.
-        /// </summary>
-        /// <param name="targetNodeViewModel"></param>
-        private void AddTracks(NodeViewModel targetNodeViewModel)
-        {
-            ArtistViewModel targetViewModel = (ArtistViewModel)(targetNodeViewModel.ArtistViewModel);
-            PlaylistViewModel playlistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-            if (playlistViewModel == null)
-                return;
-            
-            targetViewModel.IsFlagged = true;
-            int trackCount = playlistViewModel.AddArtistTracks(targetViewModel.Artist);
-
-            targetNodeViewModel.NumTracks += trackCount;
         }
         #endregion 
 
@@ -100,8 +84,8 @@
                 return;
 
             List<Artist> artistList = new List<Artist>() { selectedArtist };
-            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList);
-
+            AtlasViewOptions options = new AtlasViewOptions(1);
+            this.AtlasView.ViewModel.AddArtistsToHierarchy(artistList.AsReadOnly(), options);
             this.AtlasView.UpdateNetwork();
         }
 
@@ -191,15 +175,22 @@
             NavigationControl navigationControl = (NavigationControl)sender;
             NavigationViewModel navigationViewModel = (NavigationViewModel)navigationControl.DataContext;
 
-            if (navigationViewModel.SelectedPlaylist != null)
-            {
+            if (navigationViewModel.SelectedPlaylist != null) {
+                _atlasViewMode = AtlasViewMode.PlaylistView;
                 IEnumerable<Artist> distinctArtists = navigationViewModel.SelectedPlaylist.Tracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
 
                 //Notify the playlist view model that the playlist has been updated.
-                this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-                this.AtlasView.ViewModel.PlaylistViewModel.UpdatePlaylist(navigationViewModel.SelectedPlaylist);
+                this.PlaylistView.ViewModel.UpdatePlaylist(navigationViewModel.SelectedPlaylist);
 
-                this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
+                AtlasViewOptions options = new AtlasViewOptions(1);
+                this.AtlasView.ViewModel.CreatePlaylistHierarchy(distinctArtists.ToList().AsReadOnly(), options);
+                this.AtlasView.UpdateNetwork();
+            }
+            else
+            {
+                IReadOnlyCollection<Artist> emptyList = new List<Artist>();
+                AtlasViewOptions options = new AtlasViewOptions(1);
+                this.AtlasView.ViewModel.CreatePlaylistHierarchy(emptyList, options);
                 this.AtlasView.UpdateNetwork();
             }
         }
@@ -227,42 +218,23 @@
         /// <param name="e"></param>
         private void OnRegenerateNetwork(object sender, RoutedEventArgs e)
         {
-            IEnumerable<Artist> distinctArtists = this.PlaylistView.ViewModel.PlaylistTracks.SelectMany(track => track.Track.Artists).Distinct().Select(artist => artist);
-
-            this.AtlasView.ViewModel.PlaylistViewModel = (PlaylistViewModel)this.PlaylistView.DataContext;
-
-            this.AtlasView.ViewModel.CreateHierarchy(distinctArtists);
-            this.AtlasView.UpdateNetwork();
-        }
-
-        /// <summary>
-        /// Handles button click for adding artist tracks.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnAddTracksClick(object sender, RoutedEventArgs e)
-        {
-            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
-            AddTracks(targetNodeViewModel);
-        }
-
-        private void OnFollowArtistClick(object sender, RoutedEventArgs e)
-        {
-            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
-
-            if (!SpotifyCacheService.IsArtistFollowed(targetNodeViewModel.ArtistViewModel.Artist))
+            switch(_atlasViewMode)
             {
-                SpotifyCacheService.FollowArtist(targetNodeViewModel.ArtistViewModel.Artist);
-            }
-        }
+                case AtlasViewMode.FollowedArtistView:
+                {
+                    OnFollowedArtists(this.NavigationControl, e);
+                }
+                break;
+                case AtlasViewMode.PlaylistView:
+                {
+                    OnPlaylistSelectionChanged(this.NavigationControl, e);
+                }    
+                break;
+                case AtlasViewMode.NewReleasesView:
+                {
 
-        private void OnUnfollowArtistClick(object sender, RoutedEventArgs e)
-        {
-            NodeViewModel targetNodeViewModel = (NodeViewModel)(e.OriginalSource);
-
-            if (SpotifyCacheService.IsArtistFollowed(targetNodeViewModel.ArtistViewModel.Artist))
-            {
-                SpotifyCacheService.UnfollowArtist(targetNodeViewModel.ArtistViewModel.Artist);
+                }
+                break;
             }
         }
         #endregion
@@ -294,6 +266,7 @@
             
             this.PlaylistView.Initialize();
             this.NavigationControl.Initialize();
+            PlaylistService.Initialize(this.PlaylistView.ViewModel);
 
             _userCache = UserCache.Load(SpotifyClientService.User.Id);
 
@@ -328,7 +301,7 @@
         /// <param name="userCache"></param>
         private void GetNewsFeed(UserCache userCache)
         {
-            System.Threading.Tasks.Task.Run(() =>
+            /*System.Threading.Tasks.Task.Run(() =>
             {
                 AlbumType filter = AlbumType.Album | AlbumType.Single;
                 DateTime cutoff = DateTime.Now.AddMonths(-3); //TODO: Data-drive this setting.
@@ -377,7 +350,7 @@
                         this.NewsFeedPopup.IsOpen = true;
                     });
                 }
-            });
+            });*/
         }
 
         private void OnNotificationClick(object sender, RoutedEventArgs e)
@@ -426,18 +399,107 @@
 
             if (result != null && result.Value == true)
             {
-                NodeViewModel targetNodeViewModel = this.AtlasView.ViewModel.FindNodeOfArtist(recommendedArtist);
+                ArtistNetworkNodeViewModel targetNodeViewModel = this.AtlasView.ViewModel.FindNode<ArtistNetworkNodeViewModel>(recommendedArtist.ID);
 
-                if (targetNodeViewModel == null)
-                {
-                    this.AtlasView.ViewModel.AddArtistsToHierarchy(new List<Artist>() { recommendedArtist });
+                if (targetNodeViewModel == null) {
+                    List<Artist> recommendedArtistList = new List<Artist>() {recommendedArtist};
+                    AtlasViewOptions options = new AtlasViewOptions(1);
+                    this.AtlasView.ViewModel.AddArtistsToHierarchy(recommendedArtistList.AsReadOnly(), options);
                     this.AtlasView.UpdateNetwork();
 
-                    targetNodeViewModel = this.AtlasView.ViewModel.FindNodeOfArtist(recommendedArtist);
-                } 
+                    targetNodeViewModel = this.AtlasView.ViewModel.FindNode<ArtistNetworkNodeViewModel>(recommendedArtist.ID);
+                }
 
-                AddTracks(targetNodeViewModel);
+                targetNodeViewModel.AddTracks();
             }
+        }
+
+        /// <summary>
+        /// Populates the Atlas with all followed artists.  
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnFollowedArtists(object sender, RoutedEventArgs e)
+        {
+            //Clear the Atlas, clear the playlist selection too.
+            //Show all artists you're following.
+            _atlasViewMode = AtlasViewMode.FollowedArtistView;
+
+            //Clear the playlist selection.
+            NavigationControl navigationControl = (NavigationControl)sender;
+            navigationControl.SelectPlaylist(null);
+            OnPlaylistSelectionChanged(navigationControl, e);
+
+            //Add all followed artists to the hierarchy.
+            FollowedArtistList followedArtists = SpotifyCacheService.GetFollowedArtists();
+            AtlasViewOptions viewOptions = new AtlasViewOptions(0);
+            this.AtlasView.ViewModel.CreateFollowedArtistHierarchy(followedArtists.ArtistItems.Items.AsReadOnly(), viewOptions);
+            this.AtlasView.UpdateNetwork();
+        }
+
+        private void OnNewReleases(object sender, RoutedEventArgs e)
+        {
+            _atlasViewMode = AtlasViewMode.NewReleasesView;
+
+            //Clear the playlist selection.
+            NavigationControl navigationControl = (NavigationControl)sender;
+            navigationControl.SelectPlaylist(null);
+            OnPlaylistSelectionChanged(navigationControl, e);
+
+            List<NewReleaseItem> newsItems = new List<NewReleaseItem>();
+
+            //Add artists that have new releases.
+            //System.Threading.Tasks.Task.Run(() =>
+            {
+                AlbumType filter = AlbumType.Album | AlbumType.Single;
+                DateTime cutoff = DateTime.Now.AddMonths(-3); //TODO: Data-drive this setting.
+                int maxSuggestions = 1;  //TODO: Data-drive this setting.
+
+                FollowedArtistList followedArtists = SpotifyCacheService.GetFollowedArtists();
+    
+                foreach (Artist followedArtist in followedArtists.ArtistItems.Items)
+                {
+                    //Find if there's any new content available from this artist.
+                    AlbumInfoList albums = SpotifyClientService.Client.GetArtistAlbums(followedArtist, filter);
+
+                    foreach (AlbumInfo album in albums.Items)
+                    {
+                        //if (_userCache.SeenNewsItem(album.ID)) continue;
+
+                        Album albumInfo = SpotifyClientService.Client.GetAlbum(album);
+
+                        if (albumInfo.ReleaseDate > cutoff)
+                        {
+                            newsItems.Add(new NewReleaseItem(followedArtist, albumInfo));
+                            if (newsItems.Count >= maxSuggestions)
+                                break;
+                        }
+                        else
+                        {
+                            //Assume that albums are returned by Spotify by release date, descending.
+                            //If we miss the cutoff, skip out.
+                            break;
+                        }
+                    }
+                }
+
+                if (newsItems.Any())
+                {                    
+                    Dispatcher.Invoke(() =>
+                    {
+                        //Display a popup.
+                        //this.NewsFeedPopup.DataContext = new NewsFeedViewModel(newsItems, userCache);
+                        //this.NewsFeedPopup.Width = this.RenderSize.Width * 0.8;
+                        //this.NewsFeedPopup.Height = this.RenderSize.Height * 0.8;
+                        //this.NewsFeedPopup.IsOpen = true;
+                    });
+                }
+            }
+            //);
+            
+            AtlasViewOptions viewOptions = new AtlasViewOptions(0);
+            this.AtlasView.ViewModel.CreateNewReleaseHierarchy(newsItems.ToList().AsReadOnly(), viewOptions);
+            this.AtlasView.UpdateNetwork();
         }
         #endregion
 

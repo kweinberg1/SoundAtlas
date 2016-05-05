@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Spotify.Model;
-
-namespace Spotify
+﻿namespace Spotify
 {
+    using System;
+    using Spotify.Model;
+
     public class SpotifyClientService
     {
         public static SpotifyClient Client { get; private set; }

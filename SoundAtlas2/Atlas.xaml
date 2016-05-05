@@ -28,7 +28,6 @@
 
             <RoutedUICommand x:Key="Commands.GenerateNetwork" />
             <RoutedUICommand x:Key="Commands.DeleteSelectedNodes" />
-            <RoutedUICommand x:Key="Commands.CreateNode" />
             <RoutedUICommand x:Key="Commands.ZoomOut" />
             <RoutedUICommand x:Key="Commands.ZoomIn" />
             <RoutedUICommand x:Key="Commands.JumpBackToPrevZoom" />
@@ -98,9 +97,9 @@
                     />
             </DataTemplate>
 
-            <!-- Define a data-template for the 'NodeViewModel' class. -->
+            <!-- Define a data-template for the 'ArtistNetworkNodeViewModel' class. -->
             <DataTemplate
-                DataType="{x:Type NetworkModel:NodeViewModel}"
+                DataType="{x:Type local:ArtistNetworkNodeViewModel}"
                 >
                 <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->
                 <Grid
@@ -108,6 +107,9 @@
                     Margin="0, 0, 0, 0"
                     SizeChanged="Node_SizeChanged"
                     >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
                     <Grid.ContextMenu>
                         <ContextMenu>
@@ -131,19 +133,13 @@
                                 Visibility="{Binding IsHighlighted, Converter={StaticResource booleanToVisibilityConverter}}"/>
                         </ContextMenu>
                     </Grid.ContextMenu>
-                        
-                    <!-- This rectangle is the main visual for the node. -->
-                    <Rectangle
-                        Stroke="{StaticResource nodeBorderBrush}"
-                        StrokeThickness="1.3"
-                        Fill="{StaticResource nodeFillBrush}"
-                        />
 
                     <!-- 
                     This grid contains the node's connectors.
                     The margin is negative so that the connectors overlap the body of the node and it's selection border.
                     -->
                     <Grid
+                        Grid.Row="0"
                         Margin="0,4,0,4"
                         >
                         <Grid.ColumnDefinitions>
@@ -158,7 +154,6 @@
                         </Grid.RowDefinitions>
 
                         <Grid.Resources>
-                            <BitmapImage x:Key="OptionsIcon" UriSource="Images/unselected.png"/>
                             <BitmapImage x:Key="AddTracksIcon" UriSource="Images/music.png"/>
                         </Grid.Resources>
 
@@ -245,6 +240,100 @@
                 </Grid>
             </DataTemplate>
 
+            <!-- Define a data-template for the 'NewReleaseNetworkNodeViewModel' class. -->
+            <DataTemplate
+                DataType="{x:Type local:NewReleaseNetworkNodeViewModel}"
+                >
+                <!-- The margin has been selected so that the selection rect nicely covers the entire node. -->
+                <Grid
+                    MinWidth="120"
+                    Margin="0, 0, 0, 0"
+                    SizeChanged="Node_SizeChanged"
+                    >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem
+                                Header="Add Tracks to Playlist"
+                                Click="OnAddTracksClick"
+                                ToolTip="Added tracks to the playlist."
+                                Tag="{Binding}"
+                                />
+                            <MenuItem
+                                Header="Follow Artist"
+                                Click="OnFollowArtistClick"
+                                ToolTip="Follow the artist."
+                                Tag="{Binding}"
+                                Visibility="{Binding IsHighlighted, Converter={StaticResource inverseBooleanToVisibilityConverter}}"/>
+                            <MenuItem
+                                Header="Unfollow Artist"
+                                Click="OnUnfollowArtistClick"
+                                ToolTip="Unfollow the artist."
+                                Tag="{Binding}"
+                                Visibility="{Binding IsHighlighted, Converter={StaticResource booleanToVisibilityConverter}}"/>
+                        </ContextMenu>
+                    </Grid.ContextMenu>
+
+                    <Grid
+                        Grid.Row="0"
+                        Margin="0,4,4,4"
+                        >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="40" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <!-- spacer -->
+                            <RowDefinition Height="2" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.Resources>
+                            <BitmapImage x:Key="AddTracksIcon" UriSource="Images/music.png"/>
+                        </Grid.Resources>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
+                            <Button Click="OnAddTracksClick" Tag="{Binding}" ToolTip="Add Tracks to Playlist" Padding="-4">
+                                <Image Stretch="Fill" Width="24" Height="24" Margin="2,2,2,2" Source="{StaticResource AddTracksIcon}"/>
+                            </Button>
+
+                            <!-- The name of the node. -->
+                            <TextBlock  Margin="5,0,5,0"
+                                        Text="{Binding Name}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{StaticResource nodeFillBrush}"
+                                        Foreground="{StaticResource nodeTextBrush}"
+                                />
+                        </StackPanel>
+
+                        <!-- The name of the node. -->
+                        <TextBlock Grid.Row="2" 
+                                   Margin="5,0,5,0"
+                                   Text="{Binding ReleaseName}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Background="{StaticResource nodeFillBrush}"
+                                   Foreground="{StaticResource nodeTextBrush}"
+                                />
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          Margin="4,4,4,4">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center">
+                            <Button Click="OnAddTracksClick" Tag="{Binding}" ToolTip="Add Tracks to Playlist" Padding="-4">
+                                <Image Stretch="Fill" Width="256" Height="256" Margin="2,2,2,2" Source="{Binding ImageUri}"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
 
     </DockPanel.Resources>
@@ -292,10 +381,6 @@
             Executed="DeleteSelectedNodes_Executed" 
             />
         <CommandBinding 
-            Command="{StaticResource Commands.CreateNode}" 
-            Executed="CreateNode_Executed" 
-            />
-        <CommandBinding 
             Command="{StaticResource Commands.ZoomOut}" 
             Executed="ZoomOut_Executed" 
             />
@@ -330,15 +415,7 @@
             <MenuItem
                 Header="Regenerate Network"
                 Command="{StaticResource Commands.GenerateNetwork}"
-                ToolTip="Regenerates the network to better organize the graph."
-                />
-            
-            <!-- Clicking this menu item creates a new node. -->
-
-            <MenuItem
-                Header="Create Node"
-                Command="{StaticResource Commands.CreateNode}"
-                ToolTip="Creates a new node"
+                ToolTip="Regenerates the _network to better organize the graph."
                 />
 
             <Separator />

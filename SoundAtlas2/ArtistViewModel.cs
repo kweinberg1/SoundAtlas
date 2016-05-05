@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-
-using Spotify.Model;
-
-namespace SoundAtlas2
+﻿namespace SoundAtlas2
 {
+    using System;
+    using System.Diagnostics;
+    using System.Windows;
+    using SoundAtlas2.Model;
+    using Spotify.Model;
+
     [DebuggerDisplay("ArtistViewModel {Artist.Name}")]
     public class ArtistViewModel : ViewModelBase
     {
@@ -21,12 +15,6 @@ namespace SoundAtlas2
         {
             get { return _artist; }
             private set { _artist = value; }
-        }
-
-        public AtlasHierarchy.HierarchyNode HierarchyNode
-        {
-            get;
-            private set;
         }
 
         public String Name
@@ -43,17 +31,6 @@ namespace SoundAtlas2
                 _selected = value;
                 NotifyPropertyChanged();
             }
-        }
-
-        private bool _flagged;
-        public bool IsFlagged
-        {
-            get { return _flagged; }
-            set
-            {
-                _flagged = value;
-                NotifyPropertyChanged();
-            } 
         }
 
         public String Details
@@ -82,10 +59,10 @@ namespace SoundAtlas2
         #endregion
 
         #region Public Methods
-        public void SetHierarchyNode(AtlasHierarchy.HierarchyNode node)
+        /*public void SetHierarchyNode(AtlasHierarchy.HierarchyNode node)
         {
             HierarchyNode = node;
-        }
+        }*/
 
         public void SetLocation(Point location)
         {
